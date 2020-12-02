@@ -13,6 +13,7 @@ jobs:
     # Secrets
     # DOCKER_REGISTRY_URL: "eu.gcr.io"
     # GCR_PROJECT_ID: "silta-images"
+    # GCR_ACCOUNT_EMAIL: [sa email]
     # GCR_ACCOUNT_KEY: "[sa key]"
 
     env:
@@ -26,11 +27,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup gcloud CLI
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
         with:
-          service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
           project_id: $GCR_PROJECT_ID
+          service_account_email: ${{ secrets.GCR_ACCOUNT_EMAIL }}
+          service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
           export_default_credentials: true
 
       # Configure docker to use the gcloud command-line tool as a credential helper
