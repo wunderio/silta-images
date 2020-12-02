@@ -1,0 +1,1 @@
+php-fpm docker image for the Silta project, based on amazee.io's https://hub.docker.com/r/amazeeio/php/tags with a few Silta-specific additions.
