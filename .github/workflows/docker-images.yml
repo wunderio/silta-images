@@ -1,0 +1,66 @@
+name: Build and push docker images
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**/**/TAGS'
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    # Secrets
+    # DOCKER_REGISTRY_URL: "eu.gcr.io"
+    # GCR_PROJECT_ID: "silta-images"
+    # GCR_ACCOUNT_KEY: "[sa key]"
+
+    env:
+      COMMIT_CURRENT: ${{ github.sha }}
+      COMMIT_PREVIOUS: ${{ github.event.before }}
+      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+      GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
+          project_id: $GCR_PROJECT_ID
+          export_default_credentials: true
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - run: |
+          gcloud auth configure-docker -q
+
+      - name: Build and push the images
+        run: |-
+          set -ex
+
+          # List changes since the last build, extract "TAGS" file path 
+          for tagsFilePath in $(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} ${{ github.event.before }} | grep "TAGS");
+          do
+            # Remove "/TAGS" from the path
+            folder=${tagsFilePath%"/TAGS"}; 
+            
+            # Split first two directores and use as image name and tag respectively.
+            # This only works with bash, make sure the shell is correct!
+            read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
+            
+            # Build image, tag with a random tag
+            tmpName="image-$RANDOM"
+            docker build $folder --file $folder/Dockerfile --tag $tmpName
+            
+            # Read TAGS file, tag image with each tag and push to remote
+            IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
+            cat $tagsFilePath | while read line || [[ -n $TAG ]];
+            do
+              docker tag $tmpName $IMAGE_ID:$TAG
+              docker push $IMAGE_ID:$TAG
+              docker rmi $tmpName $IMAGE_ID:$TAG
+            done;
+          done;
