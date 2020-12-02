@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - '**/**/TAGS'
+    # paths:
+    #   - '**/**/TAGS'
 jobs:
   push:
     runs-on: ubuntu-latest
@@ -30,7 +30,8 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: $GCR_PROJECT_ID
+          version: '286.0.0'
+          project_id: ${{ secrets.GCR_PROJECT_ID }}
           service_account_email: ${{ secrets.GCR_ACCOUNT_EMAIL }}
           service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
           export_default_credentials: true
