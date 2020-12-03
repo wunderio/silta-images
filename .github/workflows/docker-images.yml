@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - master
-    # paths:
-    #   - '**/**/TAGS'
+    paths:
+      - '**/**/TAGS'
 jobs:
-  push:
+  build_and_push:
+    name: Build and push
     runs-on: ubuntu-latest
 
     # Secrets
@@ -30,7 +31,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          version: '286.0.0'
+          # version: '286.0.0'
           project_id: ${{ secrets.GCR_PROJECT_ID }}
           service_account_email: ${{ secrets.GCR_ACCOUNT_EMAIL }}
           service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
@@ -41,11 +42,12 @@ jobs:
           gcloud auth configure-docker -q
 
       - name: Build and push the images
-        run: |-
+        run: |
           set -ex
 
           # List changes since the last build, extract "TAGS" file path 
-          for tagsFilePath in $(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} ${{ github.event.before }} | grep "TAGS");
+          RECENT_CHANGES=$(git diff-tree --no-commit-id --name-only -r $COMMIT_CURRENT $COMMIT_PREVIOUS | grep "TAGS");
+          for tagsFilePath in $RECENT_CHANGES
           do
             # Remove "/TAGS" from the path
             folder=${tagsFilePath%"/TAGS"}; 
@@ -60,10 +62,10 @@ jobs:
             
             # Read TAGS file, tag image with each tag and push to remote
             IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
-            cat $tagsFilePath | while read line || [[ -n $TAG ]];
+            cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
             do
               docker tag $tmpName $IMAGE_ID:$TAG
               docker push $IMAGE_ID:$TAG
-              docker rmi $tmpName $IMAGE_ID:$TAG
+              docker rmi $IMAGE_ID:$TAG --no-prune
             done;
           done;
