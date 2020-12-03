@@ -66,12 +66,9 @@ jobs:
             do
               # Add all tags
               docker tag $tmpName $IMAGE_ID:$TAG
-              # docker push $IMAGE_ID:$TAG
-              # docker rmi $IMAGE_ID:$TAG --no-prune
             done;
-            # Remove temporary build tag
+            # Remove temporary build tag, leave the image
             docker rmi $tmpName --no-prune
             # Push image
             docker push $IMAGE_ID
-              
           done;
