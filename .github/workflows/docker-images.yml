@@ -18,8 +18,8 @@ jobs:
     # GCR_ACCOUNT_KEY: "[sa key]"
 
     env:
-      COMMIT_CURRENT: ${{ github.sha }}
-      COMMIT_PREVIOUS: ${{ github.event.before }}
+      BUILD_CURRENT: ${{ github.sha }}
+      BUILD_PREVIOUS: ${{ github.event.before }}
       DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
       GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
 
@@ -46,7 +46,7 @@ jobs:
           set -ex
 
           # List changes since the last build, extract "TAGS" file path 
-          RECENT_CHANGES=$(git diff-tree --no-commit-id --name-only -r $COMMIT_CURRENT $COMMIT_PREVIOUS | grep "TAGS");
+          RECENT_CHANGES=$(git diff-tree --no-commit-id --name-only -r $BUILD_CURRENT $BUILD_PREVIOUS | grep "TAGS");
           for tagsFilePath in $RECENT_CHANGES
           do
             # Remove "/TAGS" from the path
