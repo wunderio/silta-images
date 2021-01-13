@@ -32,7 +32,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
   && rm /tmp/${FILENAME} \
   && sudo mv /tmp/linux-amd64/helm /bin/helm \
-  && helm repo add stable https://kubernetes-charts.storage.googleapis.com/ \
+#  && helm repo add stable https://kubernetes-charts.storage.googleapis.com/ \
   && helm repo add bitnami https://charts.bitnami.com/bitnami \
   && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
