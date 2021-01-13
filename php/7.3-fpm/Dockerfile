@@ -1,4 +1,4 @@
-FROM amazeeio/php:7.3-fpm-v1.5.0
+FROM amazeeio/php:7.3-fpm-20.12.0
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="Alpine with PHP7-FPM and Drush launcher" \
