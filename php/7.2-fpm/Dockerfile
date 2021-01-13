@@ -22,6 +22,8 @@ ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
 
+COPY config/w-php-defaults.conf /usr/local/etc/php-fpm.d/w-php-defaults.conf
+
 ENV DRUSH_LAUNCHER_VERSION=0.6.0
 
 # Backwards-compatibility for projects using an older location.
