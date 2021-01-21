@@ -21,8 +21,8 @@ RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.o
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
-
-COPY config/w-php-defaults.conf /usr/local/etc/php-fpm.d/w-php-defaults.conf
+COPY config/w-php-fpm-defaults.conf /usr/local/etc/php-fpm.d/w-php-fpm-defaults.conf
+COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 
 ENV DRUSH_LAUNCHER_VERSION=0.6.0
 
