@@ -2,8 +2,9 @@
 
 Image tags listed at `*/*/TAGS`
 
-- `php/`: PHP images
-- `nginx/`: Nginx images
 - `cicd/`: CI builder images
-- `node/`: NodeJS images
+- `nginx/`: Drupal Nginx images
+- `node/`: Frontend NodeJS images
+- `php/`: Drupal PHP images
 - `shell/`: Drupal shell images
+- `varnish/`: Drupal varnish images
