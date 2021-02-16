@@ -22,15 +22,18 @@ function test_docker_build () {
     docker rmi $tmpName > /dev/null 2>&1
 }
 
-# No dockerfile supplied
-if [ -z "$1" ]; then
-    echo "Building all Dockerfiles"
+# Build specific dockerfile, return full output
+if [[ "$1" == *"Dockerfile"* ]]; then
+    test_docker_build $1 false
+
+# No dockerfile supplied, build all Dockerfiles, return output
+else
+    path=${1:-.}
+    echo "Building all Dockerfiles in $path"
     
     # List folders containing Dockerfile 
-    file_list=$(find . -name "Dockerfile");
+    file_list=$(find $path -name "Dockerfile");
     for dockerfile in $file_list
     do test_docker_build $dockerfile
     done;
-else
-    test_docker_build $1 false
 fi
