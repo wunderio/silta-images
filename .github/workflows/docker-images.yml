@@ -64,13 +64,13 @@ jobs:
             IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
             cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
             do
-              docker build $folder --file $folder/Dockerfile --tag $TAG
+              docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
             
               # Add all tags
               # docker tag $tmpName $IMAGE_ID:$TAG
               # Push image
               docker push $IMAGE_ID:$TAG
-              docker rmi $IMAGE_ID:$TAG --no-prune
+              # docker rmi $IMAGE_ID:$TAG --no-prune
             done;
             # Remove temporary build tag, leave the image
             
