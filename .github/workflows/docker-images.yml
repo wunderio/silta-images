@@ -56,37 +56,14 @@ jobs:
             # This only works with bash, make sure the shell is correct!
             read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
             
-            # Build image, tag with a random tag
-            # tmpName="image-$RANDOM"
-            # docker build $folder --file $folder/Dockerfile --tag $tmpName
-            
             # Read TAGS file, tag image with each tag and push to remote
             IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
             cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
             do
+              # Add tags
               docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
-            
-              # Add all tags
-              # docker tag $tmpName $IMAGE_ID:$TAG
               # Push image
               docker push $IMAGE_ID:$TAG
-              # docker rmi $IMAGE_ID:$TAG --no-prune
             done;
-            # Remove temporary build tag, leave the image
-            
-
-            # # Read TAGS file, tag image with each tag and push to remote
-            # IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
-            # cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
-            # do
-            #   # Add all tags
-            #   IMAGE_TAGS+=" --tag $IMAGE_ID:$TAG"
-            # done;
-
-            # docker build $folder --file $folder/Dockerfile $IMAGE_TAGS
-            
-            # # Push image
-            # docker push $IMAGE_ID
-            # docker rmi $IMAGE_ID --no-prune
 
           done;
