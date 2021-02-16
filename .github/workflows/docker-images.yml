@@ -64,17 +64,29 @@ jobs:
             IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
             cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
             do
+              docker build $folder --file $folder/Dockerfile --tag $TAG
+            
               # Add all tags
               # docker tag $tmpName $IMAGE_ID:$TAG
-              IMAGE_TAGS+=" --tag $IMAGE_ID:$TAG"
-
+              # Push image
+              docker push $IMAGE_ID:$TAG
+              docker rmi $IMAGE_ID:$TAG --no-prune
             done;
-
-            docker build $folder --file $folder/Dockerfile $IMAGE_TAGS
-            
             # Remove temporary build tag, leave the image
-            # docker rmi $tmpName --no-prune
-            # Push image
-            docker push $IMAGE_ID
-            docker rmi $IMAGE_ID --no-prune
+            
+
+            # # Read TAGS file, tag image with each tag and push to remote
+            # IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
+            # cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
+            # do
+            #   # Add all tags
+            #   IMAGE_TAGS+=" --tag $IMAGE_ID:$TAG"
+            # done;
+
+            # docker build $folder --file $folder/Dockerfile $IMAGE_TAGS
+            
+            # # Push image
+            # docker push $IMAGE_ID
+            # docker rmi $IMAGE_ID --no-prune
+
           done;
