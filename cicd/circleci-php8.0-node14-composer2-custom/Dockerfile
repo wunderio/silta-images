@@ -49,3 +49,5 @@ COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini
 
 # Download CI runner
 RUN curl -o /tmp/silta-cicd.sh https://raw.githubusercontent.com/wunderio/silta-circleci/orb2bash/ci-cd/latest.sh && echo "source /tmp/silta-cicd.sh" >> ~/.bashrc
+
+USER root
