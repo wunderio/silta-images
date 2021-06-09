@@ -2,10 +2,10 @@ FROM alpine
 
 RUN apk add tinyproxy
 
-# Allow all sources, this needs to be update.
-RUN sed -i "s/^Allow/#Allow/" /etc/tinyproxy/tinyproxy.conf
-
-# Use port 80 by default
-RUN sed -i "s/8888/80/" /etc/tinyproxy/tinyproxy.conf
+RUN sed -i "s/^Allow/#Allow/" /etc/tinyproxy/tinyproxy.conf \
+  # Use port 80 by default
+  && sed -i "s/8888/80/" /etc/tinyproxy/tinyproxy.conf \
+  # Increase connections 
+  && sed -i "s/MaxClients 100/MaxClients 1000/" /etc/tinyproxy/tinyproxy.conf 
 
 CMD tinyproxy -d
