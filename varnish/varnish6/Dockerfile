@@ -8,4 +8,6 @@ EXPOSE 80 6082
 COPY secret /etc/varnish/secret
 COPY varnish-start.sh /
 
+RUN mkdir -p -m a+w /var/lib/varnish/
+
 CMD ["/varnish-start.sh"]
