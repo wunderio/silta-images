@@ -11,7 +11,7 @@ RUN composer global require drush/drush-launcher:^0.8.0 hirak/prestissimo \
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 
 # Add gcloud CLI and kubectl
-ENV GCLOUD_VERSION 291.0.0-0
+ENV GCLOUD_VERSION 348.0.0-0
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
@@ -25,7 +25,7 @@ RUN sudo apt install -y awscli git python3 \
   && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
 
 # Install Helm 3
-ENV HELM_VERSION v3.2.4
+ENV HELM_VERSION v3.6.3
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
