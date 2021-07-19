@@ -1,5 +1,5 @@
 # https://hg.nginx.org/pkg-oss/tags
-ARG NGINX_VERSION=1.19.10
+ARG NGINX_VERSION=1.21.0
 
 FROM nginx:${NGINX_VERSION}-alpine as builder
 
@@ -16,8 +16,9 @@ RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.
 
 # Reuse same cli arguments as the nginx:alpine image used to build
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
+	# 1.21.x does not compile with -g (Generate debugging information)
     CONFARGS=${CONFARGS/-Os -fomit-frame-pointer -g/-Os} && \
-	mkdir /usr/src && \
+    mkdir /usr/src && \
 	tar -zxC /usr/src -f nginx.tar.gz && \
   	# Uncompress echo module
 	tar -xzvf "httpecho.tar.gz" && \
