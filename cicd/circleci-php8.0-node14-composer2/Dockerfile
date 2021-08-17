@@ -3,6 +3,9 @@ FROM circleci/php:8.0.1-cli-node
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
 
+# Upgrade packages
+RUN sudo apt update && sudo apt upgrade && sudo apt clean
+
 # Install drush
 RUN composer global require drush/drush-launcher:^0.8.0 \
   && composer clearcache

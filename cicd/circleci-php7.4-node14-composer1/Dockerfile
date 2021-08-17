@@ -12,6 +12,9 @@ USER circleci
 RUN composer global require drush/drush-launcher:^0.8.0 hirak/prestissimo \
   && composer clearcache
 
+# Upgrade packages
+RUN sudo apt update && sudo apt upgrade && sudo apt clean
+
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 

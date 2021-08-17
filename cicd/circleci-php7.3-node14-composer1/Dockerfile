@@ -3,6 +3,9 @@ FROM circleci/php:7.3.23-cli-node
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
 
+# Upgrade packages
+RUN sudo apt update && sudo apt upgrade && sudo apt clean
+
 # Downgrade composer to 1.x
 USER root
 RUN composer self-update --1
