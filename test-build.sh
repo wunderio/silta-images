@@ -15,7 +15,9 @@ function test_docker_build () {
     fi
 
     if [ $? -ne 0 ]; then echo "  Build status: Failed"
-    else echo "  Build status: Success"
+    else 
+        echo "  Build status: Success"
+        docker run -t -i --rm $tmpName bash -c "if node -v &> /dev/null; then node -v ; fi; if php -v &> /dev/null; then php -r 'echo \"PHP \" . PHP_VERSION;' ; fi;"
     fi
     
     # Remove temporary build tag and image
