@@ -1,4 +1,5 @@
-FROM amazeeio/php:7.2-fpm-20.12.0
+# https://hub.docker.com/r/amazeeio/php/tags?page=1&name=7.2
+FROM amazeeio/php:7.2-fpm-21.8.0
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="Alpine with PHP7-FPM and Drush launcher" \
