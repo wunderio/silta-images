@@ -6,7 +6,7 @@ LABEL org.label-schema.name="Alpine with PHP8-FPM and Drush launcher" \
       org.label-schema.description="PHP8-FPM, common plugins and Drush laucher"
 
 # Workaround for base image
-COPY entrypoints/100-php-config-alter.sh /lagoon/entrypoints/100-php-config-alter.sh
+COPY entrypoints/90-php-config-alter.sh /lagoon/entrypoints/90-php-config-alter.sh
 
 # Added due to https://github.com/drush-ops/drush/issues/4009  
 RUN apk add --update --no-cache bash openssh-client rsync
