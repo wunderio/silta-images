@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/amazeeio/php/tags?page=1&name=8.0
-FROM amazeeio/php:8.0-fpm-21.10.0
+FROM amazeeio/php:8.0-fpm-20.12.0
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="Alpine with PHP8-FPM and Drush launcher" \
