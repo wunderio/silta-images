@@ -31,11 +31,11 @@ ENV DRUSH_LAUNCHER_VERSION=0.6.0
 RUN mkdir -p /var/www/html && ln -s /var/www/html /app
 
 # Add gdpr-dump globally.
-RUN apk add composer; \
-     mkdir -p ~/.composer; \
-     echo '{"minimum-stability": "dev"}' > ~/.composer/composer.json; \
-     composer global require --prefer-dist --ignore-platform-reqs machbarmacher/gdpr-dump:dev-master; \
-     apk del composer
+# RUN apk add composer; \
+#      mkdir -p ~/.composer; \
+#      echo '{"minimum-stability": "dev"}' > ~/.composer/composer.json; \
+#      composer global require --prefer-dist --ignore-platform-reqs machbarmacher/gdpr-dump:dev-master; \
+#      apk del composer
 
 RUN set -ex; \
     # Install mysql client
