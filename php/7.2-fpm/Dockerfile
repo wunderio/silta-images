@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/amazeeio/php/tags?page=1&name=7.2
-FROM amazeeio/php:7.2-fpm-20.12.0
+FROM amazeeio/php:7.2-fpm-21.8.0
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="Alpine with PHP7-FPM and Drush launcher" \
@@ -34,7 +34,7 @@ RUN mkdir -p /var/www/html && ln -s /var/www/html /app
 RUN apk add composer; \
      mkdir -p ~/.composer; \
      echo '{"minimum-stability": "dev"}' > ~/.composer/composer.json; \
-     composer global require --prefer-dist machbarmacher/gdpr-dump:dev-master; \
+     composer global require --prefer-dist --ignore-platform-reqs machbarmacher/gdpr-dump:dev-master; \
      apk del composer
 
 RUN set -ex; \
