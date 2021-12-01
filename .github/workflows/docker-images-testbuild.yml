@@ -1,0 +1,53 @@
+name: Test build docker images
+
+on:
+  pull_request:
+
+jobs:
+  changed_files:
+    name: Get changed tags
+    runs-on: ubuntu-latest
+    outputs:
+      tagfiles: ${{ steps.changes.outputs.tagfiles}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changes
+        run: |
+          echo "::set-output name=tagfiles::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep TAGS$ | xargs)"
+  test_build:
+    name: Test build
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: ${{needs.changed_files.outputs.tagfiles}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Changed tag files
+        run: echo ${{needs.changed_files.outputs.tagfiles}}
+      - name: Image test build
+        run: |
+          set -ex
+
+          # List changes since the last build, extract "TAGS" file path 
+          for tagsFilePath in ${{needs.changed_files.outputs.tagfiles}}
+          do
+            # Remove "/TAGS" from the path
+            folder=${tagsFilePath%"/TAGS"}; 
+            
+            # Split first two directores and use as image name and tag respectively.
+            # This only works with bash, make sure the shell is correct!
+            read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
+            
+            # Read TAGS file, tag image with each tag and push to remote
+            IMAGE_ID=$IMAGE_NAME
+            cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
+            do
+              echo "* Building image ${IMAGE_ID}:${TAG}"
+              # Add tags
+              docker build $folder --file $folder/Dockerfile --tag ${IMAGE_ID}:${TAG}
+            done;
+          done;
