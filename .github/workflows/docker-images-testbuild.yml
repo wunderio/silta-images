@@ -1,0 +1,41 @@
+name: Test build docker images
+
+on:
+  pull_request:
+
+jobs:
+  changed_files:
+    name: Get changed Dockerfiles
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changes.outputs.matrix}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get changed Dockerfiles
+        id: changes
+        run: |
+          dockerfile_list_json=$(git diff --name-only --diff-filter=ACMRT \
+            ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} \
+            | grep Dockerfile$ \
+            | jq -Rsc '. / "\n" - [""]' )
+          echo "::set-output name=matrix::${dockerfile_list_json}"
+  
+  test_build:
+    name: Test build
+    runs-on: ubuntu-latest
+    needs: changed_files
+    strategy:
+      fail-fast: false
+      matrix: 
+        dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
+    if: ${{needs.changed_files.outputs.matrix}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Building dockerfile
+        run: |
+          set -ex
+          docker build $(dirname ${{matrix.dockerfile}}) --file ${{matrix.dockerfile}}
