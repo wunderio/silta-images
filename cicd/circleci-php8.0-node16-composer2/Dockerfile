@@ -7,8 +7,9 @@ ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
 RUN sudo apt update && sudo apt upgrade && sudo apt clean
 
 # Install drush
-RUN composer global require drush/drush-launcher:^0.9.1 \
-  && composer clearcache
+ENV DRUSH_LAUNCHER_VERSION 0.9.1
+RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar -O /usr/local/bin/drush \
+  && sudo chmod +x /usr/local/bin/drush
 
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
