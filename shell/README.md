@@ -1,6 +1,6 @@
 # About project
 
-This is a custom container that will authorize users based on their SSH private key. The key whitelist is provided by [SSH public keys for silta](https://github.com/wunderio/silta-ssh-keys) project.
+This image extends the Drupal PHP-FPM image and adds a ssh server configured to allow access based on Github repository access. This is used for Drupal chart deployments hosted on [Silta](https://github.com/wunderio/silta). The key list is provided by [SSH public keys for silta](https://github.com/wunderio/silta-ssh-keys) project.
 
 Fingerprint keys are moved to a dedicated folder, `/etc/ssh/keys`, that can be mounted to a persistent storage.
 
@@ -13,7 +13,7 @@ Provide following environment variables for the container:
  - GITAUTH_PASSWORD: Key server credentials
  - OUTSIDE_COLLABORATORS: Include outside collaborators f.ex. "true".
 
-# Running
+# Running in Docker
 
 Build and run the docker image:
 ```
