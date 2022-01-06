@@ -27,6 +27,9 @@ RUN sudo apt install -y awscli git python3 \
   && chmod +x /tmp/aws-iam-authenticator \ 
   && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
 
+# Install Azure cli
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 # Install Helm 3
 ENV HELM_VERSION v3.6.3
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
