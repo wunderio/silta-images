@@ -17,4 +17,7 @@ RUN mkdir /etc/ssh/keys
 COPY gitauth_keys.sh /etc/ssh/
 COPY entrypoint.sh /
 
+# Won't use buildkit yet
+RUN chmod 755 /etc/ssh/gitauth_keys.sh
+
 ENTRYPOINT ["/entrypoint.sh"]

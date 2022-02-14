@@ -26,6 +26,7 @@ sed -i 's/^#AuthorizedKeysCommandUser .*/AuthorizedKeysCommandUser nobody/' /etc
 sed -i 's/^#AuthorizedKeysCommand .*/AuthorizedKeysCommand \/etc\/ssh\/gitauth_keys.sh %f/' /etc/ssh/sshd_config
 
 # AuthorizedKeysCommand does not read environment variables, so we use them with `source`
+if [[ -n ${GITAUTH_URL} ]]; then
 cat > /etc/ssh/gitauth_keys.env  << EOF
 GITAUTH_URL=${GITAUTH_URL}
 GITAUTH_SCOPE=${GITAUTH_SCOPE}
@@ -33,6 +34,7 @@ GITAUTH_USERNAME=${GITAUTH_USERNAME}
 GITAUTH_PASSWORD=${GITAUTH_PASSWORD}
 OUTSIDE_COLLABORATORS=${OUTSIDE_COLLABORATORS}
 EOF
+fi
 
 env > /etc/environment
 addgroup www-admin
