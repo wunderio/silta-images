@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directory: "/node/12-alpine"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/node/14-alpine"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/node/15-alpine"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/node/lts-alpine"
+    schedule:
+      interval: "daily"
