@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           # version: '286.0.0'
           project_id: ${{ secrets.GCR_PROJECT_ID }}
