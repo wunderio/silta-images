@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/node/12-alpine"
     schedule:
-      interval: "hourly"
+      interval: "daily"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
