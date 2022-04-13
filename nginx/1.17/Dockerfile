@@ -30,20 +30,24 @@ RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
 
 #### Make the nginx image and copy modules from builder
 
-FROM nginx:${NGINX_VERSION}-alpine
-
+FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}-alpine
+ARG UID=101
 LABEL maintainer="wunder.io"
+USER root
 
 COPY --from=builder /ngx_http_echo_module.so /etc/nginx/modules/ngx_http_echo_module.so
 COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
 
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# ensure www-data user exists
-# 82 is the standard uid/gid for "www-data" in Alpine
-RUN set -x ; \
-	addgroup -g 82 -S www-data ; \
-	adduser -u 82 -D -S -s /sbin/nologin -G www-data www-data && exit 0 ; exit 1
+RUN rm -rf /etc/nginx/conf.d/default.conf \
+		&& touch /var/run/nginx.pid \
+		&& chown -R $UID:0 /var/run/nginx.pid
 
 RUN mkdir -p /var/www/html/web \
       && ln -s /var/www/html /app
+RUN adduser nginx www-data
+
+USER $UID
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -47,6 +47,8 @@ echo "www-admin:" | chpasswd
 mkdir ~www-admin/.ssh/
 env | grep -v HOME > ~www-admin/.ssh/environment
 
+adduser www-admin www-data
+
 # Trigger lagoon entrypoint scripts if present.
 if [ -f /lagoon/entrypoints.sh ] ; then /lagoon/entrypoints.sh ; fi
 
