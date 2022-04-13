@@ -53,7 +53,9 @@ RUN set -ex; \
     mkdir -p -m a+w /app/web/sites/default/files; \
     mkdir -p -m a+w /app/private; \
     mkdir -p -m a+w /app/reference-data; \
-    chown -R www-data:www-data /app
+    chown -R www-data:www-data /app; \
+    # Allow fpm to write in config
+    chmod -R o+w /usr/local/etc
 
 WORKDIR /app/
 # Add composer executables to our path.
