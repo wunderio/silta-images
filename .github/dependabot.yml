@@ -15,7 +15,7 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
-    directory: "/node/15-alpine"
+    directory: "/node/16-alpine"
     schedule:
       interval: "daily"
     ignore:
