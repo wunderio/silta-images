@@ -58,7 +58,9 @@ RUN set -ex; \
     mkdir -p -m a+w /app/reference-data; \
     chown -R www-data:www-data /app; \
     # Allow fpm to write in config
-    chmod -R o+w /usr/local/etc
+    chmod -R o+w /usr/local/etc; \
+    # set umask for www-data user
+    echo "umask 0002" >> ~www-data/.profile
 
 WORKDIR /app/
 # Add composer executables to our path.
