@@ -49,6 +49,8 @@ env | grep -v HOME > ~www-admin/.ssh/environment
 
 adduser www-admin www-data
 
+echo "umask 0002" >> ~www-admin/.profile
+
 # Trigger lagoon entrypoint scripts if present.
 if [ -f /lagoon/entrypoints.sh ] ; then /lagoon/entrypoints.sh ; fi
 
