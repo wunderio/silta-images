@@ -37,17 +37,14 @@ EOF
 fi
 
 env > /etc/environment
-addgroup www-admin
 # We add -D to make it non-interactive, but then the user is locked out.
-adduser www-admin -D -G www-admin -s /bin/bash -h /app
+adduser www-admin -D -G www-data -s /bin/bash -h /app
 # So set an empty password after the user is created.
 echo "www-admin:" | chpasswd
 
 # Pass environment variables down to container, so SSH can pick it up and drush commands work too.
 mkdir ~www-admin/.ssh/
 env | grep -v HOME > ~www-admin/.ssh/environment
-
-adduser www-admin www-data
 
 echo "umask 0002" >> ~www-admin/.profile
 
