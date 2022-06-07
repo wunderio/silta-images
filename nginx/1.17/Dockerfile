@@ -51,3 +51,4 @@ RUN adduser nginx www-data
 USER $UID
 
 CMD ["nginx", "-g", "daemon off;"]
+
