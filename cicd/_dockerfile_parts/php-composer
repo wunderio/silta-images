@@ -1,0 +1,8 @@
+# ENV PHP_COMPOSER_VERSION 2.1.12
+
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+	php composer-setup.php --version=$PHP_COMPOSER_VERSION --install-dir=/usr/local/bin --filename=composer && \
+	php -r "unlink('composer-setup.php');" && \
+	composer --version
+
+ENV PATH /home/circleci/.config/composer/vendor/bin:/home/circleci/.composer/vendor/bin:$PATH

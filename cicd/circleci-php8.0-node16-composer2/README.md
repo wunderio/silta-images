@@ -10,5 +10,5 @@ A docker image used circleCI, based on `cimg/php:8.0.13-node` with the following
 - PHP: 8.0.13
 - Composer: 2.1.12
 - Node: 16.13.0
-- GCloud: 348.0.0-0
+- GCloud: 392.0.0
 - Helm: v3.6.3

@@ -1,0 +1,68 @@
+ENV PATH="/home/circleci/bin:/home/circleci/.local/bin:/home/circleci/.composer/vendor/bin:${PATH}" \
+  LANG=en_US.UTF-8 \
+  LANGUAGE=en_US:en \
+  LC_ALL=en_US.UTF-8
+
+# Install drush launcher
+# ENV DRUSH_LAUNCHER_VERSION 0.9.1
+RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar -O /usr/local/bin/drush \
+  && sudo chmod +x /usr/local/bin/drush
+
+# Add gcloud CLI
+# ENV CLOUD_SDK_VERSION 392.0.0
+ENV ARCH x86_64
+ENV PATH="/home/circleci/google-cloud-sdk/bin:${PATH}"
+ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
+RUN sudo apk --no-cache add curl python3 py3-crcmod py3-openssl bash libc6-compat openssh-client git gnupg && \
+  curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-${ARCH}.tar.gz && \
+  tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-${ARCH}.tar.gz --directory /home/circleci && \
+  rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-${ARCH}.tar.gz && \
+  gcloud config set core/disable_usage_reporting true && \
+  gcloud config set component_manager/disable_update_check true && \
+  gcloud config set metrics/environment github_docker_image && \
+  gcloud --version && \
+  gcloud components install gke-gcloud-auth-plugin
+
+# Install AWS cli and aws-iam-authenticator
+RUN sudo apk add --no-cache aws-cli && \
+  curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator && \
+  chmod +x /tmp/aws-iam-authenticator && \ 
+  sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
+
+# Install Azure cli
+# ENV AZURE_CLI_VERSION 2.0.61
+RUN sudo apk add bash py-pip && \
+  sudo apk add --virtual=build gcc python3-dev musl-dev libffi-dev openssl-dev make  && \
+  pip3 --no-cache-dir install azure-mgmt-resource azure-cli==${AZURE_CLI_VERSION} && \
+  sudo apk del --purge build && \
+  sudo ln -s /usr/bin/python3 /usr/bin/python && \
+  az --version
+
+# Kubectl
+# ENV KUBECTL_VERSION 1.24.0
+RUN sudo wget -q https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl \
+  && sudo chmod +x /usr/local/bin/kubectl
+
+# Install Helm 3
+# ENV HELM_VERSION v3.6.3
+ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
+ENV HELM_URL https://get.helm.sh/${FILENAME}
+
+RUN curl -o /tmp/$FILENAME ${HELM_URL} \
+  && tar -zxvf /tmp/${FILENAME} -C /tmp \
+  && rm /tmp/${FILENAME} \
+  && sudo mv /tmp/linux-amd64/helm /bin/helm \
+  && helm repo add bitnami https://charts.bitnami.com/bitnami \
+  && helm repo add minio https://helm.min.io/ \
+  && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
+  && helm repo add percona https://percona.github.io/percona-helm-charts/ \
+  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
+
+# NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
+
+# TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
+# switch back to using https://github.com/lrills/helm-unittest as the source
+
+# TODO: Add custom php config and lift memory limit.
+COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini

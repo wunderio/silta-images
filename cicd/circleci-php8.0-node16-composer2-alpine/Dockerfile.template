@@ -1,0 +1,24 @@
+FROM php:8.0.13-cli-alpine
+LABEL maintainer="wunder.io"
+
+## template: note
+
+# PHP package manager Composer
+ENV PHP_COMPOSER_VERSION 2.1.12
+## include: cicd/_dockerfile_parts/php-composer
+
+# CircleCi base
+## include: cicd/_dockerfile_parts/cimg-base-alpine
+
+# CI tooling
+ENV DRUSH_LAUNCHER_VERSION 0.9.1
+ENV AZURE_CLI_VERSION 2.0.61
+ENV CLOUD_SDK_VERSION 392.0.0
+ENV KUBECTL_VERSION 1.24.0
+ENV HELM_VERSION v3.6.3
+## include: cicd/_dockerfile_parts/ci-tooling-alpine
+
+# NodeJS and Yarn
+ENV NODE_VERSION 16.15.1
+ENV YARN_VERSION 1.22.19
+## include: cicd/_dockerfile_parts/node-alpine

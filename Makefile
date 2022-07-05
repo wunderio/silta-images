@@ -1,0 +1,2 @@
+dockerfiles:
+	./generate-dockerfiles.py
