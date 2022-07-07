@@ -57,7 +57,9 @@ RUN set -ex; \
     # Allow fpm to write in config
     chmod -R o+w /usr/local/etc; \
     # set umask for www-data user
-    echo "umask 0002" >> ~www-data/.profile
+    echo "umask 0002" >> ~www-data/.profile; \
+    # allow ssmtp.conf to be modified by nested image entrypoints
+    chmod 766 /etc/ssmtp/ssmtp.conf
 
 WORKDIR /app/
 # Add composer executables to our path.
