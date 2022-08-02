@@ -7,12 +7,12 @@ on:
     paths:
       - '**/**/TAGS'
 jobs:
-  build_and_push:
-    name: Build and push
+  build_and_push_gcr:
+    name: Build and push to GCR
     runs-on: ubuntu-latest
 
     # Secrets
-    # DOCKER_REGISTRY_URL: "eu.gcr.io"
+    # GCR_URL: "eu.gcr.io"
     # GCR_PROJECT_ID: "silta-images"
     # GCR_ACCOUNT_EMAIL: [sa email]
     # GCR_ACCOUNT_KEY: "[sa key]"
@@ -20,7 +20,7 @@ jobs:
     env:
       BUILD_CURRENT: ${{ github.sha }}
       BUILD_PREVIOUS: ${{ github.event.before }}
-      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+      GCR_URL: ${{ secrets.GCR_URL }}
       GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
 
     steps:
@@ -57,7 +57,57 @@ jobs:
             read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
             
             # Read TAGS file, tag image with each tag and push to remote
-            IMAGE_ID=$DOCKER_REGISTRY_URL/$GCR_PROJECT_ID/$IMAGE_NAME
+            IMAGE_ID=$GCR_URL/$GCR_PROJECT_ID/$IMAGE_NAME
+            cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
+            do
+              # Add tags
+              docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
+              # Push image
+              docker push $IMAGE_ID:$TAG
+            done;
+
+          done;
+
+  build_and_push_docker_hub:
+    name: Build and push to Docker Hub
+    runs-on: ubuntu-latest
+
+    # Secrets
+    # DOCKER_HUB_REGISTRY_URL: "wunderio"
+    
+    env:
+      BUILD_CURRENT: ${{ github.sha }}
+      BUILD_PREVIOUS: ${{ github.event.before }}
+      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+      DOCKER_USER: ${{secrets.DOCKER_USER}}
+      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: docker login
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
+
+      - name: Build and push the images
+        run: |
+          set -ex
+
+          # List changes since the last build, extract "TAGS" file path 
+          RECENT_CHANGES=$(git diff-tree --no-commit-id --name-only -r $BUILD_CURRENT $BUILD_PREVIOUS | grep "TAGS");
+          for tagsFilePath in $RECENT_CHANGES
+          do
+            # Remove "/TAGS" from the path
+            folder=${tagsFilePath%"/TAGS"}; 
+            
+            # Split first two directores and use as image name and tag respectively.
+            # This only works with bash, make sure the shell is correct!
+            read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
+            
+            # Read TAGS file, tag image with each tag and push to remote
+            IMAGE_ID=$DOCKER_REGISTRY_URL/$IMAGE_NAME
             cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
             do
               # Add tags
@@ -71,10 +121,12 @@ jobs:
   circleci-k8s-test-build:
     name: Test released CLI
     runs-on: ubuntu-latest
-    needs: build_and_push
+    needs: 
+      - build_and_push_gcr
+      - build_and_push_docker_hub
     strategy:
       matrix:
-        project: [ 
+        project: [
           {repo: "drupal-project-k8s", jobs: "4"}, 
           {repo: "frontend-project-k8s", jobs: "4"}, 
           {repo: "simple-project-k8s", jobs: "3"} 
