@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/amazeeio/php/tags?page=1&name=8.0
-FROM amazeeio/php:8.0-fpm-21.10.0
+FROM amazeeio/php:8.0-fpm-22.7.0
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="Alpine with PHP8-FPM and Drush launcher" \
@@ -12,7 +12,9 @@ COPY entrypoints/90-php-config-alter.sh /lagoon/entrypoints/90-php-config-alter.
 RUN apk add --update --no-cache bash openssh-client rsync
 
 # PHP modules and build dependencies
-RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS libtool imagemagick-dev openldap-dev libmemcached-dev \
+RUN apk add --no-cache --virtual .persistent-deps \
+		libldap
+RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS libtool imagemagick-dev openldap-dev zlib-dev libmemcached-dev \
     && docker-php-ext-install ldap \
     && docker-php-ext-enable ldap \
     && yes '' | pecl install memcached \
@@ -63,6 +65,9 @@ RUN set -ex; \
     echo "umask 0002" >> ~www-data/.profile; \
     # allow ssmtp.conf to be modified by nested image entrypoints
     chmod 766 /etc/ssmtp/ssmtp.conf
+
+# Clean up
+RUN rm -rf /tmp/* /var/cache/apk/*
 
 WORKDIR /app/
 # Add composer executables to our path.

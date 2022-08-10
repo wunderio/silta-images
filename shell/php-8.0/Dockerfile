@@ -1,4 +1,5 @@
 # Dockerfile for the Drupal container.
+# TODO: update tags file after php image is released so it pulls in php base changes!
 FROM eu.gcr.io/silta-images/php:8.0-fpm-v0.1
 
 # Workaround for base image
