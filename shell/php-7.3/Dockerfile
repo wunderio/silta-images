@@ -1,5 +1,5 @@
 # Dockerfile for the Drupal container.
-FROM eu.gcr.io/silta-images/php:7.3-fpm-v0.1
+FROM wunderio/silta-php-fpm:7.3-fpm-v0.1
 
 # Switch back to root
 USER root
