@@ -1,6 +1,6 @@
 # Modified Mailhog
 
-Docker container based on official mailhog image, with extra modifications.
+Docker mailhog image based on official mailhog image, with extra modifications.
 
 ## Log suppression
 

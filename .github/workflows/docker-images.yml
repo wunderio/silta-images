@@ -105,7 +105,24 @@ jobs:
             # Split first two directores and use as image name and tag respectively.
             # This only works with bash, make sure the shell is correct!
             read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
-            
+
+            # GCR has different image names
+            IMAGE_NAME=$(
+            case "$IMAGE_NAME" in
+              ("silta-cicd") echo "cicd" ;;
+              ("silta-varnish") echo "varnish" ;;
+              ("silta-nginx") echo "nginx" ;;
+              ("silta-php-shell") echo "shell" ;;
+              ("silta-openresty") echo "openresty" ;;
+              ("silta-node") echo "node" ;;
+              ("silta-mailhog") echo "silta-mailhog" ;;
+              ("silta-php-fpm") echo "php" ;;
+              ("silta-solr") echo "solr" ;;
+              ("silta-proxy") echo "silta-proxy" ;;
+              ("silta-rsync") echo "rsync" ;;
+              (*) echo "$IMAGE_NAME" ;;
+            esac)
+
             # Read TAGS file, tag image with each tag and push to remote
             IMAGE_ID=$DOCKER_REGISTRY_URL/$IMAGE_NAME
             cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
