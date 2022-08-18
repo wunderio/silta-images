@@ -136,7 +136,7 @@ jobs:
           done;
 
   circleci-k8s-test-build:
-    name: Test released CLI
+    name: Test released images
     runs-on: ubuntu-latest
     needs: 
       - build_and_push_gcr
@@ -150,7 +150,7 @@ jobs:
         ]
     steps:
       - uses: actions/checkout@v2
-      - name: Validate released cli with ${{ matrix.project.REPO_NAME }}
+      - name: Validate released images with ${{ matrix.project.repo }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
           JOB_COUNT="${{ matrix.project.jobs }}"
