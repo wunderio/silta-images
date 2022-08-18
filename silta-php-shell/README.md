@@ -1,6 +1,6 @@
 # About project
 
-This image extends the Drupal PHP-FPM image and adds a ssh server configured to allow access based on Github repository access. This is used for Drupal chart deployments hosted on [Silta](https://github.com/wunderio/silta). The key list is provided by [SSH public keys for silta](https://github.com/wunderio/silta-ssh-keys) project.
+This image extends the Silta Drupal PHP-FPM image and adds a ssh server configured to allow access based on Github repository access. This is used for Drupal chart deployments hosted on [Silta](https://github.com/wunderio/silta). The key list is provided by [SSH public keys for silta](https://github.com/wunderio/silta-ssh-keys) project.
 
 Fingerprint keys are moved to a dedicated folder, `/etc/ssh/keys`, that can be mounted to a persistent storage.
 
