@@ -4,7 +4,7 @@ Docker image based on official varnish image.
 
 ## Usage
 
-docker pull eu.gcr.io/silta-images/varnish.
+docker pull wunderio/silta-varnish.
 
 ## Resources
 
