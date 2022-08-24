@@ -52,7 +52,7 @@ RUN sudo apt-get clean autoclean -y \
     /var/tmp/* \
     /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
 		/root/.cache /root/.local /root/.gnupg /root/.config \
-    /tmp/*
+    /tmp/* \
   && sudo touch /var/lib/dpkg/status \
   && sudo mkdir /var/lib/dpkg/updates /var/lib/dpkg/info
   && sudo sudo mkdir -p /var/lib/dpkg/{updates,alternatives,info,parts,triggers}
