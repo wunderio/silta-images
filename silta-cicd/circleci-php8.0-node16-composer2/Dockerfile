@@ -49,29 +49,13 @@ RUN sudo apt-get clean autoclean -y \
     /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
 		/root/.cache /root/.local /root/.gnupg /root/.config \
     /tmp/* \
-  && sudo touch /var/lib/dpkg/status \
-  && sudo mkdir /var/lib/dpkg/updates /var/lib/dpkg/info
-  && sudo sudo mkdir -p /var/lib/dpkg/{updates,alternatives,info,parts,triggers}
+  && sudo sudo mkdir -p /var/lib/dpkg/{updates,alternatives,info,parts,triggers} \
+  && sudo touch /var/lib/dpkg/status
 
 # NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
 
 # TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
 # switch back to using https://github.com/lrills/helm-unittest as the source
-
-# Clean up
-RUN sudo apt-get clean autoclean -y \
-  && sudo apt-get autoremove -y \
-  && sudo rm -rf /var/lib/apt \
-    /var/lib/dpkg  \
-    /var/lib/cache \
-    /var/lib/log \
-    /var/tmp/* \
-    /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
-		/root/.cache /root/.local /root/.gnupg /root/.config \
-    /tmp/*
-  && sudo touch /var/lib/dpkg/status \
-  && sudo mkdir /var/lib/dpkg/updates /var/lib/dpkg/info
-  && sudo sudo mkdir -p /var/lib/dpkg/{updates,alternatives,info,parts,triggers}
 
 # Add custom php config and lift memory limit.
 COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini
