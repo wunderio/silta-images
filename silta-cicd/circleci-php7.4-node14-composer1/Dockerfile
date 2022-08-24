@@ -55,16 +55,13 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
 # Clean up
 RUN sudo apt-get clean autoclean -y \
   && sudo apt-get autoremove -y \
-  && sudo rm -rf /var/lib/apt \
-    /var/lib/dpkg  \
+  && sudo rm -rf \
     /var/lib/cache \
     /var/lib/log \
     /var/tmp/* \
     /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
 		/root/.cache /root/.local /root/.gnupg /root/.config \
-    /tmp/* \
-  && sudo sudo mkdir -p /var/lib/dpkg/{updates,alternatives,info,parts,triggers} \
-  && sudo touch /var/lib/dpkg/status
+    /tmp/*
 
 # NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
 
