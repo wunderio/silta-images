@@ -20,8 +20,11 @@ function test_docker_build () {
         docker run -t -i --rm $tmpName bash -c "if node -v &> /dev/null; then node -v ; fi; if php -v &> /dev/null; then php -r 'echo \"PHP \" . PHP_VERSION;' ; fi; echo \"\""
     fi
     
+    # run bash in container
+    # docker run -t -i $tmpName bash
+
     # Remove temporary build tag and image
-    docker rmi $tmpName > /dev/null 2>&1
+    # docker rmi $tmpName > /dev/null 2>&1
 }
 
 # Build specific dockerfile, return full output
