@@ -2,8 +2,8 @@
 FROM php:8.0.22-fpm-alpine
 
 LABEL maintainer="wunder.io"
-LABEL org.label-schema.name="PHP8-FPM for Silta environments" \
-      org.label-schema.description="PHP8-FPM, common plugins and Drush laucher for Silta environments"
+LABEL org.label-schema.name="PHP-FPM for Silta environments" \
+      org.label-schema.description="PHP-FPM, common plugins and Drush laucher for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 	# Install mysql client
