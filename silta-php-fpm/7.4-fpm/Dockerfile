@@ -106,7 +106,7 @@ RUN set -ex; \
     # Allow fpm to write in config
     chmod -R o+w /usr/local/etc; \
     # set umask for www-data user
-    echo "umask 0002" >> ~www-data/.profile \
+    echo "umask 0002" >> ~www-data/.profile; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
