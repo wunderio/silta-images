@@ -1,5 +1,5 @@
-# https://hub.docker.com/_/php/tags?page=1&name=7.2
-FROM php:7.2.34-fpm-alpine
+# https://hub.docker.com/_/php/tags?page=1&name=8.1
+FROM php:8.1.9-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -68,7 +68,7 @@ RUN apk add --no-cache \
     && yes '' | pecl install memcached \
     && docker-php-ext-enable memcached \
     && docker-php-ext-install -j4 bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
-    && docker-php-ext-configure gd \
+    && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype \
     && rm -rf /tmp/pear \
     && apk del .phpize-deps
 
