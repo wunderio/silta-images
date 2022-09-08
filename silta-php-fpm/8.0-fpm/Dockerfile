@@ -5,7 +5,7 @@ LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM, common plugins and Drush laucher for Silta environments"
 
-RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
+RUN apk add --update --no-cache bash openssh-client curl rsync ssmtp tini \
 	# Install mysql client
     mysql-client \
     # Install GNU version of utilities
@@ -29,6 +29,7 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 RUN apk add --no-cache \
         fcgi \
         imagemagick imagemagick-libs \
+        graphicsmagick \
         libmemcached \
     && apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
         libtool \
@@ -113,6 +114,15 @@ COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/w-php-fpm-defaults.conf /usr/local/etc/php-fpm.d/w-php-fpm-defaults.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
+
+## Shell
+COPY silta/ssh/gitauth_keys.sh silta/ssh/sshd_config /etc/ssh/
+RUN apk add --no-cache openssh screen; \
+    adduser www-admin -D -S -G www-data -s /bin/bash -h /app \
+    && echo "www-admin:" | chpasswd \
+    && echo "umask 0002" >> ~www-admin/.profile \
+    && chmod 755 /etc/ssh/gitauth_keys.sh
+## 
 
 WORKDIR /app/
 # Add composer executables to our path.

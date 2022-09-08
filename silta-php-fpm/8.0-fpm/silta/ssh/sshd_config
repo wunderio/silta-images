@@ -1,0 +1,39 @@
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+Port 22
+
+# Host keys
+HostKey /etc/ssh/keys/ssh_host_rsa_key
+HostKey /etc/ssh/keys/ssh_host_ecdsa_key
+HostKey /etc/ssh/keys/ssh_host_ed25519_key
+
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+AuthorizedKeysFile	.ssh/authorized_keys
+
+# Override AuthorizedKeysCommand to allow external keys 
+AuthorizedKeysCommand /etc/ssh/gitauth_keys.sh %f
+AuthorizedKeysCommandUser nobody
+
+AllowTcpForwarding yes
+GatewayPorts no
+X11Forwarding no
+PermitTunnel yes
+
+PrintMotd no
+
+TCPKeepAlive yes
+ClientAliveInterval 120
+ClientAliveCountMax 30
+UseDNS no
+
+PermitUserEnvironment no
+
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/ssh/sftp-server
