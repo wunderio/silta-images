@@ -9,7 +9,7 @@ on:
 
 jobs:
   changed_files:
-    name: Get changed TAGS
+    name: Get changed tag files
     runs-on: ubuntu-latest
     env:
       BUILD_CURRENT: ${{ github.sha }}
@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Get changed TAGS
+      - name: Get changed tags files
         id: changes
         run: |
           tagfile_list_json=$(git diff-tree --no-commit-id --name-only -r  \
@@ -53,7 +53,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          # version: '286.0.0'
+          project_id: ${{ secrets.GCR_PROJECT_ID }}
+          service_account_email: ${{ secrets.GCR_ACCOUNT_EMAIL }}
+          service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
+          export_default_credentials: true
+
       # Configure docker to use the gcloud command-line tool as a credential helper
       - run: |
           gcloud auth configure-docker -q
