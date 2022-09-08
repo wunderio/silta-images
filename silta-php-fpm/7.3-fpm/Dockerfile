@@ -29,6 +29,7 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 RUN apk add --no-cache \
         fcgi \
         imagemagick imagemagick-libs \
+        graphicsmagick \
         libmemcached \
     && apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
         libtool \
