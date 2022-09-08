@@ -97,6 +97,12 @@ RUN set -ex; \
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
 
+ENV TMPDIR=/tmp \
+    TMP=/tmp \
+    HOME=/silta \
+    ENV=/silta/.bashrc \
+    BASH_ENV=/silta/.bashrc
+
 RUN set -ex; \ 
     # Create directory for shared files
     mkdir -p -m a+w /app/web/sites/default/files; \
@@ -106,7 +112,6 @@ RUN set -ex; \
     # Allow fpm to write in config
     chmod -R o+w /usr/local/etc; \
     # set umask for www-data user
-    echo "umask 0002" >> ~www-data/.profile; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
@@ -115,8 +120,6 @@ COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
 
 WORKDIR /app/
-# Add composer executables to our path.
-ENV PATH="/home/.composer/vendor/bin:${PATH}"
 
 ENTRYPOINT [ "/sbin/tini", "--", "/silta/entrypoint.sh" ]
 CMD ["php-fpm", "-F", "-R"]

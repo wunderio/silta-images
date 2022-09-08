@@ -10,5 +10,5 @@ done
 
 ## Run passed cmd
 if [ ! -z "$1" ]; then
-	exec "$@"
+  exec "$@"
 fi
