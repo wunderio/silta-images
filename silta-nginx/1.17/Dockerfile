@@ -48,6 +48,8 @@ RUN mkdir -p /var/www/html/web \
       && ln -s /var/www/html /app
 RUN adduser nginx www-data
 
+STOPSIGNAL SIGQUIT
+
 USER $UID
 
 CMD ["nginx", "-g", "daemon off;"]
