@@ -116,7 +116,7 @@ RUN set -ex; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
-COPY config/w-php-fpm-defaults.conf /usr/local/etc/php-fpm.d/w-php-fpm-defaults.conf
+COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
 
