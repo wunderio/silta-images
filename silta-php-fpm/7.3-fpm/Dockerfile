@@ -15,6 +15,7 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     # libldap for ldap php extension
     libldap \
     libpng \
+    libjpeg \
     libjpeg-turbo \
     gettext \
     libzip \
@@ -40,6 +41,7 @@ RUN apk add --no-cache \
         libmemcached-dev \
         # for gd
         libpng-dev \
+        jpeg-dev \
         libjpeg-turbo-dev \
         freetype-dev \
         # for gettext
@@ -67,8 +69,8 @@ RUN apk add --no-cache \
     && docker-php-ext-enable ldap \
     && yes '' | pecl install memcached \
     && docker-php-ext-enable memcached \
-    && docker-php-ext-install -j4 bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && docker-php-ext-configure gd \
+    && docker-php-ext-install -j$(nproc) bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && rm -rf /tmp/pear \
     && apk del .phpize-deps
 
@@ -112,7 +114,6 @@ RUN set -ex; \
     chown -R www-data:www-data /app; \
     # Allow fpm to write in config
     chmod -R o+w /usr/local/etc; \
-    # set umask for www-data user
     chmod 766 /etc/ssmtp/ssmtp.conf
 
 COPY config/ldap.conf /etc/openldap/ldap.conf
