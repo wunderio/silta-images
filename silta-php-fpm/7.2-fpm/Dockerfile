@@ -116,6 +116,7 @@ RUN set -ex; \
     chmod -R o+w /usr/local/etc; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
+COPY config/ssmtp.conf /etc/ssmtp/ssmtp.conf
 COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
