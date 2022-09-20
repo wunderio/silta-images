@@ -51,5 +51,8 @@ echo "umask 0002" >> ~www-admin/.profile
 # Trigger lagoon entrypoint scripts if present.
 if [ -f /lagoon/entrypoints.sh ] ; then /lagoon/entrypoints.sh ; fi
 
+# Trigger silta entrypoint scripts if present.
+if [ -f /silta/entrypoint.sh ] ; then /silta/entrypoint.sh ; fi
+
 # run SSH server
 exec /usr/sbin/sshd -D -E /proc/self/fd/2
