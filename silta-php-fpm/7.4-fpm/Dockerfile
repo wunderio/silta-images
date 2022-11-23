@@ -82,12 +82,10 @@ ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 RUN mkdir -p /var/www/html \
     && ln -s /var/www/html /app
 
-# Add gdpr-dump globally.
-RUN apk add composer; \
-     mkdir -p ~/.composer; \
-     echo '{"minimum-stability": "dev"}' > ~/.composer/composer.json; \
-     composer global require --prefer-dist --ignore-platform-reqs  machbarmacher/gdpr-dump:dev-master; \
-     apk del composer
+# Add Smile-SA/gdpr-dump for sanitized reference data creation.
+RUN wget https://github.com/Smile-SA/gdpr-dump/releases/latest/download/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
+    && chmod +x /usr/local/bin/gdpr-dump \
+    && gdpr-dump --version
 
 ENV DRUSH_LAUNCHER_VERSION=0.6.0
 
