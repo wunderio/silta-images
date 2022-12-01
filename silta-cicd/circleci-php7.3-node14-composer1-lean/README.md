@@ -4,11 +4,10 @@ A docker image used circleCI, based on `circleci/php:7.3-cli-node` with the foll
 - Composer configured correctly
 - Drush-launcher, prestissimo and coder pre-installed
 - Vim, useful for debugging
-- The google cloud cli, kubernetes and helm
+- kubernetes and helm
 
 ## Versions
 - PHP: 7.3.23
 - Composer: 1.x
 - Node: 14.15.0
-- GCloud: 392.0.0-0
 - Helm: v3.6.3
