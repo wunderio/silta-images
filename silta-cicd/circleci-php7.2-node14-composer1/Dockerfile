@@ -28,6 +28,12 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && gcloud --version \
   && sudo apt-get clean
 
+# Install OAuth2l
+RUN curl -sL https://storage.googleapis.com/oauth2l/latest/linux_amd64.tgz | tar xz -C /tmp/ \
+  && chmod +x /tmp/linux_amd64/oauth2l \
+  && sudo mv /tmp/linux_amd64/* /bin/ \
+  && rm -rf /tmp/linux_amd64 /tmp/linux_amd64.tgz
+
 # Install AWS cli and aws-iam-authenticator
 RUN sudo apt install -y awscli git python3 \
   && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
