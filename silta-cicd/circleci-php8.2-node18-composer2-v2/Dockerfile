@@ -15,12 +15,17 @@ RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/$
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 
 # Add gcloud CLI and kubectl
-ENV GCLOUD_VERSION 411.0.0-0
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-  && sudo apt-get update && sudo apt-get install python3 google-cloud-sdk=${GCLOUD_VERSION} kubectl \
+  && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
+
+# Install OAuth2l
+RUN curl -sL https://storage.googleapis.com/oauth2l/latest/linux_amd64.tgz | tar xz -C /tmp/ \
+  && chmod +x /tmp/linux_amd64/oauth2l \
+  && sudo mv /tmp/linux_amd64/* /bin/ \
+  && rm -rf /tmp/linux_amd64 /tmp/linux_amd64.tgz
 
 # Install AWS cli and aws-iam-authenticator
 RUN sudo apt install -y awscli git python3 \
