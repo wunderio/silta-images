@@ -12,4 +12,4 @@ silta-php-fpm docker images are based on official php-fpm images https://hub.doc
 - `7.3-fpm/`: 7.3.33
 - `7.4-fpm/`: 7.4.30
 - `8.0-fpm/`: 8.0.22
-- `8.1-fpm/`: 8.1.9
+- `8.1-fpm/`: 8.1.13

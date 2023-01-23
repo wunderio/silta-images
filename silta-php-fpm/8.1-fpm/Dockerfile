@@ -60,7 +60,7 @@ RUN apk add --no-cache \
         yaml-dev \
         # for imagemagick
         imagemagick-dev \
-    && yes '' | pecl install -f apcu-5.1.21 \
+    && yes '' | pecl install -f apcu-5.1.22 \
     && yes '' | pecl install -f imagick-3.7.0 \
     && yes '' | pecl install -f redis-5.3.7 \
     && yes '' | pecl install -f yaml-2.2.2 \
