@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.1
-FROM php:8.1.9-fpm-alpine
+FROM php:8.1.14-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -60,7 +60,7 @@ RUN apk add --no-cache \
         yaml-dev \
         # for imagemagick
         imagemagick-dev \
-    && yes '' | pecl install -f apcu-5.1.21 \
+    && yes '' | pecl install -f apcu-5.1.22 \
     && yes '' | pecl install -f imagick-3.7.0 \
     && yes '' | pecl install -f redis-5.3.7 \
     && yes '' | pecl install -f yaml-2.2.2 \
