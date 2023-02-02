@@ -50,14 +50,14 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-   - package-ecosystem: "docker"
+  - package-ecosystem: "docker"
     directory: "/silta-nginx/1.21"
     schedule:
       interval: "daily"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-   - package-ecosystem: "docker"
+  - package-ecosystem: "docker"
     directory: "/silta-nginx/1.23"
     schedule:
       interval: "daily"
