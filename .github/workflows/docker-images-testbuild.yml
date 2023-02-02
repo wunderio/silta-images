@@ -11,7 +11,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Get changed Dockerfiles
@@ -21,7 +21,7 @@ jobs:
             ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} \
             | grep Dockerfile$ \
             | jq -Rsc '. / "\n" - [""]' )
-          echo "::set-output name=matrix::${dockerfile_list_json}"
+          echo "matrix=${dockerfile_list_json}" >> $GITHUB_OUTPUT
   
   test_build:
     name: Test build
@@ -34,7 +34,7 @@ jobs:
     if: ${{needs.changed_files.outputs.matrix}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Building dockerfile
         run: |
           set -ex
