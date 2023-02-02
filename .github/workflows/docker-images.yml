@@ -18,7 +18,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Get changed TAGS files
@@ -28,7 +28,7 @@ jobs:
             $BUILD_CURRENT $BUILD_PREVIOUS \
             | grep TAGS$ \
             | jq -Rsc '. / "\n" - [""]' )
-          echo "::set-output name=matrix::${tagfile_list_json}"
+          echo "matrix=${dockerfile_list_json}" >> $GITHUB_OUTPUT
           
   build_and_push_gcr:
     name: Build and push to GCR
@@ -50,7 +50,7 @@ jobs:
         dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
     if: ${{needs.changed_files.outputs.matrix}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -125,7 +125,7 @@ jobs:
         dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
     if: ${{needs.changed_files.outputs.matrix}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       
@@ -170,7 +170,7 @@ jobs:
           {repo: "simple-project-k8s", jobs: "3"} 
         ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Validate released images with ${{ matrix.project.repo }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
