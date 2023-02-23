@@ -28,7 +28,7 @@ jobs:
             $BUILD_CURRENT $BUILD_PREVIOUS \
             | grep TAGS$ \
             | jq -Rsc '. / "\n" - [""]' )
-          echo "matrix=${tagfile_list_json}" >> $GITHUB_OUTPUT
+          echo "matrix=${tagfile_list_json}" > $GITHUB_OUTPUT
 
   build_and_push_gcr:
     name: Build and push to GCR
