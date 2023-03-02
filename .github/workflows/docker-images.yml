@@ -97,6 +97,12 @@ jobs:
             (*) echo "$IMAGE_NAME" ;;
           esac)
 
+          # If image name is not "traefik", "silta-k8s-controller-sidecars" or "csi-rclone", skip it.
+          if [[ "$IMAGE_NAME" != "traefik" && "$IMAGE_NAME" != "silta-k8s-controller-sidecars" && "$IMAGE_NAME" != "csi-rclone" ]]; then
+            echo "Skipping $IMAGE_NAME upload to gcr"
+            exit 0
+          fi
+
           # Read TAGS file, tag image with each tag and push to remote
           IMAGE_ID=$GCR_URL/$GCR_PROJECT_ID/$IMAGE_NAME
           cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
