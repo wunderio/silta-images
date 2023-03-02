@@ -21,7 +21,7 @@ jobs:
             ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} \
             | grep Dockerfile$ \
             | jq -Rsc '. / "\n" - [""]' )
-          echo "matrix=${dockerfile_list_json}" >> $GITHUB_OUTPUT
+          echo "matrix=${dockerfile_list_json}" > $GITHUB_OUTPUT
   
   test_build:
     name: Test build
@@ -38,4 +38,12 @@ jobs:
       - name: Building dockerfile
         run: |
           set -ex
-          docker build $(dirname ${{matrix.dockerfile}}) --file ${{matrix.dockerfile}}
+          tmpName="test-image-$RANDOM"
+          docker build $(dirname ${{matrix.dockerfile}}) --file ${{matrix.dockerfile}} --tag $tmpName
+          # Print versions
+          if [[ ${{matrix.dockerfile}} == *"silta-php"* ]]; then
+            docker run -t --rm $tmpName php -r 'echo "PHP " . PHP_VERSION;'
+          fi
+          if [[ ${{matrix.dockerfile}} == *"silta-node"* ]]; then
+            docker run -t --rm $tmpName node -v
+          fi
