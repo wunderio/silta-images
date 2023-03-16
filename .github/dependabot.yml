@@ -129,7 +129,95 @@ updates:
           - "version-update:semver-minor"
 
   - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-7.2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-7.3"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-7.4"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-8.0"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-8.1"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-8.2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+
+  - package-ecosystem: "docker"
     directory: "/silta-varnish/varnish6"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "docker"
+    directory: "/silta-mailhog/silent"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/silta-openresty/1.17"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: 
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+
+  - package-ecosystem: "docker"
+    directory: "/silta-proxy/latest"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/silta-rsync/rsync"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/silta-solr/8"
     schedule:
       interval: "daily"
     ignore:
