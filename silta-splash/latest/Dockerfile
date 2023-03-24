@@ -1,3 +1,4 @@
-FROM nginx:1.23.3-alpine
+FROM nginxinc/nginx-unprivileged:1.23.3-alpine-slim
 
-COPY src/index.html /usr/share/nginx/html
+COPY conf/nginx-default.conf /etc/nginx/conf.d/default.conf
+COPY src/index.html src/404.html /usr/share/nginx/html/
