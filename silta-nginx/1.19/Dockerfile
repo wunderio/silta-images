@@ -38,6 +38,17 @@ USER root
 COPY --from=builder /ngx_http_echo_module.so /etc/nginx/modules/ngx_http_echo_module.so
 COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
 
+# Fastly signal sciences module
+# https://docs.fastly.com/signalsciences/install-guides/nginx-module/alpine-nginx-1.15.3higher/
+RUN apk update && apk add wget openssl --virtual build-dependencies && \
+	wget https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys && \
+	echo https://apk.signalsciences.net/3.11/main | tee -a /etc/apk/repositories && \
+	apk update && \
+	openssl rsa -pubin -in /etc/apk/keys/sigsci_apk.pub -text -noout && \
+	apk add nginx-module-sigsci-nxo-${NGINX_VERSION} && \
+	apk del build-dependencies
+# Module is enabled conditionally via chart template / configmap
+
 RUN rm -rf /etc/nginx/conf.d/default.conf \
 		&& touch /var/run/nginx.pid \
 		&& chown -R $UID:0 /var/run/nginx.pid
