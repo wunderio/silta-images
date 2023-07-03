@@ -1,7 +1,5 @@
-circleci-php7.3-node12-composer1
-circleci-php7.3.19-node12.18.2-composer1
-circleci-php7.3-node12-composer1-v0.1
-circleci-php7.3-node12-composer1-v0.1.114
-v0.1
-v0.1.114
-latest
+circleci-php7.3.19-node12.18.2-composer1-v0.2
+circleci-php7.3-node12-composer1-v0.2
+circleci-php7.3-node12-composer1-v0.2.2
+v0.2
+v0.2.2
