@@ -6,13 +6,18 @@ FROM nginx:${NGINX_VERSION}-alpine as builder
 # https://github.com/openresty/echo-nginx-module/tags
 ENV HTTPECHO_VERSION=0.62
 
+# Nginx virtual host traffic status module
+# https://github.com/vozlt/nginx-module-vts
+ENV NGINX_VTS_VERSION 0.2.2
+
 RUN apk add --update gcc libc-dev linux-headers zlib-dev openrc autoconf automake g++ make \
     libressl-dev geoip-dev lmdb-dev pcre-dev libtool libxml2-dev yajl-dev pkgconf zlib-dev \
 	libcurl curl
 
 # Download sources
 RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
-  curl -L "https://github.com/openresty/echo-nginx-module/archive/v${HTTPECHO_VERSION}.tar.gz" -o httpecho.tar.gz
+  curl -L "https://github.com/openresty/echo-nginx-module/archive/v${HTTPECHO_VERSION}.tar.gz" -o httpecho.tar.gz && \
+  curl -L "https://github.com/vozlt/nginx-module-vts/archive/refs/tags/v${NGINX_VTS_VERSION}.tar.gz" -o nginx-module-vts.tar.gz
 
 # Reuse same cli arguments as the nginx:alpine image used to build
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
@@ -23,8 +28,14 @@ RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
   	# Uncompress echo module
 	tar -xzvf "httpecho.tar.gz" && \
   	HTTPECHODIR="$(pwd)/echo-nginx-module-${HTTPECHO_VERSION}" && \
+  	# Uncompress vts module
+	tar -xzvf "nginx-module-vts.tar.gz" && \
+  	VTSDIR="$(pwd)/nginx-module-vts-${NGINX_VTS_VERSION}" && \
   	cd /usr/src/nginx-$NGINX_VERSION && \
-  	./configure --with-compat $CONFARGS --add-dynamic-module=$HTTPECHODIR --with-http_stub_status_module && \
+  	./configure --with-compat $CONFARGS \
+		--add-dynamic-module=$HTTPECHODIR  \
+		--add-dynamic-module=$VTSDIR \
+		--with-http_stub_status_module && \
   	make modules && \
 	# Move module to root so it's easier to locate it in the next layer
   	mv ./objs/*.so /
@@ -38,6 +49,9 @@ USER root
 
 COPY --from=builder /ngx_http_echo_module.so /etc/nginx/modules/ngx_http_echo_module.so
 COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
+
+# Nginx virtual host traffic status module
+COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/ngx_http_vhost_traffic_status_module.so
 
 # Fastly signal sciences module
 # https://docs.fastly.com/signalsciences/install-guides/nginx-module/alpine-nginx-1.15.3higher/
