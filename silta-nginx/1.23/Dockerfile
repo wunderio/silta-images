@@ -24,7 +24,7 @@ RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
 	tar -xzvf "httpecho.tar.gz" && \
   	HTTPECHODIR="$(pwd)/echo-nginx-module-${HTTPECHO_VERSION}" && \
   	cd /usr/src/nginx-$NGINX_VERSION && \
-  	./configure --with-compat $CONFARGS --add-dynamic-module=$HTTPECHODIR && \
+  	./configure --with-compat $CONFARGS --add-dynamic-module=$HTTPECHODIR --with-http_stub_status_module && \
   	make modules && \
 	# Move module to root so it's easier to locate it in the next layer
   	mv ./objs/*.so /
