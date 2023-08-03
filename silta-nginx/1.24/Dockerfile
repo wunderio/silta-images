@@ -1,5 +1,5 @@
 # https://hg.nginx.org/pkg-oss/tags
-ARG NGINX_VERSION=1.21.6
+ARG NGINX_VERSION=1.24.0
 
 FROM nginx:${NGINX_VERSION}-alpine as builder
 
@@ -21,7 +21,7 @@ RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.
 
 # Reuse same cli arguments as the nginx:alpine image used to build
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
-	# 1.21.x does not compile with -g (Generate debugging information)
+	# 1.23.x does not compile with -g (Generate debugging information)
     CONFARGS=${CONFARGS/-Os -fomit-frame-pointer -g/-Os} && \
     mkdir /usr/src && \
 	tar -zxC /usr/src -f nginx.tar.gz && \
@@ -57,7 +57,7 @@ COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/
 # https://docs.fastly.com/signalsciences/install-guides/nginx-module/alpine-nginx-1.15.3higher/
 RUN apk update && apk add wget openssl --virtual build-dependencies && \
 	wget https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys && \
-	echo https://apk.signalsciences.net/3.13/main | tee -a /etc/apk/repositories && \
+	echo https://apk.signalsciences.net/3.16/main | tee -a /etc/apk/repositories && \
 	apk update && \
 	openssl rsa -pubin -in /etc/apk/keys/sigsci_apk.pub -text -noout && \
 	apk add nginx-module-sigsci-nxo-${NGINX_VERSION} && \
