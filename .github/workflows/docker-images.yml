@@ -30,89 +30,6 @@ jobs:
             | jq -Rsc '. / "\n" - [""]' )
           echo "matrix=${tagfile_list_json}" > $GITHUB_OUTPUT
 
-  build_and_push_gcr:
-    name: Build and push to GCR
-    runs-on: ubuntu-latest
-
-    # Secrets
-    # GCR_URL: "eu.gcr.io"
-    # GCR_PROJECT_ID: "silta-images"
-    # GCR_ACCOUNT_EMAIL: [sa email]
-    # GCR_ACCOUNT_KEY: "[sa key]"
-    env:
-      GCR_URL: ${{ secrets.GCR_URL }}
-      GCR_PROJECT_ID: ${{ secrets.GCR_PROJECT_ID }}
-
-    needs: changed_files
-    strategy:
-      fail-fast: false
-      matrix:
-        dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
-    if: ${{needs.changed_files.outputs.matrix}}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          # version: '286.0.0'
-          project_id: ${{ secrets.GCR_PROJECT_ID }}
-          service_account_email: ${{ secrets.GCR_ACCOUNT_EMAIL }}
-          service_account_key: ${{ secrets.GCR_ACCOUNT_KEY }}
-          export_default_credentials: true
-
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: |
-          gcloud auth configure-docker -q
-
-      - name: Build and push the image
-        run: |
-          set -ex
-          
-          tagsFilePath=${{matrix.dockerfile}}
-          
-          # Remove "/TAGS" from the path
-          folder=${tagsFilePath%"/TAGS"}; 
-          
-          # Split first two directores and use as image name and tag respectively.
-          # This only works with bash, make sure the shell is correct!
-          read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
-          
-          # GCR has different image names
-          IMAGE_NAME=$(
-          case "$IMAGE_NAME" in
-            ("silta-cicd") echo "cicd" ;;
-            ("silta-varnish") echo "varnish" ;;
-            ("silta-nginx") echo "nginx" ;;
-            ("silta-php-shell") echo "shell" ;;
-            ("silta-openresty") echo "openresty" ;;
-            ("silta-node") echo "node" ;;
-            ("silta-mailhog") echo "silta-mailhog" ;;
-            ("silta-php-fpm") echo "php" ;;
-            ("silta-solr") echo "solr" ;;
-            ("silta-proxy") echo "silta-proxy" ;;
-            ("silta-rsync") echo "rsync" ;;
-            (*) echo "$IMAGE_NAME" ;;
-          esac)
-
-          # If image name is not "traefik", "silta-k8s-controller-sidecars" or "csi-rclone", skip it.
-          if [[ "$IMAGE_NAME" != "traefik" && "$IMAGE_NAME" != "silta-k8s-controller-sidecars" && "$IMAGE_NAME" != "csi-rclone" ]]; then
-            echo "Skipping $IMAGE_NAME upload to gcr"
-            exit 0
-          fi
-
-          # Read TAGS file, tag image with each tag and push to remote
-          IMAGE_ID=$GCR_URL/$GCR_PROJECT_ID/$IMAGE_NAME
-          cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
-          do
-            # Add tags
-            docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
-            # Push image
-            docker push $IMAGE_ID:$TAG
-          done;
-
   build_and_push_docker_hub:
     name: Build and push to Docker Hub
     runs-on: ubuntu-latest
@@ -166,7 +83,6 @@ jobs:
     name: Test released images
     runs-on: ubuntu-latest
     needs:
-      - build_and_push_gcr
       - build_and_push_docker_hub
     strategy:
       matrix:
