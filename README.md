@@ -12,3 +12,4 @@ Image tags listed at `*/*/TAGS`
 - `silta-mailhog/`: Official mailhog image, with extra modifications.
 - `silta-proxy/`: An HTTP proxy based on tinyproxy used to provide a static egress IP.
 - `silta-varnish/`: Drupal varnish images
+- rasmus test
