@@ -3,7 +3,7 @@ FROM php:8.1.14-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
-      org.label-schema.description="PHP-FPM, common plugins and Drush laucher for Silta environments"
+      org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 	# Install mysql client
@@ -88,14 +88,6 @@ RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
 
-ENV DRUSH_LAUNCHER_VERSION=0.6.0
-
-RUN set -ex; \
-    # Install Drush launcher
-    curl -OL https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar; \
-    chmod +x drush.phar; \
-    mv drush.phar /usr/local/bin/drush;
-
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
 
@@ -121,6 +113,10 @@ COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
+
+# Replaces drush launcher with a static path
+ENV PATH="$PATH:/app/vendor/drush/drush/"
+RUN echo $PATH
 
 WORKDIR /app/
 
