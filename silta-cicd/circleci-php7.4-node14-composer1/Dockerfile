@@ -24,24 +24,14 @@ ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-  && sudo apt-get update && sudo apt-get install google-cloud-sdk=${GCLOUD_VERSION} google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
-  && gcloud --version \
+  && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
-
-# Install OAuth2l
-RUN curl -sL https://storage.googleapis.com/oauth2l/latest/linux_amd64.tgz | tar xz -C /tmp/ \
-  && chmod +x /tmp/linux_amd64/oauth2l \
-  && sudo mv /tmp/linux_amd64/* /bin/ \
-  && rm -rf /tmp/linux_amd64 /tmp/linux_amd64.tgz
 
 # Install AWS cli and aws-iam-authenticator
 RUN sudo apt install -y awscli git python3 \
   && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
   && chmod +x /tmp/aws-iam-authenticator \ 
   && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
-
-# Install Azure cli
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Install Helm 3
 ENV HELM_VERSION v3.6.3
