@@ -41,7 +41,7 @@ jobs:
           tmpName="test-image-$RANDOM"
           docker build $(dirname ${{matrix.dockerfile}}) --file ${{matrix.dockerfile}} --tag $tmpName
           # Print versions
-          if [[ ${{matrix.dockerfile}} == *"silta-php"* ]]; then
+          if [[ ${{matrix.dockerfile}} == *"silta-php-fpm"* ]]; then
             docker run -t --rm $tmpName php -r 'echo "PHP " . PHP_VERSION;'
           fi
           if [[ ${{matrix.dockerfile}} == *"silta-node"* ]]; then

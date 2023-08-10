@@ -1,5 +1,5 @@
 # Dockerfile for the Drupal container.
-FROM wunderio/silta-php-fpm:8.2-fpm-v0.1
+FROM wunderio/silta-php-fpm:8.2-fpm-v1
 
 # Switch back to root
 USER root
@@ -14,5 +14,8 @@ COPY entrypoint.sh /
 
 # Won't use buildkit yet
 RUN chmod 755 /etc/ssh/gitauth_keys.sh
+
+# Provide sudo access to www-data user
+RUN apk add sudo && echo '%wheel ALL = (ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel && adduser www-data wheel
 
 ENTRYPOINT ["/entrypoint.sh"]
