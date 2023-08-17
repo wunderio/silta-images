@@ -15,7 +15,4 @@ COPY entrypoint.sh /
 # Won't use buildkit yet
 RUN chmod 755 /etc/ssh/gitauth_keys.sh
 
-# Provide sudo access to www-data user
-RUN apk add sudo && echo '%wheel ALL = (ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel && adduser www-data wheel
-
 ENTRYPOINT ["/entrypoint.sh"]
