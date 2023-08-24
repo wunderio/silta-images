@@ -29,6 +29,13 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
+    directory: "/silta-node/20-alpine"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
     directory: "/silta-node/lts-alpine"
     schedule:
       interval: "daily"
