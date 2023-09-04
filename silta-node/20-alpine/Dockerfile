@@ -9,6 +9,7 @@ RUN mkdir /etc/ssh/keys
 # Copy scripts
 COPY gitauth_keys.sh /etc/ssh/
 COPY entrypoint.sh /
+COPY silta /silta
 
 ENTRYPOINT ["/entrypoint.sh"]
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Trigger silta entrypoint scripts if present.
+if [ -f /silta/entrypoint.sh ] ; then /silta/entrypoint.sh ; fi
+
 if [[ -v GITAUTH_URL ]]; then
 
     if [[ ! -f /etc/ssh/keys/ssh_host_rsa_key ]]; then
@@ -39,15 +42,16 @@ OUTSIDE_COLLABORATORS=${OUTSIDE_COLLABORATORS}
 EOF
 
     env > /etc/environment
-    addgroup www-admin
     # We add -D to make it non-interactive, but then the user is locked out.
-    adduser www-admin -D -G www-admin -s /bin/bash -h /app
+    adduser www-admin -D -G node -s /bin/bash -h /app
     # So set an empty password after the user is created.
     echo "www-admin:" | chpasswd
 
     # Pass environment variables down to container, so SSH can pick it up and drush commands work too.
     mkdir ~www-admin/.ssh/
     env | grep -v HOME > ~www-admin/.ssh/environment
+
+    echo "umask 0002" >> ~www-admin/.profile
 
     # run SSH server
     /usr/sbin/sshd -E /proc/self/fd/2
