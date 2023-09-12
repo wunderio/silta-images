@@ -19,7 +19,7 @@ RUN sudo apt update && sudo apt upgrade && sudo apt clean
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 
 # Add gcloud CLI and kubectl
-ENV GCLOUD_VERSION 392.0.0-0
+ENV GCLOUD_VERSION 445.0.0-0
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
