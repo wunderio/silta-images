@@ -23,13 +23,8 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libxml2 \
     libxslt \
     libgcrypt \
-    yaml \
-    autoconf \
-    pkgconfig
-
-# Requires 1.3.2+ to fix CVE-2023-4863
-RUN apk add libwebp libwebp-dev --update-cache --repository "http://dl-cdn.alpinelinux.org/alpine/v3.18/main" --allow-untrusted \
-    && apk version libwebp
+    libwebp \
+    yaml
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
@@ -58,6 +53,8 @@ RUN apk add --no-cache \
         # for xsl
         libxslt-dev \
         libgcrypt-dev \
+        # for webp
+        libwebp-dev \
         postgresql-dev \
         # for yaml
         yaml-dev \
@@ -78,7 +75,7 @@ RUN apk add --no-cache \
     && apk del .phpize-deps
 
 # Use GNU Iconv
-RUN apk add gnu-libiconv --update-cache --repository "http://dl-cdn.alpinelinux.org/alpine/v3.18/main" --allow-untrusted
+RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 # Backwards-compatibility for projects using an older location.
@@ -92,7 +89,6 @@ RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_
     && gdpr-dump --version
 
 # Clean up
-RUN apk del autoconf pkgconfig
 RUN rm -rf /tmp/* /var/cache/apk/*
 
 ENV TMPDIR=/tmp \
