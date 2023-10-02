@@ -35,14 +35,7 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-  - package-ecosystem: "docker"
-    directory: "/silta-node/lts-alpine"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-
+  
   - package-ecosystem: "docker"
     directory: "/silta-nginx/1.17"
     schedule:
@@ -202,16 +195,6 @@ updates:
     directory: "/silta-mailhog/silent"
     schedule:
       interval: "daily"
-
-  - package-ecosystem: "docker"
-    directory: "/silta-openresty/1.17"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
 
   - package-ecosystem: "docker"
     directory: "/silta-proxy/latest"
