@@ -23,7 +23,6 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libxml2 \
     libxslt \
     libgcrypt \
-    libwebp \
     yaml
 
 # PHP modules and build dependencies
@@ -53,8 +52,6 @@ RUN apk add --no-cache \
         # for xsl
         libxslt-dev \
         libgcrypt-dev \
-        # for webp
-        libwebp-dev \
         postgresql-dev \
         # for yaml
         yaml-dev \
@@ -75,7 +72,7 @@ RUN apk add --no-cache \
     && apk del .phpize-deps
 
 # Use GNU Iconv
-RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
+RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/main/community/ --allow-untrusted
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 # Backwards-compatibility for projects using an older location.
