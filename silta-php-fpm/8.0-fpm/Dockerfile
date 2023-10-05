@@ -113,6 +113,7 @@ COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
+COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
 
 # Replaces drush launcher with a static path
 ENV PATH="$PATH:/app/vendor/drush/drush/"
