@@ -85,12 +85,11 @@ ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 RUN mkdir -p /var/www/html \
     && ln -s /var/www/html /app
 
-# Add gdpr-dump globally.
-RUN apk add composer; \
-     mkdir -p ~/.composer; \
-     echo '{"minimum-stability": "dev"}' > ~/.composer/composer.json; \
-     composer global require --prefer-dist --ignore-platform-reqs  machbarmacher/gdpr-dump:dev-master; \
-     apk del composer
+# Add Smile-SA/gdpr-dump for sanitized reference data creation.
+ENV SA_GDPR_DUMP_VERSION=4.0.1
+RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_VERSION}/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
+    && chmod +x /usr/local/bin/gdpr-dump \
+    && gdpr-dump --version
 
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
@@ -117,6 +116,7 @@ COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
+COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
 
 # Replaces drush launcher with a static path
 ENV PATH="$PATH:/app/vendor/drush/drush/"
