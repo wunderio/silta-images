@@ -30,10 +30,16 @@ RUN curl -sL https://storage.googleapis.com/oauth2l/latest/linux_amd64.tgz | tar
   && rm -rf /tmp/linux_amd64 /tmp/linux_amd64.tgz
 
 # Install AWS cli and aws-iam-authenticator
-RUN sudo apt install -y awscli git python3 \
-  && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /tmp/aws-iam-authenticator \ 
-  && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
+RUN sudo apt install -y git python3
+RUN sudo apt-get install -y \
+        unzip \
+        curl \
+    && sudo apt-get clean \
+    && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && sudo  unzip awscliv2.zip \
+    && sudo ./aws/install \
+    && sudo  rm -rf awscliv2.zip \
+    && sudo  rm -rf ./aws
 
 # Install Azure cli
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
