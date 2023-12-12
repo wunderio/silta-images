@@ -39,7 +39,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && rm /tmp/${FILENAME} \
   && sudo mv /tmp/linux-amd64/helm /bin/helm \
   && helm repo add bitnami https://charts.bitnami.com/bitnami \
-  && helm repo add minio https://helm.min.io/ \
+  # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
   && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
