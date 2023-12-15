@@ -10,4 +10,4 @@ A docker image used circleCI, based on `cimg/php:8.2.13-node` with the following
 - PHP: 8.2.13
 - Composer: 2.5.1
 - Node: 20.9.0
-- Helm: v3.6.3
+- Helm: v3.13.3

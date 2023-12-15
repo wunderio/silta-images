@@ -28,7 +28,7 @@ RUN sudo apt install -y awscli git python3 \
   && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
 
 # Install Helm 3
-ENV HELM_VERSION v3.6.3
+ENV HELM_VERSION v3.13.3
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
