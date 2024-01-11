@@ -12,7 +12,7 @@ ENV NGINX_VTS_VERSION 0.2.2
 
 RUN apk add --update gcc libc-dev linux-headers zlib-dev openrc autoconf automake g++ make \
     libressl-dev geoip-dev lmdb-dev pcre-dev libtool libxml2-dev yajl-dev pkgconf zlib-dev \
-	libcurl curl
+	libcurl curl tzdata
 
 # Download sources
 RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
