@@ -1,4 +1,4 @@
-FROM circleci/php:7.3.23-cli-node
+FROM cimg/php:8.2.13-node
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
@@ -6,28 +6,26 @@ ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
 # Upgrade packages
 RUN sudo apt update && sudo apt upgrade && sudo apt clean
 
-# Install drush and prestissimo.
-RUN composer global require drush/drush-launcher:^0.8.0 \
-  && composer clearcache
+# Install drush
+ENV DRUSH_LAUNCHER_VERSION 0.9.1
+RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar -O /usr/local/bin/drush \
+  && sudo chmod +x /usr/local/bin/drush
 
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 
 # Add gcloud CLI and kubectl
-ENV GCLOUD_VERSION 392.0.0-0
-ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
-  && sudo apt install -y git python3 \
-  && sudo apt-get install -y unzip curl \
-  && sudo apt-get clean \
-  && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-  && sudo  unzip awscliv2.zip \
-  && sudo ./aws/install \
-  && sudo  rm -rf awscliv2.zip \
-  && sudo  rm -rf ./aws
+  && sudo apt-get clean
+
+# Install AWS cli and aws-iam-authenticator
+RUN sudo apt install -y awscli git python3 \
+  && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
+  && chmod +x /tmp/aws-iam-authenticator \ 
+  && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
 
 # Install Helm 3
 ENV HELM_VERSION v3.6.3
@@ -43,17 +41,6 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
   && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
-
-# Clean up
-RUN sudo apt-get clean autoclean -y \
-  && sudo apt-get autoremove -y \
-  && sudo rm -rf \
-    /var/lib/cache \
-    /var/lib/log \
-    /var/tmp/* \
-    /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
-		/root/.cache /root/.local /root/.gnupg /root/.config \
-    /tmp/*
 
 # NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
 

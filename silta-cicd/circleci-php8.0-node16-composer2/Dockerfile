@@ -14,17 +14,15 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
 # Install vim based on popular demand.
 RUN sudo apt-get install vim && sudo apt-get clean
 
-# Install AWS cli and aws-iam-authenticator
-RUN sudo apt install -y git python3
-RUN sudo apt-get install -y \
-        unzip \
-        curl \
-    && sudo apt-get clean \
-    && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && sudo  unzip awscliv2.zip \
-    && sudo ./aws/install \
-    && sudo  rm -rf awscliv2.zip \
-    && sudo  rm -rf ./aws
+# Install AWS cli, aws-iam-authenticator, git, python
+RUN sudo apt install -y git python3 \
+  && sudo apt-get install -y unzip curl \
+  && sudo apt-get clean \
+  && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+  && sudo  unzip awscliv2.zip \
+  && sudo ./aws/install \
+  && sudo  rm -rf awscliv2.zip \
+  && sudo  rm -rf ./aws
 
 
 # Install Helm 3
@@ -37,7 +35,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && rm /tmp/${FILENAME} \
   && sudo mv /tmp/linux-amd64/helm /bin/helm \
   && helm repo add bitnami https://charts.bitnami.com/bitnami \
-  && helm repo add minio https://helm.min.io/ \
+  # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
   && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
