@@ -25,7 +25,8 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libgcrypt \
     yaml \
     autoconf \
-    pkgconfig
+    pkgconfig \
+    tzdata
 
 # Requires 1.3.2+ to fix CVE-2023-4863
 RUN apk add libwebp libwebp-dev --update-cache --repository "http://dl-cdn.alpinelinux.org/alpine/v3.18/main" --allow-untrusted \

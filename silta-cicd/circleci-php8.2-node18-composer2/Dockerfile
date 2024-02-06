@@ -21,14 +21,18 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
-# Install AWS cli and aws-iam-authenticator
-RUN sudo apt install -y awscli git python3 \
-  && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /tmp/aws-iam-authenticator \ 
-  && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
+# Install AWS cli and aws-iam-authenticator, git, python
+RUN sudo apt install -y git python3 \
+  && sudo apt-get install -y unzip curl \
+  && sudo apt-get clean \
+  && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+  && sudo  unzip awscliv2.zip \
+  && sudo ./aws/install \
+  && sudo  rm -rf awscliv2.zip \
+  && sudo  rm -rf ./aws
 
 # Install Helm 3
-ENV HELM_VERSION v3.6.3
+ENV HELM_VERSION v3.13.3
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
@@ -37,7 +41,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && rm /tmp/${FILENAME} \
   && sudo mv /tmp/linux-amd64/helm /bin/helm \
   && helm repo add bitnami https://charts.bitnami.com/bitnami \
-  && helm repo add minio https://helm.min.io/ \
+  # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
   && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4

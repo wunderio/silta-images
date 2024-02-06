@@ -1,5 +1,5 @@
 # silta-circleci
-A docker image used circleCI, based on `circleci/php:7.4-cli-node` with the following additions:
+A docker image used circleCI, based on `cimg/php:8.2.13-node` with the following additions:
 
 - Composer configured correctly
 - Drush-launcher and coder pre-installed
@@ -7,7 +7,7 @@ A docker image used circleCI, based on `circleci/php:7.4-cli-node` with the foll
 - kubernetes and helm
 
 ## Versions
-- PHP: 7.4.12
-- Composer: 2.x
-- Node: 14.15.1
+- PHP: 8.2.13
+- Composer: 2.5.1
+- Node: 20.9.0
 - Helm: v3.13.3

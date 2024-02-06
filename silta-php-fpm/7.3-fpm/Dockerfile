@@ -23,7 +23,8 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libxml2 \
     libxslt \
     libgcrypt \
-    yaml
+    yaml \
+    tzdata
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
