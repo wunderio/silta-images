@@ -22,11 +22,15 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
-# Install AWS cli and aws-iam-authenticator
-RUN sudo apt install -y awscli git python3 \
-  && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /tmp/aws-iam-authenticator \ 
-  && sudo mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator
+# Install AWS cli and aws-iam-authenticator, git, python
+RUN sudo apt install -y git python3 \
+  && sudo apt-get install -y unzip curl \
+  && sudo apt-get clean \
+  && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+  && sudo  unzip awscliv2.zip \
+  && sudo ./aws/install \
+  && sudo  rm -rf awscliv2.zip \
+  && sudo  rm -rf ./aws
 
 # Install Helm 3
 ENV HELM_VERSION v3.13.3
