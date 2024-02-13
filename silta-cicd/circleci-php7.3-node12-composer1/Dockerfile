@@ -30,7 +30,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo  rm -rf ./aws
 
 # Install Helm 3
-ENV HELM_VERSION v3.13.3
+ENV HELM_VERSION v3.14.0
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
