@@ -3,87 +3,12 @@ name: Build and push docker images
 on:
   push:
     branches:
-      - master
-    paths:
-      - '**/**/TAGS'
+      - feature/cci-api-2
 
 jobs:
-  changed_files:
-    name: Get changed tag files
-    runs-on: ubuntu-latest
-    env:
-      BUILD_CURRENT: ${{ github.sha }}
-      BUILD_PREVIOUS: ${{ github.event.before }}
-    outputs:
-      matrix: ${{ steps.changes.outputs.matrix}}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Get changed TAGS files
-        id: changes
-        run: |
-          tagfile_list_json=$(git diff-tree --no-commit-id --name-only -r  \
-            $BUILD_CURRENT $BUILD_PREVIOUS \
-            | grep TAGS$ \
-            | jq -Rsc '. / "\n" - [""]' )
-          echo "matrix=${tagfile_list_json}" > $GITHUB_OUTPUT
-
-  build_and_push_docker_hub:
-    name: Build and push to Docker Hub
-    runs-on: ubuntu-latest
-
-    # Secrets
-    # DOCKER_HUB_REGISTRY_URL: "wunderio"
-    env:
-      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
-      DOCKER_USER: ${{secrets.DOCKER_USER}}
-      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-
-    needs: changed_files
-    strategy:
-      fail-fast: false
-      matrix:
-        dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
-    if: ${{needs.changed_files.outputs.matrix}}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: docker login
-        run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
-
-      - name: Build and push images
-        run: |
-          set -ex
-          
-          tagsFilePath=${{matrix.dockerfile}}
-          
-          # Remove "/TAGS" from the path
-          folder=${tagsFilePath%"/TAGS"}; 
-          
-          # Split first two directores and use as image name and tag respectively.
-          # This only works with bash, make sure the shell is correct!
-          read IMAGE_NAME LEFTOVERS <<<$(IFS="/"; echo $folder);
-
-          # Read TAGS file, tag image with each tag and push to remote
-          IMAGE_ID=$DOCKER_REGISTRY_URL/$IMAGE_NAME
-          cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
-          do
-            # Add tags
-            docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
-            # Push image
-            docker push $IMAGE_ID:$TAG
-          done;
-
   circleci-k8s-test-build:
     name: Test released images
     runs-on: ubuntu-latest
-    needs:
-      - build_and_push_docker_hub
     strategy:
       matrix:
         project: [
