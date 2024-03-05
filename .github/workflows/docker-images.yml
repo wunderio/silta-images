@@ -18,7 +18,7 @@ jobs:
       matrix: ${{ steps.changes.outputs.matrix}}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Get changed TAGS files
@@ -48,7 +48,7 @@ jobs:
         dockerfile: ${{ fromJson(needs.changed_files.outputs.matrix) }}
     if: ${{needs.changed_files.outputs.matrix}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -92,7 +92,7 @@ jobs:
           {org: "wunderio", repo: "simple-project-k8s", branch: "master"}
         ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Validate released images with ${{ matrix.project.repo }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
