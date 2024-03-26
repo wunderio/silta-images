@@ -119,6 +119,9 @@ COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
 COPY silta /silta
 COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
 
+# Elasticdump for importing/exporting Elasticsearch data
+RUN apk add npm nodejs && npm install -g elasticdump
+
 # Replaces drush launcher with a static path
 ENV PATH="$PATH:/app/vendor/drush/drush/"
 RUN echo $PATH
