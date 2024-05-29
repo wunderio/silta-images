@@ -1,4 +1,4 @@
-FROM node:20.13-alpine
+FROM node:20.14-alpine
 
 RUN apk add --no-cache openssh bash rsync curl tzdata
 
