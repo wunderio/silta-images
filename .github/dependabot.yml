@@ -35,14 +35,14 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-  
+
   - package-ecosystem: "docker"
     directory: "/silta-nginx/1.17"
     schedule:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -51,7 +51,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -60,7 +60,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -69,7 +69,25 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.24"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.26"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
@@ -79,7 +97,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -88,7 +106,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -97,7 +115,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -106,7 +124,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -115,7 +133,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -124,7 +142,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
@@ -134,7 +152,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -143,7 +161,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -152,7 +170,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -161,7 +179,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -170,7 +188,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -179,7 +197,7 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
@@ -220,6 +238,6 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "*"
-        update-types: 
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
