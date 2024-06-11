@@ -3,6 +3,42 @@ updates:
 
   # silta-cicd
   - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.0-node16-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.1-node16-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.1-node18-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.2-node18-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.2-node20-composer2"
     schedule:
       interval: "daily"
@@ -11,10 +47,6 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
-      - dependency-name: "node"
-        update-types:
-          - "version-update:semver-major"
-    target-branch: "dependabot-testing"
 
   # silta-mailhog
   - package-ecosystem: "docker"
