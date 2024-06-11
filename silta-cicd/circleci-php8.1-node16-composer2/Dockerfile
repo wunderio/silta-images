@@ -1,4 +1,4 @@
-FROM cimg/php:8.1.7
+FROM cimg/php:8.1.29
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
