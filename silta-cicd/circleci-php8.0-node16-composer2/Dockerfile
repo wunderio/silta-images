@@ -1,4 +1,4 @@
-FROM cimg/php:8.0.13-node
+FROM cimg/php:8.0.13
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
@@ -55,6 +55,23 @@ RUN sudo apt-get clean autoclean -y \
 
 # TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
 # switch back to using https://github.com/lrills/helm-unittest as the source
+
+# Install Node.js and Yarn.
+# The following code is based on the CircleCI Node.js Dockerfile template:
+# https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
+ENV NODE_VERSION 16.13.0
+RUN echo "Installing Node.js version ${NODE_VERSION}"
+RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
+	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
+	rm node.tar.xz && \
+	sudo ln -s /usr/local/bin/node /usr/local/bin/nodejs
+
+ENV YARN_VERSION 1.22.5
+RUN curl -L -o yarn.tar.gz "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz" && \
+	sudo tar -xzf yarn.tar.gz -C /opt/ && \
+	rm yarn.tar.gz && \
+	sudo ln -s /opt/yarn-v${YARN_VERSION}/bin/yarn /usr/local/bin/yarn && \
+	sudo ln -s /opt/yarn-v${YARN_VERSION}/bin/yarnpkg /usr/local/bin/yarnpkg
 
 # Add custom php config and lift memory limit.
 COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini
