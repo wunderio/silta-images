@@ -5,44 +5,44 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
     directory: "/silta-node/14-alpine"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
     directory: "/silta-node/16-alpine"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
     directory: "/silta-node/18-alpine"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
     directory: "/silta-node/20-alpine"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
-  
+
   - package-ecosystem: "docker"
     directory: "/silta-nginx/1.17"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "nginx"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -50,8 +50,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "nginx"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -59,8 +59,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "nginx"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -68,8 +68,17 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "nginx"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.24"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "nginx"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
@@ -78,8 +87,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -87,8 +96,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -96,8 +105,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -105,8 +114,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -114,8 +123,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
@@ -123,8 +132,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
+      - dependency-name: "php"
+        update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
@@ -132,63 +141,40 @@ updates:
     directory: "/silta-php-shell/php-7.2"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-7.3"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-7.4"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-8.0"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-8.1"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-8.2"
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
 
   - package-ecosystem: "docker"
     directory: "/silta-varnish/varnish6"
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "varnish"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/silta-varnish/varnish7"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "varnish"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
@@ -202,6 +188,11 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "docker"
+    directory: "/silta-robot-framework/robot-6"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
     directory: "/silta-rsync/rsync"
     schedule:
       interval: "daily"
@@ -211,7 +202,7 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
+      - dependency-name: "geerlingguy/solr"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
@@ -219,7 +210,5 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        update-types: 
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
+      - dependency-name: "nginxinc/nginx-unprivileged"
+        update-types: ["version-update:semver-major"]
