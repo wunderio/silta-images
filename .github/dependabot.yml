@@ -47,6 +47,15 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.2-node22-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-mailhog
   - package-ecosystem: "docker"
@@ -137,6 +146,13 @@ updates:
     ignore:
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/silta-node/22-alpine"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "node"
+        update-types: [ "version-update:semver-major" ]
 
   # silta-php-fpm
   - package-ecosystem: "docker"
