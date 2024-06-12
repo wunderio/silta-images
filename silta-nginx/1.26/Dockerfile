@@ -1,6 +1,5 @@
 # https://hg.nginx.org/pkg-oss/tags
-ARG NGINX_VERSION=1.26.1
-ARG NGINX_UNPRIVILEGED_VERSION=1.26.0
+ARG NGINX_VERSION=1.26.0
 
 FROM nginx:${NGINX_VERSION}-alpine as builder
 
@@ -22,6 +21,11 @@ RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.
 
 # Reuse same cli arguments as the nginx:alpine image used to build
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
+    # 1.26.0 does not compile with the options that are removed below.
+    # It will generate errors like this: ./configure: error: invalid option "-fstack-clash-protection" \
+    # When 1.26.1 is used, this can be removed. Currently blocked by signalsciences module not supporting 1.26.1.
+    CONFARGS=${CONFARGS/-Os -fstack-clash-protection -Wformat -Werror=format-security -fno-plt -g/-Os} && \
+    CONFARGS=${CONFARGS/,--sort-common -Wl,-z,pack-relative-relocs/-Os} && \
     mkdir /usr/src && \
 	tar -zxC /usr/src -f nginx.tar.gz && \
   	# Uncompress echo module
@@ -41,7 +45,7 @@ RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
 
 #### Make the nginx image and copy modules from builder
 
-FROM nginxinc/nginx-unprivileged:${NGINX_UNPRIVILEGED_VERSION}-alpine
+FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}-alpine
 ARG UID=101
 LABEL maintainer="wunder.io"
 USER root
@@ -56,7 +60,7 @@ COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/
 # https://docs.fastly.com/signalsciences/install-guides/nginx-module/alpine-nginx-1.15.3higher/
 RUN apk update && apk add wget openssl --virtual build-dependencies && \
 	wget https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys && \
-	echo https://apk.signalsciences.net/3.16/main | tee -a /etc/apk/repositories && \
+	echo https://apk.signalsciences.net/3.19/main | tee -a /etc/apk/repositories && \
 	apk update && \
 	openssl rsa -pubin -in /etc/apk/keys/sigsci_apk.pub -text -noout && \
 	apk add nginx-module-sigsci-nxo-${NGINX_VERSION} && \
