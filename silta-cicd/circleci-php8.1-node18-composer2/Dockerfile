@@ -44,12 +44,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
-
-# NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
-
-# TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
-# switch back to using https://github.com/lrills/helm-unittest as the source
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
 
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
