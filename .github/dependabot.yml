@@ -100,6 +100,15 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.26"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "nginx"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-node
   - package-ecosystem: "docker"
