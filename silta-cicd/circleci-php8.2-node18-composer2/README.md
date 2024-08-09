@@ -1,5 +1,5 @@
 # silta-circleci
-A docker image used circleCI, based on `cimg/php:8.2.12` with the following additions:
+A docker image used circleCI, based on `cimg/php:8.2.22` with the following additions:
 
 - Composer configured correctly
 - Drush-launcher and coder pre-installed
@@ -9,7 +9,7 @@ A docker image used circleCI, based on `cimg/php:8.2.12` with the following addi
 - Yarn
 
 ## Versions
-- PHP: 8.2.0
+- PHP: 8.2.22
 - Composer: 2.1.12
 - Node: 18.18.2
 - Yarn: 1.22.19
