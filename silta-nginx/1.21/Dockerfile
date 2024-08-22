@@ -54,15 +54,14 @@ COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
 COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/ngx_http_vhost_traffic_status_module.so
 
 # Fastly signal sciences module
-# https://docs.fastly.com/signalsciences/install-guides/nginx-module/alpine-nginx-1.15.3higher/
-RUN apk update && apk add wget openssl --virtual build-dependencies && \
-	wget https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys && \
-	echo https://apk.signalsciences.net/3.13/main | tee -a /etc/apk/repositories && \
+# https://docs.fastly.com/en/ngwaf/installing-the-nginx-dynamic-module#alpine-linux-311
+# The module is enabled conditionally via chart template / configmap.
+RUN apk update && apk add wget --virtual build-dependencies && \
+	wget -q https://apk.signalsciences.net/sigsci_apk.pub ; mv sigsci_apk.pub /etc/apk/keys && \
+	echo https://apk.signalsciences.net/$(grep -oE '[0-9]+\.[0-9]{2}' /etc/alpine-release)/main | tee -a /etc/apk/repositories && \
 	apk update && \
-	openssl rsa -pubin -in /etc/apk/keys/sigsci_apk.pub -text -noout && \
 	apk add nginx-module-sigsci-nxo-${NGINX_VERSION} && \
 	apk del build-dependencies
-# Module is enabled conditionally via chart template / configmap
 
 RUN rm -rf /etc/nginx/conf.d/default.conf \
 		&& touch /var/run/nginx.pid \
