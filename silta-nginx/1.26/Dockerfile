@@ -1,5 +1,5 @@
 # https://hg.nginx.org/pkg-oss/tags
-ARG NGINX_VERSION=1.26.0
+ARG NGINX_VERSION=1.26.2
 
 FROM nginx:${NGINX_VERSION}-alpine as builder
 
