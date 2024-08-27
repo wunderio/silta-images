@@ -47,7 +47,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
 
 # Clean up
 RUN sudo apt-get clean autoclean -y \
