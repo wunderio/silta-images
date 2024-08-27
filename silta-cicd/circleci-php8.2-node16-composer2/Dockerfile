@@ -44,12 +44,17 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
+  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
+
+# NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
+
+# TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
+# switch back to using https://github.com/lrills/helm-unittest as the source
 
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
 # https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
-ENV NODE_VERSION 20.17.0
+ENV NODE_VERSION 16.15.1
 RUN echo "Installing Node.js version ${NODE_VERSION}"
 RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
 	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
