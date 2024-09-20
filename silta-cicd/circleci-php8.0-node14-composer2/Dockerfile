@@ -19,8 +19,11 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
-  && sudo apt install -y git python3 \
+  && sudo apt install -y git python3 python3-pip \
   && sudo apt-get install -y unzip curl \
+  && sudo pip3 install pproxy \
+  && sudo pip3 install python-daemon \
+  && sudo apt remove python3-pip \
   && sudo apt-get clean \
   && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && sudo  unzip awscliv2.zip \

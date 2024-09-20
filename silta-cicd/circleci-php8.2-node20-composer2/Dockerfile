@@ -21,9 +21,12 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
-# Install AWS cli and aws-iam-authenticator, git, python
-RUN sudo apt install -y git python3 \
+# Install AWS cli and aws-iam-authenticator, git, python, pproxy
+RUN sudo apt install -y git python3  python3-pip \
   && sudo apt-get install -y unzip curl \
+  && sudo pip3 install pproxy \
+  && sudo pip3 install python-daemon \
+  && sudo apt remove python3-pip \
   && sudo apt-get clean \
   && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && sudo  unzip awscliv2.zip \
