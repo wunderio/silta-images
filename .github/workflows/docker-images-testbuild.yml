@@ -38,6 +38,11 @@ jobs:
       - name: Building dockerfile
         run: |
           set -ex
+          # Dockerfile removed since last commit, skip
+          if [ ! -f ${{matrix.dockerfile}} ]; then
+            echo "File ${{matrix.dockerfile}} not found, skipping"
+            exit 0
+          fi
           tmpName="test-image-$RANDOM"
           docker build $(dirname ${{matrix.dockerfile}}) --file ${{matrix.dockerfile}} --tag $tmpName
           # Print versions
