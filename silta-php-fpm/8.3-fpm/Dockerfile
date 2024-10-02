@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.3
-FROM php:8.3.4-fpm-alpine
+FROM php:8.3.12-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -65,7 +65,11 @@ RUN apk add --no-cache \
         # https://github.com/docker-library/php/issues/888
         linux-headers \
     && yes '' | pecl install -f apcu-5.1.21 \
-    && yes '' | pecl install -f imagick-3.7.0 \
+    # imagick: Install error "Unterminated preprocessor conditions" in php 8.3
+    # https://github.com/Imagick/imagick/issues/640
+    # && yes '' | pecl install -f imagick-3.7.0 \
+    && curl -fsSL https://github.com/Imagick/imagick/archive/944b67fce68bcb5835999a149f917670555b6fcb.tar.gz | tar xvz -C /tmp \
+    && yes '' | pecl install /tmp/imagick-944b67fce68bcb5835999a149f917670555b6fcb/package.xml \
     && yes '' | pecl install -f redis-5.3.7 \
     && yes '' | pecl install -f yaml-2.2.2 \
     && docker-php-ext-enable imagick yaml apcu redis \
