@@ -20,8 +20,11 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
-  && sudo apt install -y git python3 \
+  && sudo apt install -y git python3 python3-pip \
   && sudo apt-get install -y unzip curl \
+  && sudo pip3 install pproxy \
+  && sudo pip3 install python-daemon \
+  && sudo apt remove python3-pip \
   && sudo apt-get clean \
   && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && sudo  unzip awscliv2.zip \
@@ -42,7 +45,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
 
 # Clean up
 RUN sudo apt-get clean autoclean -y \
@@ -54,11 +57,6 @@ RUN sudo apt-get clean autoclean -y \
     /usr/share/doc/ /usr/share/man/ /usr/share/locale/ \
 		/root/.cache /root/.local /root/.gnupg /root/.config \
     /tmp/*
-
-# NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
-
-# TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
-# switch back to using https://github.com/lrills/helm-unittest as the source
 
 # Add custom php config and lift memory limit.
 COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini

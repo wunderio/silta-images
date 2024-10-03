@@ -1,4 +1,4 @@
-FROM cimg/php:8.1.7-node
+FROM cimg/php:8.1.30
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
@@ -22,9 +22,12 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
-# Install AWS cli and aws-iam-authenticator, git, python
-RUN sudo apt install -y git python3 \
+# Install AWS cli and aws-iam-authenticator, git, python, pproxy
+RUN sudo apt install -y git python3 python3-pip \
   && sudo apt-get install -y unzip curl \
+  && sudo pip3 install pproxy \
+  && sudo pip3 install python-daemon \
+  && sudo apt remove python3-pip \
   && sudo apt-get clean \
   && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
   && sudo  unzip awscliv2.zip \
@@ -45,12 +48,24 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/quintush/helm-unittest --version 0.2.4
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
 
-# NOTE: quintush/helm-unittest v0.2.0 release breaks helm tests.
+# Install Node.js and Yarn.
+# The following code is based on the CircleCI Node.js Dockerfile template:
+# https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
+ENV NODE_VERSION 16.20.2
+RUN echo "Installing Node.js version ${NODE_VERSION}"
+RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
+	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
+	rm node.tar.xz && \
+	sudo ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-# TODO: when https://github.com/lrills/helm-unittest/issues/87 is merged,
-# switch back to using https://github.com/lrills/helm-unittest as the source
+ENV YARN_VERSION 1.22.22
+RUN curl -L -o yarn.tar.gz "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz" && \
+	sudo tar -xzf yarn.tar.gz -C /opt/ && \
+	rm yarn.tar.gz && \
+	sudo ln -s /opt/yarn-v${YARN_VERSION}/bin/yarn /usr/local/bin/yarn && \
+	sudo ln -s /opt/yarn-v${YARN_VERSION}/bin/yarnpkg /usr/local/bin/yarnpkg
 
 # Add custom php config and lift memory limit.
 COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini

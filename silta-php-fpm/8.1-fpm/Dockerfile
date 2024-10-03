@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.1
-FROM php:8.1.23-fpm-alpine
+FROM php:8.1.30-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -89,6 +89,13 @@ RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
 
+# Elasticdump for importing/exporting Elasticsearch data
+RUN apk add nodejs \
+    && apk add --no-cache --virtual .build-deps npm \
+    && npm install -g elasticdump@v6 \
+    && npm cache clean --force \
+    && apk del .build-deps
+
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
 
@@ -100,7 +107,7 @@ ENV TMPDIR=/tmp \
 
 COPY config/ssmtp.conf /etc/ssmtp/ssmtp.conf
 
-RUN set -ex; \ 
+RUN set -ex; \
     # Create directory for shared files
     mkdir -p -m a+w /app/web/sites/default/files; \
     mkdir -p -m a+w /app/private; \
