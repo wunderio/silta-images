@@ -325,6 +325,15 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-shell/php-8.3"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "wunderio/silta-php-fpm"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-proxy
   - package-ecosystem: "docker"
