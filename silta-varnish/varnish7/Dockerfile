@@ -1,4 +1,4 @@
-FROM varnish:7.4.2-alpine
+FROM varnish:7.6.0-alpine
 
 ARG VARNISH_STORAGE_BACKEND
 ARG VARNISH_EXTRA_PARAMS
