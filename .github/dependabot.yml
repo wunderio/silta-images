@@ -1,6 +1,12 @@
 version: 2
 updates:
 
+  # silta-backup
+  - package-ecosystem: "docker"
+    directory: "/silta-backup/backup"
+    schedule:
+      interval: "daily"
+
   # silta-cicd
   - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.0-node16-composer2"
@@ -30,6 +36,15 @@ updates:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.2-node16-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.2-node18-composer2"
     schedule:
       interval: "daily"
@@ -49,6 +64,33 @@ updates:
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.2-node22-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node18-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node20-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node22-composer2"
     schedule:
       interval: "daily"
     ignore:
@@ -211,6 +253,15 @@ updates:
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
     directory: "/silta-php-fpm/8.2-fpm"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-fpm/8.3-fpm"
     schedule:
       interval: "daily"
     ignore:
