@@ -11,6 +11,6 @@ A docker image used circleCI, based on `cimg/php:8.2.25` with the following addi
 ## Versions
 - PHP: 8.2.25
 - Composer: 2.7.7
-- Node: 22.9.0
+- Node: 22.11.0
 - Yarn: 1.22.22
 - Helm: v3.14.0
