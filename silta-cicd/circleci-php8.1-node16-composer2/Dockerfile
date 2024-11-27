@@ -36,7 +36,7 @@ RUN sudo apt install -y git python3 python3-pip \
   && sudo  rm -rf ./aws
 
 # Install Helm 3
-ENV HELM_VERSION v3.14.0
+ENV HELM_VERSION v3.16.3
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
