@@ -6,7 +6,9 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
-	# Install mysql client
+    # Install MariaDB Connector/C
+    mariadb-connector-c \
+    # Install mysql client
     mysql-client \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
