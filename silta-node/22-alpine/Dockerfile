@@ -1,7 +1,7 @@
 FROM node:22.11.0-alpine
 
 RUN apk add --no-cache openssh bash curl tzdata
-RUN apk add --no-cache 'rsync>~3.4.0'
+RUN apk add --no-cache 'rsync>3.4.0'
 EXPOSE 22
 
 RUN mkdir /etc/ssh/keys
