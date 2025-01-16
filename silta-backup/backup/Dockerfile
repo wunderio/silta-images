@@ -2,8 +2,8 @@ FROM alpine:3.20
 
 RUN apk add --no-cache \
     bash tzdata coreutils \
-    rsync \
     nodejs
+RUN apk add --no-cache 'rsync>~3.4.0'
 
 RUN apk add --no-cache --virtual .build-deps npm \
     && npm install -g elasticdump@v6 \
