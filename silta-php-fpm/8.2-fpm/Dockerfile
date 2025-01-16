@@ -5,7 +5,7 @@ LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
-RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
+RUN apk add --update --no-cache bash openssh-client "rsync>~3.4.0" ssmtp tini \
 	# Install mysql client
     mysql-client \
     # Install GNU version of utilities
