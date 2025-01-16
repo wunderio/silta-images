@@ -1,6 +1,6 @@
 FROM node:18.20.5-alpine
 
-RUN apk add --no-cache openssh bash rsync curl tzdata
+RUN apk add --no-cache openssh bash 'rsync>~3.4.0' curl tzdata
 
 EXPOSE 22
 
