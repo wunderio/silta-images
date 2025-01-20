@@ -1,5 +1,5 @@
 # Dockerfile for the Drupal container.
-FROM wunderio/silta-php-fpm:8.2-fpm-v1
+FROM wunderio/silta-php-fpm:8.2-fpm-v1.2.6
 
 # Switch back to root
 USER root
