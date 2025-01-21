@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.2
-FROM php:8.2.26-fpm-alpine
+FROM php:8.2.26-fpm-alpine3.20
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -7,7 +7,7 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
 
 RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
 	# Install mysql client
-    mysql-client \
+    'mariadb-client=10.11.10-r0' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
