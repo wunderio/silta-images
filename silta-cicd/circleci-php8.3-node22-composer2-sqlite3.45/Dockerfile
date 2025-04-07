@@ -82,3 +82,6 @@ RUN cd sqlite-autoconf-3450000 && \
 
 # remove the previous version
 RUN sudo apt-get remove -y --auto-remove sqlite3
+
+# Remove build artifacts
+RUN rm -Rf /home/circleci/project/sqlite-autoconf-3450000 && rm -Rf sqlite-autoconf-3450000.tar.gz
