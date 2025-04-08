@@ -7,7 +7,7 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
 
 RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
 	# Install mysql client
-    'mariadb-client=10.11.10-r0' \
+    'mariadb-client>=10.11.10-r0' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
