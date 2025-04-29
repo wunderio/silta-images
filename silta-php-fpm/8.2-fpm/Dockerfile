@@ -27,6 +27,9 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
     yaml \
     tzdata
 
+# Update curl, as php base image has an old version with a critical CVE.
+RUN apk add --update --no-cache "curl>8.12"
+
 # PHP modules and build dependencies
 RUN apk add --no-cache \
         fcgi \
