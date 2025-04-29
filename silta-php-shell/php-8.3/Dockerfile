@@ -3,7 +3,8 @@ FROM wunderio/silta-php-fpm:8.3-fpm-v1
 
 # Switch back to root
 USER root
-RUN apk add --no-cache openssh bash curl "rsync>3.4.0" screen
+RUN apk add --no-cache openssh bash "rsync>3.4.0" screen
+RUN apk add --update --no-cache "curl>8.12"
 EXPOSE 22
 
 RUN mkdir /etc/ssh/keys
