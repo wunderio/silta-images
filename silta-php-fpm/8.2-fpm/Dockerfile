@@ -6,7 +6,9 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
-	# Install mysql client
+	  # Install MariaDB Connector/C
+    mariadb-connector-c \
+    # Install mysql client
     'mariadb-client>=10.11.10-r0' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
@@ -26,6 +28,9 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
     libwebp \
     yaml \
     tzdata
+
+# Update curl, as php base image has an old version with a critical CVE.
+RUN apk add --update --no-cache "curl>8.12"
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
@@ -110,7 +115,7 @@ ENV TMPDIR=/tmp \
 
 COPY config/ssmtp.conf /etc/ssmtp/ssmtp.conf
 
-RUN set -ex; \ 
+RUN set -ex; \
     # Create directory for shared files
     mkdir -p -m a+w /app/web/sites/default/files; \
     mkdir -p -m a+w /app/private; \
