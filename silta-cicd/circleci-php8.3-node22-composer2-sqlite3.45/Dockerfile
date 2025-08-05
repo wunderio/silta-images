@@ -1,7 +1,7 @@
 FROM cimg/php:8.3.19
 
 # Make composer packages executable.
-ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:${PATH}"
+ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
 
 # Upgrade packages
 RUN sudo apt update && sudo apt upgrade && sudo apt clean
