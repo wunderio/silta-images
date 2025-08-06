@@ -1,15 +1,10 @@
 FROM cimg/php:8.1.31
 
 # Make composer packages executable.
-ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
+ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
 
 # Upgrade packages
 RUN sudo apt update && sudo apt upgrade && sudo apt clean
-
-# Install drush
-ENV DRUSH_LAUNCHER_VERSION 0.9.1
-RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar -O /usr/local/bin/drush \
-  && sudo chmod +x /usr/local/bin/drush
 
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean

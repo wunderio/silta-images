@@ -2,7 +2,6 @@
 A docker image used circleCI, based on `cimg/php:8.2.26` with the following additions:
 
 - Composer configured correctly
-- Drush-launcher and coder pre-installed
 - Vim, useful for debugging
 - kubernetes and helm
 - Node.js
