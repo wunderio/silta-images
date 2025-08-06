@@ -1,5 +1,5 @@
 # silta-circleci
-A docker image used circleCI, based on `cimg/php:8.1.32` with the following additions:
+A docker image used circleCI, based on `cimg/php:8.1.x` with the following additions:
 
 - Composer configured correctly
 - Vim, useful for debugging

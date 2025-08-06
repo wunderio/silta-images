@@ -36,6 +36,10 @@ ENV HELM_VERSION v3.18.4
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
+# Helm unit test plugin version.
+# https://github.com/helm-unittest/helm-unittest/releases
+ENV HELM_UNITTEST_VERSION 1.0.0
+
 RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
   && rm /tmp/${FILENAME} \
@@ -44,7 +48,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version ${HELM_UNITTEST_VERSION}
 
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
