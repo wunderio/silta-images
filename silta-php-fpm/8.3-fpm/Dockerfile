@@ -10,7 +10,7 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
 	  # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mysql client
-    'mariadb-client>=10.11.10-r0,<11.0' \
+    'mariadb-client=~10.11' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
