@@ -1,5 +1,6 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.2
-FROM php:8.2.26-fpm-alpine3.20
+# Pinned to Alpine 3.20 to keep MariaDB version 10.11.
+FROM php:8.2.28-fpm-alpine3.20
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -9,7 +10,7 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
 	  # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mysql client
-    'mariadb-client>=10.11.10-r0' \
+    'mariadb-client=~10.11' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
