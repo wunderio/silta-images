@@ -1,4 +1,4 @@
-FROM cimg/php:8.1.31
+FROM cimg/php:8.1.32
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
@@ -30,9 +30,14 @@ RUN sudo apt install -y git python3 python3-pip \
   && sudo  rm -rf ./aws
 
 # Install Helm 3
-ENV HELM_VERSION v3.16.3
+# https://github.com/helm/helm/releases
+ENV HELM_VERSION v3.18.4
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
+
+# Helm unit test plugin version.
+# https://github.com/helm-unittest/helm-unittest/releases
+ENV HELM_UNITTEST_VERSION 1.0.0
 
 RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
@@ -42,12 +47,12 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version ${HELM_UNITTEST_VERSION}
 
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
 # https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
-ENV NODE_VERSION 18.20.5
+ENV NODE_VERSION 18.20.8
 RUN echo "Installing Node.js version ${NODE_VERSION}"
 RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
 	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
