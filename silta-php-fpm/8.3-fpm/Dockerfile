@@ -1,6 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.3
-# Pinned to Alpine 3.20 to keep MariaDB version 10.11.
-FROM php:8.3.22-fpm-alpine3.20
+FROM php:8.3.24-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -9,8 +8,8 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
 RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
 	  # Install MariaDB Connector/C
     mariadb-connector-c \
-    # Install mysql client
-    'mariadb-client=~10.11' \
+    # Install mariadb client
+    'mariadb-client=~11.4' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
@@ -71,11 +70,7 @@ RUN apk add --no-cache \
         # https://github.com/docker-library/php/issues/888
         linux-headers \
     && yes '' | pecl install -f apcu-5.1.21 \
-    # imagick: Install error "Unterminated preprocessor conditions" in php 8.3
-    # https://github.com/Imagick/imagick/issues/640
-    # && yes '' | pecl install -f imagick-3.7.0 \
-    && curl -fsSL https://github.com/Imagick/imagick/archive/944b67fce68bcb5835999a149f917670555b6fcb.tar.gz | tar xvz -C /tmp \
-    && yes '' | pecl install /tmp/imagick-944b67fce68bcb5835999a149f917670555b6fcb/package.xml \
+    && yes '' | pecl install -f imagick-3.8.0 \
     && yes '' | pecl install -f redis-5.3.7 \
     && yes '' | pecl install -f yaml-2.2.2 \
     && docker-php-ext-enable imagick yaml apcu redis \
