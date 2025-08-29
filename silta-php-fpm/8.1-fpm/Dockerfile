@@ -122,9 +122,13 @@ RUN set -ex; \
     chmod -R o+w /usr/local/etc; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
+RUN mkdir /etc/drush
+
 COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
+COPY config/drush.yml /etc/drush/drush.yml
+COPY config/mariadb-client.cnf /etc/my.cnf.d/mariadb-client.cnf
 COPY silta /silta
 COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
 
