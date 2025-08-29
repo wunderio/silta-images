@@ -18,9 +18,3 @@ command:
     query:
       options:
         extra: "--skip-ssl"
-    sanitize: # ???
-      options:
-        extra: "--skip-ssl"
-    sync: # ???
-      options:
-        extra: "--skip-ssl"
