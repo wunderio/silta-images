@@ -51,6 +51,18 @@ COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
 # Nginx virtual host traffic status module
 COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/ngx_http_vhost_traffic_status_module.so
 
+# Install gor for traffic mirroring and give execution rights to nginx user
+RUN apk update && apk add libcap \
+    && curl -L https://github.com/buger/goreplay/releases/download/1.3.3/gor_1.3.3_x64.tar.gz | tar xz -C /usr/local/bin \
+    && addgroup gor \
+    && adduser nginx gor \
+    && chgrp gor /usr/local/bin/gor \
+    && chmod 0750 /usr/local/bin/gor \
+    && setcap "cap_net_raw,cap_net_admin+eip" /usr/local/bin/gor
+
+COPY 25-start-goreplay.sh /docker-entrypoint.d/25-start-goreplay.sh
+RUN chmod +x /docker-entrypoint.d/25-start-goreplay.sh
+
 # Fastly signal sciences module
 # https://docs.fastly.com/en/ngwaf/installing-the-nginx-dynamic-module#alpine-linux-311
 # The module is enabled conditionally via chart template / configmap.
