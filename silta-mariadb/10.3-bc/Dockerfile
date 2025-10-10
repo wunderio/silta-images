@@ -1,10 +1,6 @@
 # https://hub.docker.com/_/mariadb/tags
 FROM mariadb:10.3.39
 
-# Bitnami commit for script downloads, we reuse scripts from 10.6
-# ARG BITNAMI_CONTAINERS_COMMIT=0ef447b0dcac9d5ed1142d4900b555a694ec3ddb
-# ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.6/debian-12
-
 ARG BITNAMI_CONTAINERS_COMMIT=f0b4aa502031e2e8a4bcf74c37a3183c4a014f7d
 ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.3/debian-11
 
@@ -51,9 +47,6 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && rm -rf /etc/mysql/mariadb.cnf \
     && touch /opt/bitnami/mariadb/conf/my.cnf \
     && rm -rf /etc/mysql/* \
-    # chown: cannot access '/usr/lib/mysql/plugin/auth_pam_tool_dir/': No such file or directory
-    # && chown -R root:root /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
-    # && chmod -R 755 /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
     && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf \
     && ln -sf /opt/bitnami/mariadb/conf/bitnami /etc/mysql/bitnami \
     && rm -f /opt/bitnami/mariadb/conf/my.cnf

@@ -39,7 +39,7 @@ RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS
     && cp -r "containers-${BITNAMI_CONTAINERS_COMMIT}/${BITNAMI_FILES_PATH}/rootfs/"* / \
     && rm -rf "containers-${BITNAMI_CONTAINERS_COMMIT}"
 
-# https://downloads.bitnami.com/files/stacksmith/redis-7.2.4-5-linux-amd64-debian-12.tar.gz
+# https://downloads.bitnami.com/files/stacksmith/redis-7.0.15-4-linux-amd64-debian-12.tar.gz
 COPY redis-default.conf /opt/bitnami/redis/etc/redis-default.conf
 
 RUN /opt/bitnami/scripts/redis/postunpack.sh

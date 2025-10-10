@@ -45,9 +45,6 @@ COPY redis-default.conf /opt/bitnami/redis/etc/redis-default.conf
 RUN /opt/bitnami/scripts/redis/postunpack.sh
 
 # Copy configuration files and set permissions
-# RUN cp /opt/bitnami/redis/etc/redis-default.conf /opt/bitnami/redis/etc/redis.conf \
-#     && cp /opt/bitnami/redis/etc/redis-default.conf /opt/bitnami/redis/etc.default/redis.conf \
-#     && chown -R 1001:1001 /bitnami \
 RUN chown -R 1001:1001 /bitnami \
     && chown -R 1001:1001 /opt/bitnami \
     && chmod +x /opt/bitnami/scripts/redis/*.sh \
