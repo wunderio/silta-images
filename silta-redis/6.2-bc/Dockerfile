@@ -1,13 +1,12 @@
-ARG REDIS_VERSION=6.2.7
 # https://hub.docker.com/_/redis/tags
-FROM redis:${REDIS_VERSION}
+FROM redis:6.2.7
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=c82049f82665c8acc980d2fafadac2542a2a73fa
 ARG BITNAMI_FILES_PATH=bitnami/redis/6.2/debian-12
 
 ENV BITNAMI_APP_NAME="redis" \
-    BITNAMI_IMAGE_VERSION="6.2.7-debian-12" \
+    BITNAMI_IMAGE_VERSION="6.2.7" \
     PATH="/opt/bitnami/redis/bin:$PATH"
 
 # Set shell options for better error handling

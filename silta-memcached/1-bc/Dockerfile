@@ -1,13 +1,12 @@
-ARG MEMCACHED_VERSION=1.6.8
 # https://hub.docker.com/_/memcached/tags
-FROM memcached:${MEMCACHED_VERSION}
+FROM memcached:1.6.8
 
 # Bitnami commit hash for rootfs downloads
 ARG BITNAMI_CONTAINERS_COMMIT=95fea787a9e62e4b16c4bdf2be16c535d5c6f544
 ARG BITNAMI_FILES_PATH=bitnami/memcached/1/debian-12
 
 ENV BITNAMI_APP_NAME="memcached" \
-    BITNAMI_IMAGE_VERSION="1.6.8-debian-12" \
+    BITNAMI_IMAGE_VERSION="1.6.8" \
     PATH="/opt/bitnami/memcached/bin:$PATH"
 
 # UID/GID 1001 required by memcached chart securityContext defaults

@@ -386,3 +386,71 @@ updates:
     ignore:
       - dependency-name: "varnish"
         update-types: ["version-update:semver-major"]
+
+  # silta-mariadb
+  - package-ecosystem: "docker"
+    directory: "/silta-mariadb/10.3-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-mariadb/10.6-bc"
+    schedule:
+      interval: "daily"
+
+  # silta-memcached
+  - package-ecosystem: "docker"
+    directory: "/silta-memcached/1-bc"
+    schedule:
+      interval: "daily"
+
+  # silta-mongodb
+  - package-ecosystem: "docker"
+    directory: "/silta-mongodb/5-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-mongodb/6-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-mongodb/7-bc"
+    schedule:
+      interval: "daily"
+
+  # silta-postgresql
+  - package-ecosystem: "docker"
+    directory: "/silta-postgresql/14-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-postgresql/16-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-postgresql/17-bc"
+    schedule:
+      interval: "daily"
+
+  # silta-rabbitmq
+  - package-ecosystem: "docker"
+    directory: "/silta-rabbitmq/3.8-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-rabbitmq/4.1-bc"
+    schedule:
+      interval: "daily"
+
+  # silta-redis
+  - package-ecosystem: "docker"
+    directory: "/silta-redis/6.2-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-redis/7.0-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-redis/7.2-bc"
+    schedule:
+      interval: "daily"

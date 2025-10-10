@@ -1,6 +1,5 @@
-ARG MARIADB_VERSION=10.3.39
 # https://hub.docker.com/_/mariadb/tags
-FROM mariadb:${MARIADB_VERSION}
+FROM mariadb:10.3.39
 
 # Bitnami commit for script downloads, we reuse scripts from 10.6
 # ARG BITNAMI_CONTAINERS_COMMIT=0ef447b0dcac9d5ed1142d4900b555a694ec3ddb
@@ -10,7 +9,7 @@ ARG BITNAMI_CONTAINERS_COMMIT=f0b4aa502031e2e8a4bcf74c37a3183c4a014f7d
 ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.3/debian-11
 
 # Set environment variables
-ENV APP_VERSION="${MARIADB_VERSION}" \
+ENV APP_VERSION="10.3.39" \
     BITNAMI_APP_NAME="mariadb" \
     PATH="/usr/sbin:/usr/bin:/opt/bitnami/common/bin:/opt/bitnami/common/sbin:/opt/bitnami/mariadb/bin:/opt/bitnami/mariadb/sbin:$PATH"
 

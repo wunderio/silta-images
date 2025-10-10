@@ -1,19 +1,17 @@
-ARG POSTGRESQL_VERSION=17.5
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:${POSTGRESQL_VERSION}-bullseye
+FROM postgres:17.5-bullseye
 
 # Download Bitnami scripts from specific commit
 ENV BITNAMI_CONTAINERS_COMMIT=ddbf0f6276462266242c34ee2a9eac94b3383f8d
 ENV BITNAMI_FILES_PATH=bitnami/postgresql/17/debian-12
 
-ARG POSTGRESQL_VERSION
 ENV PG_MAJOR=17
 
 # Set environment variables for Bitnami compatibility
 ENV BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
     BITNAMI_APP_NAME="postgresql" \
-    POSTGRESQL_VERSION="${POSTGRESQL_VERSION}" \
+    POSTGRESQL_VERSION="17.5" \
     POSTGRESQL_DATA_DIR="/bitnami/postgresql/data" \
     POSTGRESQL_CONF_FILE="/opt/bitnami/postgresql/conf/postgresql.conf" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/postgresql/bin:$PATH"
