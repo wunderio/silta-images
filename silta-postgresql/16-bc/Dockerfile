@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:16.1-bullseye
+FROM postgres:17.5-bullseye
 
 # Download Bitnami scripts from specific commit
 ENV BITNAMI_CONTAINERS_COMMIT=7cb220037e8c5ba01ee4df2756c45812da01316b
