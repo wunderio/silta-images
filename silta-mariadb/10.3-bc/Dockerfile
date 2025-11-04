@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/mariadb/tags
-FROM mariadb:10.3.39
+FROM mariadb:12.0.2
 
 ARG BITNAMI_CONTAINERS_COMMIT=f0b4aa502031e2e8a4bcf74c37a3183c4a014f7d
 ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.3/debian-11
