@@ -10,6 +10,10 @@ ENV HTTPECHO_VERSION=0.62
 # https://github.com/vozlt/nginx-module-vts
 ENV NGINX_VTS_VERSION 0.2.2
 
+# Nginx auth digest module
+# https://github.com/samizdatco/nginx-http-auth-digest
+ENV NGINX_AUTH_DIGEST_VERSION master
+
 RUN apk add --update gcc libc-dev linux-headers zlib-dev openrc autoconf automake g++ make \
     libressl-dev geoip-dev lmdb-dev pcre-dev libtool libxml2-dev yajl-dev pkgconf zlib-dev \
 	libcurl curl tzdata
@@ -17,7 +21,8 @@ RUN apk add --update gcc libc-dev linux-headers zlib-dev openrc autoconf automak
 # Download sources
 RUN curl "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
   curl -L "https://github.com/openresty/echo-nginx-module/archive/v${HTTPECHO_VERSION}.tar.gz" -o httpecho.tar.gz && \
-  curl -L "https://github.com/vozlt/nginx-module-vts/archive/refs/tags/v${NGINX_VTS_VERSION}.tar.gz" -o nginx-module-vts.tar.gz
+  curl -L "https://github.com/vozlt/nginx-module-vts/archive/refs/tags/v${NGINX_VTS_VERSION}.tar.gz" -o nginx-module-vts.tar.gz && \
+  curl -L "https://github.com/samizdatco/nginx-http-auth-digest/archive/${NGINX_AUTH_DIGEST_VERSION}.tar.gz" -o nginx-http-auth-digest.tar.gz
 
 # Reuse same cli arguments as the nginx:alpine image used to build
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
@@ -30,10 +35,14 @@ RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
   	# Uncompress vts module
 	tar -xzvf "nginx-module-vts.tar.gz" && \
   	VTSDIR="$(pwd)/nginx-module-vts-${NGINX_VTS_VERSION}" && \
+  	# Uncompress auth digest module
+	tar -xzvf "nginx-http-auth-digest.tar.gz" && \
+  	AUTHDIGESTDIR="$(pwd)/nginx-http-auth-digest-${NGINX_AUTH_DIGEST_VERSION}" && \
   	cd /usr/src/nginx-$NGINX_VERSION && \
   	./configure --with-compat $CONFARGS \
 		--add-dynamic-module=$HTTPECHODIR  \
 		--add-dynamic-module=$VTSDIR \
+		--add-dynamic-module=$AUTHDIGESTDIR \
 		--with-http_stub_status_module && \
   	make modules && \
 	# Move module to root so it's easier to locate it in the next layer
@@ -51,6 +60,10 @@ COPY modules/ngx_http_echo.conf /etc/nginx/modules/ngx_http_echo.conf
 
 # Nginx virtual host traffic status module
 COPY --from=builder /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules/ngx_http_vhost_traffic_status_module.so
+
+# Nginx auth digest module
+COPY --from=builder /ngx_http_auth_digest_module.so /etc/nginx/modules/ngx_http_auth_digest_module.so
+COPY modules/ngx_http_auth_digest.conf /etc/nginx/modules/ngx_http_auth_digest.conf
 
 # Fastly signal sciences module
 # https://docs.fastly.com/en/ngwaf/installing-the-nginx-dynamic-module#alpine-linux-311
