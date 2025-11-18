@@ -1,6 +1,6 @@
 # https://hub.docker.com/_/rabbitmq/tags
 # Use version with management plugin pre-installed (tag ends with -management) due to bitnami chart readiness/liveness probes
-FROM rabbitmq:4.1.0-management
+FROM rabbitmq:4.2.1-management
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=d4f74c81dd006b07b9a7d8b315d9b3ebe5e351f8
