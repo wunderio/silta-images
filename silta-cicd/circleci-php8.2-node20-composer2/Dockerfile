@@ -1,15 +1,10 @@
-FROM cimg/php:8.2.26
+FROM cimg/php:8.2.28
 
 # Make composer packages executable.
-ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
+ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
 
 # Upgrade packages
 RUN sudo apt update && sudo apt upgrade && sudo apt clean
-
-# Install drush
-ENV DRUSH_LAUNCHER_VERSION 0.9.1
-RUN sudo wget -q https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar -O /usr/local/bin/drush \
-  && sudo chmod +x /usr/local/bin/drush
 
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
@@ -35,9 +30,14 @@ RUN sudo apt install -y git python3  python3-pip \
   && sudo  rm -rf ./aws
 
 # Install Helm 3
-ENV HELM_VERSION v3.16.3
+# https://github.com/helm/helm/releases
+ENV HELM_VERSION v3.18.4
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
+
+# Helm unit test plugin version.
+# https://github.com/helm-unittest/helm-unittest/releases
+ENV HELM_UNITTEST_VERSION 1.0.0
 
 RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
@@ -47,12 +47,12 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
   # && helm repo add minio https://helm.min.io/ \
   && helm repo add wunderio https://storage.googleapis.com/charts.wdr.io \
   && helm repo add percona https://percona.github.io/percona-helm-charts/ \
-  && helm plugin install https://github.com/helm-unittest/helm-unittest --version 0.5.1
+  && helm plugin install https://github.com/helm-unittest/helm-unittest --version ${HELM_UNITTEST_VERSION}
 
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
 # https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
-ENV NODE_VERSION 20.18.1
+ENV NODE_VERSION 20.19.5
 RUN echo "Installing Node.js version ${NODE_VERSION}"
 RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
 	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
