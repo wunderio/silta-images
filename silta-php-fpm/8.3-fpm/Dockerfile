@@ -6,7 +6,7 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
-	  # Install MariaDB Connector/C
+    # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mariadb client
     'mariadb-client=~11.4' \
@@ -22,15 +22,18 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
     gettext \
     libzip \
     libmcrypt \
+    # Base image has old version of libxml2.
     libxml2 \
     libxslt \
     libgcrypt \
     libwebp \
     yaml \
-    tzdata
+    tzdata \
+    # Base image has old version of openssl.
+    openssl
 
 # Update curl, as base php image has 8.11 with a critical CVE.
-RUN apk add --update --no-cache "curl>8.12"
+RUN apk add --update --no-cache "curl>8.14"
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
