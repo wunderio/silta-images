@@ -204,6 +204,13 @@ updates:
     ignore:
       - dependency-name: "node"
         update-types: [ "version-update:semver-major" ]
+  - package-ecosystem: "docker"
+    directory: "/silta-node/24-alpine"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "node"
+        update-types: [ "version-update:semver-major" ]
 
   # silta-php-fpm
   - package-ecosystem: "docker"
