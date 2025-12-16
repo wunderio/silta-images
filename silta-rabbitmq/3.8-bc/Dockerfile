@@ -31,16 +31,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Make this image bitnami compatible by creating directories and extra symlinks
-# Thanks to https://github.com/ZCube/bitnami-compat/
-RUN mkdir -p /opt/bitnami/rabbitmq/{sbin,bin,lib,conf,logs,tmp,var/lib/rabbitmq,var/log/rabbitmq,plugins,.rabbitmq} \
-    && mkdir -p /opt/bitnami/rabbitmq/etc/rabbitmq \
-    && mkdir -p /opt/bitnami/scripts \
-    && mkdir -p /bitnami/rabbitmq/{mnesia,conf,data,logs} \
-    && mkdir -p /docker-entrypoint-initdb.d \
-    && rm -rf /etc/rabbitmq \
-    && ln -sf /opt/bitnami/rabbitmq/etc/rabbitmq /etc/rabbitmq \
-    && rm -rf /var/lib/rabbitmq \
-    && ln -sf /opt/bitnami/rabbitmq/var/lib/rabbitmq /var/lib/rabbitmq
+RUN mkdir -p /opt/bitnami \
+    && ln -sf /opt/rabbitmq /opt/bitnami/rabbitmq
 
 # Download and extract Bitnami containers repository
 RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz \
@@ -48,18 +40,12 @@ RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS
     && cp -r "containers-${BITNAMI_CONTAINERS_COMMIT}/${BITNAMI_FILES_PATH}/rootfs/"* / \
     && rm -rf "containers-${BITNAMI_CONTAINERS_COMMIT}"
 
-# Run postunpack script if it exists
+# Run postunpack script
 RUN /opt/bitnami/scripts/rabbitmq/postunpack.sh
 
 # Set permissions
-RUN chown -R 1001:1001 /bitnami \
-    && chown -R 1001:1001 /opt/bitnami \
-    && chown -R 1001:1001 /var/lib/rabbitmq \
-    && chown -R 1001:1001 /var/log/rabbitmq \
-    && chmod +x /opt/bitnami/scripts/rabbitmq/*.sh \
-    && chmod +x /opt/bitnami/scripts/*.sh \
-    && chmod g+rwX /opt/bitnami \
-    && find / -perm /6000 -type f -exec chmod a-s {} \; || true
+RUN chown -R 1001:1001 /bitnami/rabbitmq \
+    && chown -R 1001:1001 /var/lib/rabbitmq
 
 USER 1001
 EXPOSE 4369 5671 5672 15672 25672
