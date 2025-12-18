@@ -1,18 +1,19 @@
 # https://hub.docker.com/_/mongo/tags
-FROM mongo:5.0.3
+FROM mongo:8.0.16
 
 # Download Bitnami scripts from specific commit
-ARG BITNAMI_CONTAINERS_COMMIT=2dcd36f2b49a0164185544729a3b88babe380521
-ARG BITNAMI_FILES_PATH=bitnami/mongodb/5.0/debian-11
+ARG BITNAMI_CONTAINERS_COMMIT=d4d4ed1856dc04019f0a7e87922dbc4f74916ba8
+ARG BITNAMI_FILES_PATH=bitnami/mongodb/8.0/debian-12
 
 # Set up environment variables
 ENV BITNAMI_APP_NAME="mongodb" \
-    BITNAMI_IMAGE_VERSION="5.0.3" \
+    BITNAMI_IMAGE_VERSION="8.0.16" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/mongodb/bin:$PATH" \
     BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
     MONGODB_DATA_DIR="/bitnami/mongodb/data" \
-    MONGODB_CONF_FILE="/opt/bitnami/mongodb/conf/mongodb.conf"
+    MONGODB_CONF_FILE="/opt/bitnami/mongodb/conf/mongodb.conf" \
+    DISABLE_WELCOME_MESSAGE="true"
 
 # Set shell options for better error handling
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -27,6 +28,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     procps \
     && rm -rf /var/lib/apt/lists/*
+
+# Bitnami scripts require yq
+ENV YQ_VERSION=v4.2.0
+ENV YQ_PLATFORM=linux_amd64
+RUN curl https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_${YQ_PLATFORM} --output /usr/local/bin/yq \
+    && chmod +x /usr/local/bin/yq
 
 # Make this image bitnami compatible by creating directories and extra symlinks
 # Thanks to https://github.com/ZCube/bitnami-compat/
@@ -56,6 +63,7 @@ RUN /opt/bitnami/scripts/mongodb/postunpack.sh
 
 # Set permissions
 RUN chown -R 1001:1001 /bitnami \
+    && chown -R 1001:1001 /data \
     && chown -R 1001:1001 /opt/bitnami \
     && chmod +x /opt/bitnami/scripts/mongodb/*.sh \
     && chmod +x /opt/bitnami/scripts/*.sh \
