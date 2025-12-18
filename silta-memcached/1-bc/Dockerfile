@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/memcached/tags
-FROM memcached:1.6.8
+FROM memcached:1.6.40
 
 # Bitnami commit hash for rootfs downloads
 ARG BITNAMI_CONTAINERS_COMMIT=95fea787a9e62e4b16c4bdf2be16c535d5c6f544
