@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.1
-FROM php:8.1.33-fpm-alpine
+FROM php:8.1.34-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
