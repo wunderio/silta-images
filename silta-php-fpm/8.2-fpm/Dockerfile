@@ -1,11 +1,11 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.2
-FROM php:8.2.29-fpm-alpine
+FROM php:8.2.30-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
-RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
+RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 	  # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mariadb client
@@ -28,9 +28,6 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
     libwebp \
     yaml \
     tzdata
-
-# Update curl, as php base image has an old version with a critical CVE.
-RUN apk add --update --no-cache "curl>8.12"
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
@@ -85,7 +82,7 @@ RUN apk add --no-cache \
 
 # Use GNU Iconv
 RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
-ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
 RUN mkdir -p /var/www/html \
