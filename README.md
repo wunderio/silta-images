@@ -17,8 +17,7 @@ Image tags listed at `*/*/TAGS`
 - `silta-solr/`: Apache Solr search images
 - `silta-splash/`: Static page for default service
 
-Bitnami chart images:
-
+Bitnami chart compatible images:
 - `silta-mariadb/`: MariaDB images
 - `silta-memcached/`: Memcached image
 - `silta-mongodb/`: MongoDB images
