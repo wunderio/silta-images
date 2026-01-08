@@ -1,17 +1,17 @@
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:16.11-bookworm
+FROM postgres:18.1-bookworm
 
 # Download Bitnami scripts from specific commit
-ENV BITNAMI_CONTAINERS_COMMIT=0191828691ccfad53afb58d918ce2dd3105e1f6b
-ENV BITNAMI_FILES_PATH=bitnami/postgresql/16/debian-12
+ENV BITNAMI_CONTAINERS_COMMIT=f2675e174c9479e5414428620ae47eefbc1eb213
+ENV BITNAMI_FILES_PATH=bitnami/postgresql/17/debian-12
 
-ENV PG_MAJOR=16
+ENV PG_MAJOR=18
 
 # Set environment variables for Bitnami compatibility
 ENV BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
     BITNAMI_APP_NAME="postgresql" \
-    POSTGRESQL_VERSION="16.11" \
+    POSTGRESQL_VERSION="18.1" \
     POSTGRESQL_DATA_DIR="/bitnami/postgresql/data" \
     POSTGRESQL_CONF_FILE="/opt/bitnami/postgresql/conf/postgresql.conf" \
     DISABLE_WELCOME_MESSAGE="true" \
