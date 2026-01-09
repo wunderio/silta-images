@@ -9,6 +9,7 @@ ARG BITNAMI_FILES_PATH=bitnami/rabbitmq/4.1/debian-12
 # Set environment variables
 ENV BITNAMI_APP_NAME="rabbitmq" \
     BITNAMI_IMAGE_VERSION="4.1.0" \
+    DISABLE_WELCOME_MESSAGE="true" \
     RABBITMQ_HOME="/opt/bitnami/rabbitmq" \
     PATH="/opt/bitnami/rabbitmq/sbin:$PATH" \
     RABBITMQ_LOGS="-"
@@ -32,7 +33,9 @@ RUN apt-get update && apt-get install -y \
 
 # Make this image bitnami compatible by creating directories and extra symlinks
 RUN mkdir -p /opt/bitnami \
-    && ln -sf /opt/rabbitmq /opt/bitnami/rabbitmq
+    && ln -sf /opt/rabbitmq /opt/bitnami/rabbitmq \
+    && rm -rf /etc/rabbitmq \
+    && ln -s /opt/bitnami/rabbitmq/etc/rabbitmq /etc/rabbitmq
 
 # Download and extract Bitnami containers repository
 RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz \
@@ -45,6 +48,7 @@ RUN /opt/bitnami/scripts/rabbitmq/postunpack.sh
 
 # Set permissions
 RUN chown -R 1001:1001 /bitnami/rabbitmq \
+    && chown -R 1001:1001 /opt/rabbitmq \
     && chown -R 1001:1001 /var/lib/rabbitmq
 
 USER 1001
