@@ -1,12 +1,12 @@
-# https://hub.docker.com/_/php/tags?page=1&name=8.1
-FROM php:8.1.34-fpm-alpine
+# https://hub.docker.com/_/php/tags?page=1&name=8.4
+FROM php:8.4.16-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
-	  # Install MariaDB Connector/C
+    # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mariadb client
     'mariadb-client=~11.4' \
@@ -22,12 +22,15 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     gettext \
     libzip \
     libmcrypt \
+    # Base image has old version of libxml2.
     libxml2 \
     libxslt \
     libgcrypt \
     libwebp \
     yaml \
-    tzdata
+    tzdata \
+    # Base image has old version of openssl.
+    openssl
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
@@ -63,10 +66,13 @@ RUN apk add --no-cache \
         yaml-dev \
         # for imagemagick
         imagemagick-dev \
-    && yes '' | pecl install -f apcu-5.1.22 \
-    && yes '' | pecl install -f imagick-3.7.0 \
-    && yes '' | pecl install -f redis-5.3.7 \
-    && yes '' | pecl install -f yaml-2.2.2 \
+        # https://github.com/php/php-src/issues/8681#issuecomment-1144062769
+        # https://github.com/docker-library/php/issues/888
+        linux-headers \
+    && yes '' | pecl install -f apcu \
+    && yes '' | pecl install -f imagick \
+    && yes '' | pecl install -f redis \
+    && yes '' | pecl install -f yaml \
     && docker-php-ext-enable imagick yaml apcu redis \
     && docker-php-ext-install ldap \
     && docker-php-ext-enable ldap \
@@ -86,7 +92,7 @@ RUN mkdir -p /var/www/html \
     && ln -s /var/www/html /app
 
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
-ENV SA_GDPR_DUMP_VERSION=3.1.0
+ENV SA_GDPR_DUMP_VERSION=5.0.5
 RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_VERSION}/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
