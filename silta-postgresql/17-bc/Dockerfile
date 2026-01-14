@@ -1,8 +1,8 @@
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:17.5-bullseye
+FROM postgres:17.7-bookworm
 
 # Download Bitnami scripts from specific commit
-ENV BITNAMI_CONTAINERS_COMMIT=ddbf0f6276462266242c34ee2a9eac94b3383f8d
+ENV BITNAMI_CONTAINERS_COMMIT=f2675e174c9479e5414428620ae47eefbc1eb213
 ENV BITNAMI_FILES_PATH=bitnami/postgresql/17/debian-12
 
 ENV PG_MAJOR=17
@@ -11,9 +11,10 @@ ENV PG_MAJOR=17
 ENV BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
     BITNAMI_APP_NAME="postgresql" \
-    POSTGRESQL_VERSION="17.5" \
+    POSTGRESQL_VERSION="17.7" \
     POSTGRESQL_DATA_DIR="/bitnami/postgresql/data" \
     POSTGRESQL_CONF_FILE="/opt/bitnami/postgresql/conf/postgresql.conf" \
+    DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/postgresql/bin:$PATH"
 
 # Set shell options for better error handling

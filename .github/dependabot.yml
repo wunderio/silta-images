@@ -160,6 +160,15 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.28"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "nginx"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-node
   - package-ecosystem: "docker"
@@ -403,6 +412,10 @@ updates:
     directory: "/silta-mariadb/10.6-bc"
     schedule:
       interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-mariadb/11.4-bc"
+    schedule:
+      interval: "daily"
 
   # silta-memcached
   - package-ecosystem: "docker"
@@ -412,15 +425,19 @@ updates:
 
   # silta-mongodb
   - package-ecosystem: "docker"
-    directory: "/silta-mongodb/5-bc"
+    directory: "/silta-mongodb/6.0-bc"
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directory: "/silta-mongodb/6-bc"
+    directory: "/silta-mongodb/7.0-bc"
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directory: "/silta-mongodb/7-bc"
+    directory: "/silta-mongodb/8.0-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-mongodb/8.2-bc"
     schedule:
       interval: "daily"
 
@@ -437,6 +454,10 @@ updates:
     directory: "/silta-postgresql/17-bc"
     schedule:
       interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-postgresql/18-bc"
+    schedule:
+      interval: "daily"
 
   # silta-rabbitmq
   - package-ecosystem: "docker"
@@ -445,6 +466,10 @@ updates:
       interval: "daily"
   - package-ecosystem: "docker"
     directory: "/silta-rabbitmq/4.1-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-rabbitmq/4.2-bc"
     schedule:
       interval: "daily"
 
@@ -459,5 +484,13 @@ updates:
       interval: "daily"
   - package-ecosystem: "docker"
     directory: "/silta-redis/7.2-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-redis/7.4-bc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/silta-redis/8.4-bc"
     schedule:
       interval: "daily"

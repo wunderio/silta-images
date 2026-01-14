@@ -1,6 +1,6 @@
 # https://hub.docker.com/_/rabbitmq/tags
 # Use version with management plugin pre-installed (tag ends with -management) due to bitnami chart readiness/liveness probes
-FROM rabbitmq:4.1.0-management
+FROM rabbitmq:4.1.7-management
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=d4f74c81dd006b07b9a7d8b315d9b3ebe5e351f8
@@ -9,6 +9,7 @@ ARG BITNAMI_FILES_PATH=bitnami/rabbitmq/4.1/debian-12
 # Set environment variables
 ENV BITNAMI_APP_NAME="rabbitmq" \
     BITNAMI_IMAGE_VERSION="4.1.0" \
+    DISABLE_WELCOME_MESSAGE="true" \
     RABBITMQ_HOME="/opt/bitnami/rabbitmq" \
     PATH="/opt/bitnami/rabbitmq/sbin:$PATH" \
     RABBITMQ_LOGS="-"
@@ -31,16 +32,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Make this image bitnami compatible by creating directories and extra symlinks
-# Thanks to https://github.com/ZCube/bitnami-compat/
-RUN mkdir -p /opt/bitnami/rabbitmq/{sbin,bin,lib,conf,logs,tmp,var/lib/rabbitmq,var/log/rabbitmq,plugins,.rabbitmq} \
-    && mkdir -p /opt/bitnami/rabbitmq/etc/rabbitmq \
-    && mkdir -p /opt/bitnami/scripts \
-    && mkdir -p /bitnami/rabbitmq/{mnesia,conf,data,logs} \
-    && mkdir -p /docker-entrypoint-initdb.d \
+RUN mkdir -p /opt/bitnami \
+    && ln -sf /opt/rabbitmq /opt/bitnami/rabbitmq \
     && rm -rf /etc/rabbitmq \
-    && ln -sf /opt/bitnami/rabbitmq/etc/rabbitmq /etc/rabbitmq \
-    && rm -rf /var/lib/rabbitmq \
-    && ln -sf /opt/bitnami/rabbitmq/var/lib/rabbitmq /var/lib/rabbitmq
+    && ln -s /opt/bitnami/rabbitmq/etc/rabbitmq /etc/rabbitmq
 
 # Download and extract Bitnami containers repository
 RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz \
@@ -48,18 +43,13 @@ RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS
     && cp -r "containers-${BITNAMI_CONTAINERS_COMMIT}/${BITNAMI_FILES_PATH}/rootfs/"* / \
     && rm -rf "containers-${BITNAMI_CONTAINERS_COMMIT}"
 
-# Run postunpack script if it exists
+# Run postunpack script
 RUN /opt/bitnami/scripts/rabbitmq/postunpack.sh
 
 # Set permissions
-RUN chown -R 1001:1001 /bitnami \
-    && chown -R 1001:1001 /opt/bitnami \
-    && chown -R 1001:1001 /var/lib/rabbitmq \
-    && chown -R 1001:1001 /var/log/rabbitmq \
-    && chmod +x /opt/bitnami/scripts/rabbitmq/*.sh \
-    && chmod +x /opt/bitnami/scripts/*.sh \
-    && chmod g+rwX /opt/bitnami \
-    && find / -perm /6000 -type f -exec chmod a-s {} \; || true
+RUN chown -R 1001:1001 /bitnami/rabbitmq \
+    && chown -R 1001:1001 /opt/rabbitmq \
+    && chown -R 1001:1001 /var/lib/rabbitmq
 
 USER 1001
 EXPOSE 4369 5671 5672 15672 25672

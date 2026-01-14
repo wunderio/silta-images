@@ -1,12 +1,13 @@
 # https://hub.docker.com/_/memcached/tags
-FROM memcached:1.6.8
+FROM memcached:1.6.39
 
 # Bitnami commit hash for rootfs downloads
 ARG BITNAMI_CONTAINERS_COMMIT=95fea787a9e62e4b16c4bdf2be16c535d5c6f544
 ARG BITNAMI_FILES_PATH=bitnami/memcached/1/debian-12
 
 ENV BITNAMI_APP_NAME="memcached" \
-    BITNAMI_IMAGE_VERSION="1.6.8" \
+    BITNAMI_IMAGE_VERSION="1.6.39" \
+    DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/memcached/bin:$PATH"
 
 # UID/GID 1001 required by memcached chart securityContext defaults
@@ -15,11 +16,7 @@ RUN usermod -u 1001 memcache && \
     groupmod -g 1001 memcache && \
     ln -sf /home/memcache /home/bitnami
 
-# Use archived repositories for Debian Buster (10) because 1.6.8 base image is based on it.
-RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
-    && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \
-    && sed -i '/buster-updates/d' /etc/apt/sources.list \
-    && apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     && rm -rf /var/lib/apt/lists/*
