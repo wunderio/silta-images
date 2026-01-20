@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/redis/tags
-FROM redis:7.4.7
+FROM redis:8.4.0
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=21606257a1896d41cda9f3b2cc5c9ff08b3eaadf
