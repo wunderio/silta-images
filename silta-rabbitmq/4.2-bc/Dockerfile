@@ -1,14 +1,14 @@
 # https://hub.docker.com/_/rabbitmq/tags
 # Use version with management plugin pre-installed (tag ends with -management) due to bitnami chart readiness/liveness probes
-FROM rabbitmq:3.8.2-management
+FROM rabbitmq:4.2.2-management
 
 # Download Bitnami scripts from specific commit
-ARG BITNAMI_CONTAINERS_COMMIT=794c0d83cf265d1daf5029de7ce627c84dd65b8c
-ARG BITNAMI_FILES_PATH=bitnami/rabbitmq/3.8/debian-11
+ARG BITNAMI_CONTAINERS_COMMIT=d4f74c81dd006b07b9a7d8b315d9b3ebe5e351f8
+ARG BITNAMI_FILES_PATH=bitnami/rabbitmq/4.1/debian-12
 
 # Set environment variables
 ENV BITNAMI_APP_NAME="rabbitmq" \
-    BITNAMI_IMAGE_VERSION="3.8.2" \
+    BITNAMI_IMAGE_VERSION="4.2.2" \
     DISABLE_WELCOME_MESSAGE="true" \
     RABBITMQ_HOME="/opt/bitnami/rabbitmq" \
     PATH="/opt/bitnami/rabbitmq/sbin:$PATH" \

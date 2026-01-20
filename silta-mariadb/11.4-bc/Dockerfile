@@ -1,11 +1,13 @@
 # https://hub.docker.com/_/mariadb/tags
-FROM mariadb:10.3.39
+FROM mariadb:11.4.7
 
-ARG BITNAMI_CONTAINERS_COMMIT=f0b4aa502031e2e8a4bcf74c37a3183c4a014f7d
-ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.3/debian-11
+# Bitnami commit for script downloads
+ARG BITNAMI_CONTAINERS_COMMIT=7db983d66d4d314012182652f000a44d0a1f35a5
+ARG BITNAMI_FILES_PATH=bitnami/mariadb/11.4/debian-12
 
 # Set environment variables
-ENV APP_VERSION="10.3.39" \
+ENV APP_VERSION="11.4.7" \
+    DISABLE_WELCOME_MESSAGE="true" \
     BITNAMI_APP_NAME="mariadb" \
     PATH="/usr/sbin:/usr/bin:/opt/bitnami/common/bin:/opt/bitnami/common/sbin:/opt/bitnami/mariadb/bin:/opt/bitnami/mariadb/sbin:$PATH"
 
@@ -42,11 +44,13 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && ln -s /usr/bin/maria*                       /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/sbin/maria*                      /opt/bitnami/mariadb/sbin/ \
     && cp -rf /usr/lib/mysql/plugin/               /opt/bitnami/mariadb/plugin/ \
-    && cp -rf /usr/share/mysql/                    /opt/bitnami/mariadb/share/mysql/ \
+    && cp -rf /usr/share/mariadb/                  /opt/bitnami/mariadb/share/mariadb/ \
     && rm -rf /var/lib/dpkg/alternatives/my.cnf \
     && rm -rf /etc/mysql/my.cnf \
     && rm -rf /etc/mysql/mariadb.cnf \
     && rm -rf /etc/mysql/* \
+    && chown -R root:root /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
+    && chmod -R 755 /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
     && ln -sf /opt/bitnami/mariadb/conf/bitnami /etc/mysql/bitnami \
     && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf
     
@@ -54,7 +58,6 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
-    libaio1 \
     libaudit1 \
     libcap-ng0 \
     libcrypt1 \
@@ -89,6 +92,10 @@ RUN mkdir -p /bitnami/mariadb/data \
     && chown -R 1001:1001 /opt/bitnami \
     && chmod g+rwX /opt/bitnami \
     && find / -perm /6000 -type f -exec chmod a-s {} \; || true
+
+# Bitnami scripts expect mariadb_upgrade binary
+RUN ln -s /opt/bitnami/mariadb/bin/mariadb-upgrade /opt/bitnami/mariadb/bin/mariadb_upgrade \
+    && ln -s /usr/bin/mariadb-admin /usr/bin/mysqladmin 
 
 USER 1001
 

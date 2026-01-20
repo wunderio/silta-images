@@ -19,6 +19,7 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && mkdir -p /opt/bitnami/mariadb/sbin \
     && mkdir -p /opt/bitnami/mariadb/lib \
     && mkdir -p /opt/bitnami/mariadb/conf \
+    && mkdir -p /opt/bitnami/mariadb/share/mysql \
     && ln -s /usr/bin/aria_chk                     /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/bin/aria_dump_log                /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/bin/aria_ftdump                  /opt/bitnami/mariadb/bin/ \
@@ -42,18 +43,16 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && ln -s /usr/bin/maria*                       /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/sbin/maria*                      /opt/bitnami/mariadb/sbin/ \
     && cp -rf /usr/lib/mysql/plugin/               /opt/bitnami/mariadb/plugin/ \
-    && cp -rf /usr/share/mysql/                    /opt/bitnami/mariadb/share/ \
+    && cp -rf /usr/share/mysql/                    /opt/bitnami/mariadb/share/mysql/ \
     && rm -rf /var/lib/dpkg/alternatives/my.cnf \
     && rm -rf /etc/mysql/my.cnf \
     && rm -rf /etc/mysql/mariadb.cnf \
-    && touch /opt/bitnami/mariadb/conf/my.cnf \
     && rm -rf /etc/mysql/* \
     && chown -R root:root /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
     && chmod -R 755 /usr/lib/mysql/plugin/auth_pam_tool_dir/ \
-    && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf \
     && ln -sf /opt/bitnami/mariadb/conf/bitnami /etc/mysql/bitnami \
-    && rm -f /opt/bitnami/mariadb/conf/my.cnf
-
+    && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf
+    
 # Install required packages
 RUN apt-get update && apt-get install -y \
     ca-certificates \
@@ -94,10 +93,11 @@ RUN mkdir -p /bitnami/mariadb/data \
     && chmod g+rwX /opt/bitnami \
     && find / -perm /6000 -type f -exec chmod a-s {} \; || true
 
+USER 1001
+
 # Run postunpack script
 RUN /opt/bitnami/scripts/mariadb/postunpack.sh
 
-USER 1001
 EXPOSE 3306
 
 # Set entrypoint and command
