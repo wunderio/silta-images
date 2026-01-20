@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:17.7-bookworm
+FROM postgres:18.1-bookworm
 
 # Download Bitnami scripts from specific commit
 ENV BITNAMI_CONTAINERS_COMMIT=f2675e174c9479e5414428620ae47eefbc1eb213
