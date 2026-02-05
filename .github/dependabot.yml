@@ -479,6 +479,10 @@ updates:
     directory: "/silta-postgresql/16-bc"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "postgres"
+        update-types:
+          - "version-update:semver-major"
   - package-ecosystem: "docker"
     directory: "/silta-postgresql/17-bc"
     schedule:
