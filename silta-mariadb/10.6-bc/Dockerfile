@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/mariadb/tags
-FROM mariadb:10.6.24
+FROM mariadb:10.6.25
 
 # Bitnami commit for script downloads
 ARG BITNAMI_CONTAINERS_COMMIT=0ef447b0dcac9d5ed1142d4900b555a694ec3ddb
