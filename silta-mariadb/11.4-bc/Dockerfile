@@ -73,6 +73,13 @@ RUN apt-get update && apt-get install -y \
     zlib1g \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Download ini-file from official Bitnami repository
+RUN mkdir -p /opt/bitnami/common/bin \
+    && curl -sL "https://github.com/bitnami/ini-file/releases/latest/download/ini-file-linux-amd64.tar.gz" \
+    | tar -xz -C /tmp \
+    && mv /tmp/ini-file-linux-amd64 /opt/bitnami/common/bin/ini-file \
+    && chmod +x /opt/bitnami/common/bin/ini-file
+
 # Download Bitnami scripts from GitHub
 RUN curl -L "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz -C /tmp \
     && mkdir -p /opt/bitnami/scripts \
