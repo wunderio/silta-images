@@ -6,7 +6,7 @@ ARG BITNAMI_CONTAINERS_COMMIT=7db983d66d4d314012182652f000a44d0a1f35a5
 ARG BITNAMI_FILES_PATH=bitnami/mariadb/11.4/debian-12
 
 # Set environment variables
-ENV APP_VERSION="11.4.7" \
+ENV APP_VERSION="11.4.10" \
     DISABLE_WELCOME_MESSAGE="true" \
     BITNAMI_APP_NAME="mariadb" \
     PATH="/usr/sbin:/usr/bin:/opt/bitnami/common/bin:/opt/bitnami/common/sbin:/opt/bitnami/mariadb/bin:/opt/bitnami/mariadb/sbin:$PATH"
