@@ -1,12 +1,12 @@
 # https://hub.docker.com/_/mariadb/tags
-FROM mariadb:10.6.23
+FROM mariadb:10.6.25
 
 # Bitnami commit for script downloads
 ARG BITNAMI_CONTAINERS_COMMIT=0ef447b0dcac9d5ed1142d4900b555a694ec3ddb
 ARG BITNAMI_FILES_PATH=bitnami/mariadb/10.6/debian-12
 
 # Set environment variables
-ENV APP_VERSION="10.6.23" \
+ENV APP_VERSION="10.6.24" \
     BITNAMI_APP_NAME="mariadb" \
     PATH="/usr/sbin:/usr/bin:/opt/bitnami/common/bin:/opt/bitnami/common/sbin:/opt/bitnami/mariadb/bin:/opt/bitnami/mariadb/sbin:$PATH"
 
@@ -72,6 +72,13 @@ RUN apt-get update && apt-get install -y \
     psmisc \
     zlib1g \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Download ini-file from official Bitnami repository
+RUN mkdir -p /opt/bitnami/common/bin \
+    && curl -sL "https://github.com/bitnami/ini-file/releases/latest/download/ini-file-linux-amd64.tar.gz" \
+    | tar -xz -C /tmp \
+    && mv /tmp/ini-file-linux-amd64 /opt/bitnami/common/bin/ini-file \
+    && chmod +x /opt/bitnami/common/bin/ini-file
 
 # Download Bitnami scripts from GitHub
 RUN curl -L "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz -C /tmp \
