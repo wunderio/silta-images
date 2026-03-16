@@ -426,6 +426,11 @@ updates:
     directory: "/silta-mariadb/11.4-bc"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "mariadb"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-memcached
   - package-ecosystem: "docker"
