@@ -1,16 +1,15 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.1
-# Pinned to Alpine 3.20 to keep MariaDB version 10.11.
-FROM php:8.1.32-fpm-alpine3.20
+FROM php:8.1.34-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
-RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
+RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
 	  # Install MariaDB Connector/C
     mariadb-connector-c \
-	  # Install mysql client
-    'mariadb-client=~10.11' \
+    # Install mariadb client
+    'mariadb-client=~11.4' \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
@@ -29,9 +28,6 @@ RUN apk add --update --no-cache bash openssh-client "rsync>3.4.0" ssmtp tini \
     libwebp \
     yaml \
     tzdata
-
-# Update curl, as base php image has 8.11 with critical CVE.
-RUN apk add --update --no-cache "curl>8.12"
 
 # PHP modules and build dependencies
 RUN apk add --no-cache \
@@ -83,7 +79,7 @@ RUN apk add --no-cache \
 
 # Use GNU Iconv
 RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
-ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
 RUN mkdir -p /var/www/html \
@@ -123,9 +119,13 @@ RUN set -ex; \
     chmod -R o+w /usr/local/etc; \
     chmod 766 /etc/ssmtp/ssmtp.conf
 
+RUN mkdir /etc/drush
+
 COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
+COPY config/drush.yml /etc/drush/drush.yml
+COPY config/mariadb-client.cnf /etc/my.cnf.d/mariadb-client.cnf
 COPY silta /silta
 COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
 
