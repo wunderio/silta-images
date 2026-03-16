@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/cimg/php/tags?name=8.4.
-FROM cimg/php:8.4.18
+FROM cimg/php:8.4.19
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
