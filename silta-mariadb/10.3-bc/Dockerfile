@@ -18,6 +18,7 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && mkdir -p /opt/bitnami/mariadb/sbin \
     && mkdir -p /opt/bitnami/mariadb/lib \
     && mkdir -p /opt/bitnami/mariadb/conf \
+    && mkdir -p /opt/bitnami/mariadb/share/mysql \
     && ln -s /usr/bin/aria_chk                     /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/bin/aria_dump_log                /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/bin/aria_ftdump                  /opt/bitnami/mariadb/bin/ \
@@ -41,16 +42,14 @@ RUN mkdir -p /opt/bitnami/mariadb/bin \
     && ln -s /usr/bin/maria*                       /opt/bitnami/mariadb/bin/ \
     && ln -s /usr/sbin/maria*                      /opt/bitnami/mariadb/sbin/ \
     && cp -rf /usr/lib/mysql/plugin/               /opt/bitnami/mariadb/plugin/ \
-    && cp -rf /usr/share/mysql/                    /opt/bitnami/mariadb/share/ \
+    && cp -rf /usr/share/mysql/                    /opt/bitnami/mariadb/share/mysql/ \
     && rm -rf /var/lib/dpkg/alternatives/my.cnf \
     && rm -rf /etc/mysql/my.cnf \
     && rm -rf /etc/mysql/mariadb.cnf \
-    && touch /opt/bitnami/mariadb/conf/my.cnf \
     && rm -rf /etc/mysql/* \
-    && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf \
     && ln -sf /opt/bitnami/mariadb/conf/bitnami /etc/mysql/bitnami \
-    && rm -f /opt/bitnami/mariadb/conf/my.cnf
-
+    && ln -sf /opt/bitnami/mariadb/conf/my.cnf /etc/mysql/my.cnf
+    
 # Install required packages
 RUN apt-get update && apt-get install -y \
     ca-certificates \
@@ -70,6 +69,13 @@ RUN apt-get update && apt-get install -y \
     psmisc \
     zlib1g \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Download ini-file from official Bitnami repository
+RUN mkdir -p /opt/bitnami/common/bin \
+    && curl -sL "https://github.com/bitnami/ini-file/releases/latest/download/ini-file-linux-amd64.tar.gz" \
+    | tar -xz -C /tmp \
+    && mv /tmp/ini-file-linux-amd64 /opt/bitnami/common/bin/ini-file \
+    && chmod +x /opt/bitnami/common/bin/ini-file
 
 # Download Bitnami scripts from GitHub
 RUN curl -L "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz -C /tmp \
@@ -91,10 +97,11 @@ RUN mkdir -p /bitnami/mariadb/data \
     && chmod g+rwX /opt/bitnami \
     && find / -perm /6000 -type f -exec chmod a-s {} \; || true
 
+USER 1001
+
 # Run postunpack script
 RUN /opt/bitnami/scripts/mariadb/postunpack.sh
 
-USER 1001
 EXPOSE 3306
 
 # Set entrypoint and command
