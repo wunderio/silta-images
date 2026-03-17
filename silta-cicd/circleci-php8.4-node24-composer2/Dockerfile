@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/cimg/php/tags?name=8.4.
-FROM cimg/php:8.4.16
+FROM cimg/php:8.4.19
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
@@ -53,7 +53,7 @@ RUN curl -o /tmp/$FILENAME ${HELM_URL} \
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
 # https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
-ENV NODE_VERSION 24.12.0
+ENV NODE_VERSION 24.14.0
 RUN echo "Installing Node.js version ${NODE_VERSION}"
 RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
 	sudo tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
