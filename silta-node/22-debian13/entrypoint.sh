@@ -8,7 +8,6 @@ if [[ -v GITAUTH_URL ]]; then
     if [[ ! -f /etc/ssh/keys/ssh_host_rsa_key ]]; then
         # Generate new SSH fingerprint
         ssh-keygen -f /etc/ssh/keys/ssh_host_rsa_key -N '' -t rsa
-        ssh-keygen -f /etc/ssh/keys/ssh_host_dsa_key -N '' -t dsa
         ssh-keygen -f /etc/ssh/keys/ssh_host_ecdsa_key -N '' -t ecdsa
         ssh-keygen -f /etc/ssh/keys/ssh_host_ed25519_key -N '' -t ed25519
     fi
@@ -25,7 +24,6 @@ if [[ -v GITAUTH_URL ]]; then
     sed -i 's/^#PermitTunnel .*/PermitTunnel yes/' /etc/ssh/sshd_config
 
     sed -i 's/^#HostKey \/etc\/ssh\/ssh_host_rsa_key/HostKey \/etc\/ssh\/keys\/ssh_host_rsa_key/' /etc/ssh/sshd_config
-    sed -i 's/^#HostKey \/etc\/ssh\/ssh_host_dsa_key/HostKey \/etc\/ssh\/keys\/ssh_host_dsa_key/' /etc/ssh/sshd_config
     sed -i 's/^#HostKey \/etc\/ssh\/ssh_host_ecdsa_key/HostKey \/etc\/ssh\/keys\/ssh_host_ecdsa_key/' /etc/ssh/sshd_config
     sed -i 's/^#HostKey \/etc\/ssh\/ssh_host_ed25519_key/HostKey \/etc\/ssh\/keys\/ssh_host_ed25519_key/' /etc/ssh/sshd_config
 
