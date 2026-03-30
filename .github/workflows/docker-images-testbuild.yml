@@ -35,6 +35,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+      - name: Login to DHI registry
+        if: env.DOCKER_USER != ''
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login dhi.io -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
       - name: Building dockerfile
         run: |
           set -ex
