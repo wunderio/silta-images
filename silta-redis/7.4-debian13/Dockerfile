@@ -1,0 +1,62 @@
+# Migrated from redis:7.4.8 to DHI debian13-dev variant.
+# DHI -dev variant used because Bitnami compat layer requires bash, apt, and user management.
+FROM dhi.io/redis:7.4-debian13-dev
+
+# Download Bitnami scripts from specific commit
+ARG BITNAMI_CONTAINERS_COMMIT=21606257a1896d41cda9f3b2cc5c9ff08b3eaadf
+ARG BITNAMI_FILES_PATH=bitnami/redis/7.4/debian-12
+
+ENV BITNAMI_APP_NAME="redis" \
+    BITNAMI_IMAGE_VERSION="7.4.8" \
+    DISABLE_WELCOME_MESSAGE="true" \
+    PATH="/opt/bitnami/redis/bin:$PATH"
+
+# Set shell options for better error handling
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# UID/GID 1001 required by redis chart securityContext defaults
+# DHI dev image has no groupadd/useradd — write directly to passwd/group
+RUN echo 'redis:x:1001:1001:redis:/data:/bin/bash' >> /etc/passwd \
+    && echo 'redis:x:1001:redis' >> /etc/group
+
+# Install required packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gzip \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make this image bitnami compatible by creating directories and extra symlinks
+# Thanks to https://github.com/ZCube/bitnami-compat/
+RUN mkdir -p /bitnami/redis/{conf,data,logs} \
+    && mkdir -p /opt/bitnami/redis/{bin,sbin,lib,etc,logs,tmp,conf,etc.default} \
+    && mkdir -p /opt/bitnami/scripts \
+    && ln -s /opt/bitnami/scripts/redis/run.sh /run.sh \
+    && ln -s /opt/bitnami/scripts/redis/entrypoint.sh /entrypoint.sh \
+    && ln -s /usr/local/bin/redis* /opt/bitnami/redis/bin/
+
+# Download and extract Bitnami containers repository
+RUN curl -sL "https://github.com/bitnami/containers/archive/${BITNAMI_CONTAINERS_COMMIT}.tar.gz" | tar -xz \
+    && cp -r "containers-${BITNAMI_CONTAINERS_COMMIT}/${BITNAMI_FILES_PATH}/prebuildfs/"* / \
+    && cp -r "containers-${BITNAMI_CONTAINERS_COMMIT}/${BITNAMI_FILES_PATH}/rootfs/"* / \
+    && rm -rf "containers-${BITNAMI_CONTAINERS_COMMIT}"
+
+COPY redis-default.conf /opt/bitnami/redis/etc/redis-default.conf
+
+RUN /opt/bitnami/scripts/redis/postunpack.sh
+
+# Copy configuration files and set permissions
+RUN chown -R 1001:1001 /bitnami \
+    && chown -R 1001:1001 /opt/bitnami \
+    && chmod +x /opt/bitnami/scripts/redis/*.sh \
+    && chmod +x /opt/bitnami/scripts/*.sh \
+    && chmod g+rwX /opt/bitnami \
+    && find / -perm /6000 -type f -exec chmod a-s {} \; || true
+
+USER 1001
+EXPOSE 6379
+
+# Set entrypoint
+ENTRYPOINT [ "/opt/bitnami/scripts/redis/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/redis/run.sh" ]
