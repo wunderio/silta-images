@@ -1,4 +1,4 @@
-FROM node:22.22.1-alpine
+FROM node:22.22.2-alpine
 
 RUN apk add --no-cache openssh bash curl tzdata 'rsync>3.4.0'
 EXPOSE 22
