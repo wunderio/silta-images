@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/mongo/tags
-FROM mongo:7.0.30
+FROM mongo:7.0.31
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=d4d4ed1856dc04019f0a7e87922dbc4f74916ba8
