@@ -1,5 +1,5 @@
 #!/bin/bash
-#test
+
 function test_docker_build () {
     dockerfile=$1
     folder=${dockerfile%"/Dockerfile"}; 
