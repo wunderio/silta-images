@@ -169,6 +169,23 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/1.30"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "nginx"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-nginx/latest"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "nginx"
+        update-types:
+          - "version-update:semver-major"
 
   # silta-node
   - package-ecosystem: "docker"
@@ -215,6 +232,13 @@ updates:
         update-types: [ "version-update:semver-major" ]
   - package-ecosystem: "docker"
     directory: "/silta-node/24-alpine"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "node"
+        update-types: [ "version-update:semver-major" ]
+  - package-ecosystem: "docker"
+    directory: "/silta-node/latest"
     schedule:
       interval: "daily"
     ignore:
@@ -285,6 +309,33 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-fpm/8.4-fpm"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-fpm/8.5-fpm"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-php-fpm/latest"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "php"
+        update-types:
+          - "version-update:semver-major"
+  
 
   # silta-php-shell
   - package-ecosystem: "docker"
