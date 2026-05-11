@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/mongo/tags
-FROM mongo:8.2.6
+FROM mongo:8.2.7
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=d4d4ed1856dc04019f0a7e87922dbc4f74916ba8
@@ -7,7 +7,7 @@ ARG BITNAMI_FILES_PATH=bitnami/mongodb/8.0/debian-12
 
 # Set up environment variables
 ENV BITNAMI_APP_NAME="mongodb" \
-    BITNAMI_IMAGE_VERSION="8.2.2" \
+    BITNAMI_IMAGE_VERSION="8.2.7" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/mongodb/bin:$PATH" \
     BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
