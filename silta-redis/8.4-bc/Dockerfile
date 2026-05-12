@@ -1,12 +1,12 @@
 # https://hub.docker.com/_/redis/tags
-FROM redis:8.4.2
+FROM redis:8.4.3
 
 # Download Bitnami scripts from specific commit
 ARG BITNAMI_CONTAINERS_COMMIT=903afb7338c707fe34a6987ac5b5ea4c2e18ec42
 ARG BITNAMI_FILES_PATH=bitnami/redis/8.4/debian-12
 
 ENV BITNAMI_APP_NAME="redis" \
-    BITNAMI_IMAGE_VERSION="8.4.0" \
+    BITNAMI_IMAGE_VERSION="8.4.3" \
     DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/redis/bin:$PATH"
 
