@@ -408,12 +408,6 @@ updates:
     schedule:
       interval: "daily"
 
-  # silta-robot-framework
-  - package-ecosystem: "docker"
-    directory: "/silta-robot-framework/robot-6"
-    schedule:
-      interval: "daily"
-
   # silta-rsync
   - package-ecosystem: "docker"
     directory: "/silta-rsync/rsync"

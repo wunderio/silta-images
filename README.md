@@ -12,7 +12,6 @@ Image tags listed at `*/*/TAGS`
 - `silta-proxy/`: An HTTP proxy based on tinyproxy used to provide a static egress IP.
 - `silta-varnish/`: Drupal varnish images
 - `silta-backup/`: Backup helper images
-- `silta-robot-framework/`: Robot Framework test images
 - `silta-rsync/`: Very basic alpine container with rsync binary
 - `silta-solr/`: Apache Solr search images
 - `silta-splash/`: Static page for default service
