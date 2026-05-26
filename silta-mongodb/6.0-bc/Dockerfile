@@ -7,7 +7,7 @@ ARG BITNAMI_FILES_PATH=bitnami/mongodb/6.0/debian-11
 
 # Set up environment variables
 ENV BITNAMI_APP_NAME="mongodb" \
-    BITNAMI_IMAGE_VERSION="6.0.26" \
+    BITNAMI_IMAGE_VERSION="6.0.28" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/mongodb/bin:$PATH" \
     BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
