@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/postgres/tags
-FROM postgres:18.3-bookworm
+FROM postgres:18.4-bookworm
 
 # Download Bitnami scripts from specific commit
 ENV BITNAMI_CONTAINERS_COMMIT=f2675e174c9479e5414428620ae47eefbc1eb213
@@ -11,7 +11,7 @@ ENV PG_MAJOR=18
 ENV BITNAMI_ROOT_DIR="/opt/bitnami" \
     BITNAMI_VOLUME_DIR="/bitnami" \
     BITNAMI_APP_NAME="postgresql" \
-    POSTGRESQL_VERSION="18.1" \
+    POSTGRESQL_VERSION="18.4" \
     POSTGRESQL_DATA_DIR="/bitnami/postgresql/data" \
     POSTGRESQL_CONF_FILE="/opt/bitnami/postgresql/conf/postgresql.conf" \
     DISABLE_WELCOME_MESSAGE="true" \
