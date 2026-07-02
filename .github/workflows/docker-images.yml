@@ -74,11 +74,49 @@ jobs:
 
           # Read TAGS file, tag image with each tag and push to remote
           IMAGE_ID=$DOCKER_REGISTRY_URL/$IMAGE_NAME
+
+          # Build once with a temporary local tag.
+          BUILD_TAG="$IMAGE_ID:__ci_build"
+          docker build $folder --file $folder/Dockerfile --tag "$BUILD_TAG"
+
+          # Functional gate: if the image declares a HEALTHCHECK, run it and
+          # wait until the container reports "healthy" before pushing. Images
+          # without a HEALTHCHECK skip this step unchanged.
+          hasHealthcheck=$(docker inspect --format '{{if .Config.Healthcheck}}yes{{end}}' "$BUILD_TAG")
+          if [ "$hasHealthcheck" = "yes" ]; then
+            echo "Image declares a HEALTHCHECK, verifying it becomes healthy..."
+            containerName="ci_healthcheck_$RANDOM"
+            docker run -d --rm --name "$containerName" "$BUILD_TAG"
+
+            healthy=false
+            for i in $(seq 1 30); do
+              status=$(docker inspect --format '{{.State.Health.Status}}' "$containerName" 2>/dev/null || echo "gone")
+              echo "  attempt $i: health=$status"
+              if [ "$status" = "healthy" ]; then
+                healthy=true
+                break
+              fi
+              if [ "$status" = "unhealthy" ] || [ "$status" = "gone" ]; then
+                break
+              fi
+              sleep 3
+            done
+
+            if [ "$healthy" != "true" ]; then
+              echo "Image failed to become healthy, refusing to push."
+              docker logs "$containerName" 2>&1 | tail -50 || true
+              docker rm -f "$containerName" >/dev/null 2>&1 || true
+              exit 1
+            fi
+
+            echo "Image is healthy."
+            docker rm -f "$containerName" >/dev/null 2>&1 || true
+          fi
+
           cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
           do
-            # Add tags
-            docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
-            # Push image
+            # Tag the verified build and push to remote
+            docker tag "$BUILD_TAG" $IMAGE_ID:$TAG
             docker push $IMAGE_ID:$TAG
           done;
 
