@@ -60,6 +60,7 @@ RUN cp /opt/bitnami/redis/etc/redis-default.conf /opt/bitnami/redis/etc/redis.co
 
 # --- Standalone entrypoint ---
 COPY scripts/entrypoint.sh /opt/bitnami/scripts/entrypoint.sh
+COPY scripts/healthcheck.sh /opt/bitnami/scripts/healthcheck.sh
 
 # Convenience symlinks
 RUN ln -sf /opt/bitnami/scripts/entrypoint.sh /entrypoint.sh
@@ -78,6 +79,10 @@ ENV PATH="/opt/bitnami/redis/bin:$PATH" \
 
 USER 1001
 EXPOSE 6379
+
+# Standalone/CI healthcheck (ignored by Kubernetes; chart uses its own probes)
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
+    CMD /opt/bitnami/scripts/healthcheck.sh
 
 ENTRYPOINT [ "/opt/bitnami/scripts/entrypoint.sh" ]
 CMD []
