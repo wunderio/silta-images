@@ -3,7 +3,12 @@
 # Compatible with Bitnami Redis Helm chart (19.x) in all modes: standalone, replication, sentinel.
 # The chart overrides ENTRYPOINT/CMD via ConfigMap start scripts — the entrypoint here is
 # only used for standalone docker run / docker compose.
-FROM dhi.io/redis:8.6-debian13-dev
+#
+# Multi-stage spike:
+# - builder stage uses -dev to prepare chart-compat filesystem and scripts
+# - runtime stage uses non-dev base to reduce final image surface
+
+FROM dhi.io/redis:8.6-debian13-dev AS builder
 
 # Set shell options for better error handling
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -58,7 +63,7 @@ RUN cp /opt/bitnami/redis/etc/redis-default.conf /opt/bitnami/redis/etc/redis.co
     && sed -i 's/^logfile .*/logfile ""/' /opt/bitnami/redis/etc/redis.conf \
     && cp -r /opt/bitnami/redis/etc/* /opt/bitnami/redis/etc.default/
 
-# --- Standalone entrypoint ---
+# --- Standalone entrypoint/healthcheck ---
 COPY scripts/entrypoint.sh /opt/bitnami/scripts/entrypoint.sh
 COPY scripts/healthcheck.sh /opt/bitnami/scripts/healthcheck.sh
 
@@ -66,6 +71,31 @@ COPY scripts/healthcheck.sh /opt/bitnami/scripts/healthcheck.sh
 RUN ln -sf /opt/bitnami/scripts/entrypoint.sh /entrypoint.sh
 
 # --- Permissions ---
+RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
+    && chmod +x /opt/bitnami/scripts/*.sh \
+    && chmod g+rwX /opt/bitnami
+
+FROM dhi.io/redis:8.6-debian13
+
+# Copy only prepared runtime artifacts from builder.
+COPY --from=builder /bitnami /bitnami
+COPY --from=builder /opt/bitnami /opt/bitnami
+COPY --from=builder /data /data
+COPY --from=builder /entrypoint.sh /entrypoint.sh
+
+# Ensure chart-required tooling and users are present in runtime image.
+RUN grep -q '^redis:' /etc/passwd || echo 'redis:x:1001:1001:redis:/data:/bin/bash' >> /etc/passwd \
+    && grep -q '^redis:' /etc/group || echo 'redis:x:1001:redis' >> /etc/group \
+    && command -v bash \
+    && command -v timeout \
+    && command -v openssl \
+    && command -v sed \
+    && command -v awk \
+    && command -v getent \
+    && command -v redis-server \
+    && command -v redis-cli
+
+# Keep runtime permissions/security contract aligned with other variants.
 RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
     && chmod +x /opt/bitnami/scripts/*.sh \
     && chmod g+rwX /opt/bitnami \
