@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - master
+      - security/image-audit-hc
     paths:
+      # Only changes to TAGS files trigger this workflow.
       - '**/**/TAGS'
 
 jobs:
