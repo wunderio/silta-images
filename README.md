@@ -2,6 +2,15 @@
 
 Image tags listed at `*/*/TAGS`
 
+## Image publishing trigger
+
+Docker image publishing is triggered by GitHub Actions only when both are true:
+- the push target branch is `master`
+- at least one `*/*/TAGS` file changed in that push
+
+If you change `TAGS` on a feature branch, the publish workflow does not run
+until that change is merged/pushed to `master`.
+
 - `silta-cicd/`: CI builder images
 - `silta-nginx/`: Drupal Nginx images
 - `silta-node/`: Frontend NodeJS images
