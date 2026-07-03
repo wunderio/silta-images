@@ -63,9 +63,8 @@ RUN cp /opt/bitnami/redis/etc/redis-default.conf /opt/bitnami/redis/etc/redis.co
     && sed -i 's/^logfile .*/logfile ""/' /opt/bitnami/redis/etc/redis.conf \
     && cp -r /opt/bitnami/redis/etc/* /opt/bitnami/redis/etc.default/
 
-# --- Standalone entrypoint/healthcheck ---
+# --- Standalone entrypoint ---
 COPY scripts/entrypoint.sh /opt/bitnami/scripts/entrypoint.sh
-COPY scripts/healthcheck.sh /opt/bitnami/scripts/healthcheck.sh
 
 # Convenience symlinks
 RUN ln -sf /opt/bitnami/scripts/entrypoint.sh /entrypoint.sh
@@ -83,17 +82,48 @@ COPY --from=builder /opt/bitnami /opt/bitnami
 COPY --from=builder /data /data
 COPY --from=builder /entrypoint.sh /entrypoint.sh
 
-# Ensure chart-required tooling and users are present in runtime image.
-RUN grep -q '^redis:' /etc/passwd || echo 'redis:x:1001:1001:redis:/data:/bin/bash' >> /etc/passwd \
-    && grep -q '^redis:' /etc/group || echo 'redis:x:1001:redis' >> /etc/group \
-    && command -v bash \
-    && command -v timeout \
-    && command -v openssl \
-    && command -v sed \
-    && command -v awk \
-    && command -v getent \
-    && command -v redis-server \
-    && command -v redis-cli
+# Ensure chart-required users are present in runtime image.
+RUN set -eux; \
+    if ! grep -q '^redis:' /etc/passwd; then \
+      echo 'redis:x:1001:1001:redis:/data:/bin/bash' >> /etc/passwd; \
+    fi; \
+    if ! grep -q '^redis:' /etc/group; then \
+      echo 'redis:x:1001:redis' >> /etc/group; \
+    fi
+
+# Ensure required runtime tools exist. Install minimal fallback packages only if needed.
+RUN set -eux; \
+    missing=""; \
+    for tool in bash timeout openssl sed awk getent redis-server redis-cli; do \
+      command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"; \
+    done; \
+    if [ -n "$missing" ]; then \
+      echo "Installing missing runtime tools:$missing"; \
+      if command -v apt-get >/dev/null 2>&1; then \
+        apt-get update; \
+        apt-get install -y --no-install-recommends \
+          bash \
+          coreutils \
+          openssl \
+          sed \
+          gawk \
+          libc-bin \
+          ca-certificates \
+          procps; \
+        rm -rf /var/lib/apt/lists/*; \
+      else \
+        echo "Runtime base has no apt-get and is missing required tools:$missing"; \
+        exit 1; \
+      fi; \
+    fi; \
+    command -v bash; \
+    command -v timeout; \
+    command -v openssl; \
+    command -v sed; \
+    command -v awk; \
+    command -v getent; \
+    command -v redis-server; \
+    command -v redis-cli
 
 # Keep runtime permissions/security contract aligned with other variants.
 RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
@@ -101,7 +131,7 @@ RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
     && chmod g+rwX /opt/bitnami \
     && find / -perm /6000 -type f -exec chmod a-s {} \; || true
 
-# Environment variables consumed by chart scripts and health checks
+# Environment variables consumed by chart scripts
 ENV PATH="/opt/bitnami/redis/bin:$PATH" \
     REDIS_PORT="6379" \
     REDIS_DATA_DIR="/data" \
@@ -109,10 +139,6 @@ ENV PATH="/opt/bitnami/redis/bin:$PATH" \
 
 USER 1001
 EXPOSE 6379
-
-# Standalone/CI healthcheck (ignored by Kubernetes; chart uses its own probes)
-HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
-    CMD /opt/bitnami/scripts/healthcheck.sh
 
 ENTRYPOINT [ "/opt/bitnami/scripts/entrypoint.sh" ]
 CMD []
