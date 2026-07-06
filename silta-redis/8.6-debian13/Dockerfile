@@ -74,14 +74,25 @@ RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
     && chmod +x /opt/bitnami/scripts/*.sh \
     && chmod g+rwX /opt/bitnami
 
+# --- Prepare bash binary + dependencies for runtime stage ---
+# The non-dev runtime base is stripped and lacks /bin/bash.
+# Copy minimal bash + libc dependencies to runtime to support entrypoint.sh.
+RUN mkdir -p /bash-root/bin /bash-root/lib/x86_64-linux-gnu && \
+    cp /bin/bash /bash-root/bin/ && \
+    ldd /bin/bash | grep -oE '/[^ ]+' | grep -v vdso | xargs -I {} cp {} /bash-root/lib/x86_64-linux-gnu/ 2>/dev/null || true
+
 FROM dhi.io/redis:8.6-debian13
+
+# Copy bash binary and libc dependencies from builder to enable entrypoint.sh execution.
+COPY --from=builder /bash-root/bin /bin
+COPY --from=builder /bash-root/lib /lib
 
 # Copy only prepared runtime artifacts from builder.
 COPY --from=builder /bitnami /bitnami
 COPY --from=builder /opt/bitnami /opt/bitnami
 COPY --from=builder /data /data
 COPY --from=builder /entrypoint.sh /entrypoint.sh
-# Runtime base is shellless (/bin/sh missing), so stage 2 must avoid RUN.
+# Runtime base is stripped, but bash + libs now available from builder.
 # Copy passwd/group from builder to keep redis:1001 identity contract.
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
