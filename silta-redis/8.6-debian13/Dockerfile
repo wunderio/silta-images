@@ -74,18 +74,31 @@ RUN chown -R 1001:1001 /bitnami /opt/bitnami /data \
     && chmod +x /opt/bitnami/scripts/*.sh \
     && chmod g+rwX /opt/bitnami
 
-# --- Prepare bash binary + dependencies for runtime stage ---
-# The non-dev runtime base is stripped and lacks /bin/bash.
-# Copy minimal bash + libc dependencies to runtime to support entrypoint.sh.
-RUN mkdir -p /bash-root/bin /bash-root/lib/x86_64-linux-gnu && \
-    cp /bin/bash /bash-root/bin/ && \
-    ldd /bin/bash | grep -oE '/[^ ]+' | grep -v vdso | xargs -I {} cp {} /bash-root/lib/x86_64-linux-gnu/ 2>/dev/null || true
+# --- Prepare runtime toolset for chart start scripts ---
+# Non-dev runtime is stripped; stage required CLI tools and their shared libs.
+RUN set -eux; \
+    mkdir -p /tool-root; \
+    tools="bash cp mv rm mkdir chmod chown ln cat sed awk grep cut tr env printenv timeout getent openssl"; \
+    for tool in $tools; do \
+      bin="$(command -v "$tool")"; \
+      bin_dst="/tool-root$bin"; \
+      mkdir -p "$(dirname "$bin_dst")"; \
+      cp -a "$bin" "$bin_dst"; \
+      ldd "$bin" | awk '{for (i = 1; i <= NF; i++) if ($i ~ /^\//) print $i}' | while read -r lib; do \
+        lib_dst="/tool-root$lib"; \
+        mkdir -p "$(dirname "$lib_dst")"; \
+        cp -a "$lib" "$lib_dst"; \
+      done; \
+    done; \
+    if [ -e /lib64/ld-linux-x86-64.so.2 ]; then \
+      mkdir -p /tool-root/lib64; \
+      cp -a /lib64/ld-linux-x86-64.so.2 /tool-root/lib64/; \
+    fi
 
 FROM dhi.io/redis:8.6-debian13
 
-# Copy bash binary and libc dependencies from builder to enable entrypoint.sh execution.
-COPY --from=builder /bash-root/bin /bin
-COPY --from=builder /bash-root/lib /lib
+# Copy required runtime toolset from builder.
+COPY --from=builder /tool-root/ /
 
 # Copy only prepared runtime artifacts from builder.
 COPY --from=builder /bitnami /bitnami
