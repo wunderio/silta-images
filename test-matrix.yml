@@ -1,0 +1,75 @@
+# Routing map: which downstream project pipelines are triggered to test
+# which images after they are pushed to Docker Hub.
+#
+# Consumed by .github/workflows/docker-images.yml (test_plan job).
+#
+# Schema:
+#   projects.<repo>:            CircleCI org and branch to trigger.
+#   images.<image-dir>.<repo>:  list of chart services to enable for the test
+#                               deployment. Each entry becomes
+#                               "--set <name>.enabled=true" and is passed to
+#                               the project pipeline via the `test_helm_flags`
+#                               pipeline parameter. An empty list means the
+#                               image is exercised by a default deployment
+#                               (base images, always-on services).
+#
+# Images NOT listed here are released without a downstream test — the PR
+# test-build is their only check. Currently skipped on purpose:
+#   silta-cicd    (CI executor images, not deployed by charts)
+#   silta-backup  (backup CronJob only runs on schedule, a deploy would not
+#                  exercise it)
+#   silta-rsync, silta-proxy, silta-splash (cluster-level, no project chart
+#                  coverage)
+#
+# See docs/image-testing.md for the full flow and the downstream repo contract.
+
+projects:
+  drupal-project-k8s:
+    org: wunderio
+    branch: master
+  frontend-project-k8s:
+    org: wunderio
+    branch: master
+  simple-project-k8s:
+    org: wunderio
+    branch: master
+
+images:
+  # Base image for every project's nginx build — test all three charts.
+  silta-nginx:
+    drupal-project-k8s: []
+    frontend-project-k8s: []
+    simple-project-k8s: []
+
+  # Drupal base images, always-on in the drupal chart.
+  silta-php-fpm:
+    drupal-project-k8s: []
+  silta-php-shell:
+    drupal-project-k8s: []
+
+  # Frontend base image.
+  silta-node:
+    frontend-project-k8s: []
+
+  # mariadb is enabled by default in the drupal chart.
+  silta-mariadb:
+    drupal-project-k8s: []
+
+  # Services disabled by default — must be enabled for the test deployment.
+  # Note: redis auth password is already set in drupal-project-k8s silta.yml.
+  silta-redis:
+    drupal-project-k8s: [redis]
+  silta-memcached:
+    drupal-project-k8s: [memcached]
+  silta-varnish:
+    drupal-project-k8s: [varnish]
+  silta-solr:
+    drupal-project-k8s: [solr]
+  silta-mailhog:
+    drupal-project-k8s: [mailhog]
+  silta-mongodb:
+    frontend-project-k8s: [mongodb]
+  silta-postgresql:
+    frontend-project-k8s: [postgresql]
+  silta-rabbitmq:
+    frontend-project-k8s: [rabbitmq]

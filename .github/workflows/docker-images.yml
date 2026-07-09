@@ -79,25 +79,73 @@ jobs:
             docker push $IMAGE_ID:$TAG
           done;
 
+  # Map changed images to the downstream projects that actually consume them,
+  # using the routing map in test-matrix.yml. Images not listed in the map
+  # produce no test pipeline. Services that are disabled by default in the
+  # charts are enabled for the test deployment via helm --set flags.
+  test_plan:
+    name: Plan downstream tests
+    runs-on: ubuntu-latest
+    needs:
+      - changed_files
+      - build_and_push_docker_hub
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Map changed images to downstream test pipelines
+        id: plan
+        env:
+          CHANGED_TAGS: ${{ needs.changed_files.outputs.matrix }}
+        run: |
+          set -e
+
+          # Unique image names: first path segment of each changed TAGS file.
+          images=$(echo "$CHANGED_TAGS" | jq -r '.[]' | cut -d'/' -f1 | sort -u)
+          echo "Changed images: $(echo "$images" | tr '\n' ' ')"
+
+          # Aggregate the services to enable per project repo.
+          plan="{}"
+          while read -r image; do
+            [ -z "$image" ] && continue
+            entries=$(yq -o=json ".images.\"${image}\" // {}" test-matrix.yml)
+            while read -r repo; do
+              [ -z "$repo" ] && continue
+              services=$(echo "$entries" | jq -c --arg r "$repo" '.[$r] // []')
+              plan=$(echo "$plan" | jq -c --arg r "$repo" --argjson s "$services" \
+                '.[$r] = ((.[$r] // []) + $s | unique)')
+            done <<< "$(echo "$entries" | jq -r 'keys[]')"
+          done <<< "$images"
+
+          # Resolve org/branch and turn service lists into helm flags.
+          matrix=$(yq -o=json '.projects' test-matrix.yml | jq -c --argjson plan "$plan" '
+            [ to_entries[]
+              | select($plan[.key] != null)
+              | { repo: .key,
+                  org: .value.org,
+                  branch: .value.branch,
+                  helm_flags: ([ $plan[.key][] | "--set \(.).enabled=true" ] | join(" ")) } ]')
+
+          echo "Test plan: ${matrix}"
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+
   circleci-k8s-test-build:
     name: Test released images
     runs-on: ubuntu-latest
-    needs:
-      - build_and_push_docker_hub
+    needs: test_plan
+    if: ${{ needs.test_plan.outputs.matrix && needs.test_plan.outputs.matrix != '[]' }}
     strategy:
+      fail-fast: false
       matrix:
-        project: [
-          {org: "wunderio", repo: "drupal-project-k8s", branch: "master"},
-          {org: "wunderio", repo: "frontend-project-k8s", branch: "master"},
-          {org: "wunderio", repo: "simple-project-k8s", branch: "master"}
-        ]
+        project: ${{ fromJson(needs.test_plan.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v5
       - name: Validate released images with ${{ matrix.project.repo }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
           ORG_NAME="${{ matrix.project.org }}"
           BRANCH_NAME="${{ matrix.project.branch }}"
+          HELM_FLAGS="${{ matrix.project.helm_flags }}"
           CIRCLECI_DEV_API_TOKEN_B64=$(echo -n "${{ secrets.CIRCLECI_DEV_API_TOKEN }}:" | base64)
 
           if [ -z "${{ secrets.CIRCLECI_DEV_API_TOKEN }}" ]; then
@@ -108,12 +156,34 @@ jobs:
           echo "Running ${ORG_NAME}/${REPO_NAME}/${BRANCH_NAME} build on CircleCI"
           echo "Project link: https://app.circleci.com/pipelines/github/${ORG_NAME}/${REPO_NAME}?branch=${BRANCH_NAME}"
 
+          # Pass extra helm flags (enabling default-disabled services) via the
+          # test_helm_flags pipeline parameter. Only send the parameter when
+          # non-empty so projects that have not declared it yet still work
+          # for plain (no extra services) test runs.
+          if [ -n "$HELM_FLAGS" ]; then
+            echo "Enabling services for test deployment: ${HELM_FLAGS}"
+            BODY=$(jq -nc --arg branch "$BRANCH_NAME" --arg flags "$HELM_FLAGS" \
+              '{branch: $branch, parameters: {test_helm_flags: $flags}}')
+          else
+            BODY=$(jq -nc --arg branch "$BRANCH_NAME" '{branch: $branch}')
+          fi
+
           # Trigger a new pipeline
-          PIPELINE_ID=$(curl --request POST \
-            --url "https://circleci.com/api/v2/project/gh/wunderio/${REPO_NAME}/pipeline" \
+          PIPELINE_RESPONSE=$(curl --request POST \
+            --url "https://circleci.com/api/v2/project/gh/${ORG_NAME}/${REPO_NAME}/pipeline" \
             --header "content-type: application/json" \
-            --data "{\"branch\":\"${BRANCH_NAME}\"}" \
-            --header "authorization: Basic ${CIRCLECI_DEV_API_TOKEN_B64}" --silent | jq -r '.id')
+            --data "${BODY}" \
+            --header "authorization: Basic ${CIRCLECI_DEV_API_TOKEN_B64}" --silent)
+          PIPELINE_ID=$(echo "$PIPELINE_RESPONSE" | jq -r '.id')
+
+          if [ -z "$PIPELINE_ID" ] || [ "$PIPELINE_ID" = "null" ]; then
+            echo "Failed to create pipeline. Response:"
+            echo "$PIPELINE_RESPONSE" | jq .
+            echo "Note: if the error mentions pipeline parameters, the project"
+            echo "has not declared the test_helm_flags parameter yet."
+            echo "See docs/image-testing.md."
+            exit 1
+          fi
 
           echo "Pipeline ID: ${PIPELINE_ID}"
 
