@@ -4,16 +4,28 @@
 # Consumed by .github/workflows/docker-images.yml (test_plan job).
 #
 # Schema:
-#   projects.<repo>:            CircleCI org and branch to trigger.
-#   images.<image-dir>.<repo>:  list of chart services to enable for the test
-#                               deployment. Each entry becomes
-#                               "--set <name>.enabled=true" and is passed to
-#                               the project pipeline via the `test_helm_flags`
-#                               pipeline parameter. An empty list means the
-#                               image is exercised by a default deployment
-#                               (base images, always-on services).
+#   projects.<repo>:                  CircleCI org and branch to trigger.
+#   images.<image>/<variant>.<repo>:  variant-level entry, matched first.
+#   images.<image>.<repo>:            image-level fallback for all variants.
 #
-# Images NOT listed here are released without a downstream test — the PR
+# Each <repo> entry is an object:
+#   config:        list of extra silta config files (paths inside the project
+#                  repo) appended to the deploy job's silta_config via the
+#                  `test_silta_config` pipeline parameter. The file enables
+#                  the service under test — it never pins an image tag.
+#   tag_key:       helm value that receives the released image tag, passed as
+#                  "--set-string <tag_key>=<tag>" via the `test_helm_flags`
+#                  pipeline parameter. The tag is the most specific (last)
+#                  line of the changed TAGS file, so the deployment tests the
+#                  exact image that was just pushed — any variant line, old
+#                  or new.
+#   image_ref_key: like tag_key, but the helm value expects a full image
+#                  reference ("wunderio/<image>:<tag>").
+#   {}             plain trigger — the image is exercised by a default
+#                  deployment (base images rebuilt by the project's FROM
+#                  lines, always-on services).
+#
+# Unmapped variants/images are released without a downstream test — the PR
 # test-build is their only check. Currently skipped on purpose:
 #   silta-cicd    (CI executor images, not deployed by charts)
 #   silta-backup  (backup CronJob only runs on schedule, a deploy would not
@@ -35,41 +47,76 @@ projects:
     branch: master
 
 images:
-  # Base image for every project's nginx build — test all three charts.
-  silta-nginx:
-    drupal-project-k8s: []
-    frontend-project-k8s: []
-    simple-project-k8s: []
+  # --- Base images ---
+  # Tested by the projects rebuilding their app images. Only the variants the
+  # project Dockerfiles / chart defaults actually consume are mapped: a
+  # rebuild would not use any other variant.
+  silta-nginx/latest:
+    # drupal + simple build nginx FROM wunderio/silta-nginx:latest
+    drupal-project-k8s: {}
+    simple-project-k8s: {}
+  silta-nginx/1.30:
+    # frontend chart default: nginx.image is a full image reference
+    frontend-project-k8s:
+      image_ref_key: nginx.image
+  silta-php-fpm/8.3-fpm:
+    # FROM wunderio/silta-php-fpm:8.3-fpm-v1
+    drupal-project-k8s: {}
+  silta-php-shell/php-8.3:
+    # FROM wunderio/silta-php-shell:php8.3-v1
+    drupal-project-k8s: {}
+  silta-node/22-alpine:
+    # FROM wunderio/silta-node:22-alpine-v1
+    frontend-project-k8s: {}
 
-  # Drupal base images, always-on in the drupal chart.
-  silta-php-fpm:
-    drupal-project-k8s: []
-  silta-php-shell:
-    drupal-project-k8s: []
+  # --- Service images ---
+  # The released tag is passed dynamically, so image-level entries cover
+  # every variant, old lines included.
 
-  # Frontend base image.
-  silta-node:
-    frontend-project-k8s: []
+  # mariadb is the live site database of the long-lived master environment —
+  # only same-line releases of the chart-default variant can be deployed onto
+  # its existing data. Other lines (10.3-bc, 10.6-bc) are intentionally
+  # untested.
+  silta-mariadb/11.4-bc:
+    drupal-project-k8s:
+      tag_key: mariadb.image.tag
 
-  # mariadb is enabled by default in the drupal chart.
-  silta-mariadb:
-    drupal-project-k8s: []
-
-  # Services disabled by default — must be enabled for the test deployment.
-  # Note: redis auth password is already set in drupal-project-k8s silta.yml.
   silta-redis:
-    drupal-project-k8s: [redis]
+    drupal-project-k8s:
+      config: [silta/silta-test-redis.yml]
+      tag_key: redis.image.tag
   silta-memcached:
-    drupal-project-k8s: [memcached]
-  silta-varnish:
-    drupal-project-k8s: [varnish]
+    drupal-project-k8s:
+      config: [silta/silta-test-memcached.yml]
+      tag_key: memcached.image.tag
   silta-solr:
-    drupal-project-k8s: [solr]
+    drupal-project-k8s:
+      config: [silta/silta-test-solr.yml]
+      tag_key: solr.imageTag
   silta-mailhog:
-    drupal-project-k8s: [mailhog]
+    drupal-project-k8s:
+      config: [silta/silta-test-mailhog.yml]
+      tag_key: mailhog.image.tag
   silta-mongodb:
-    frontend-project-k8s: [mongodb]
+    frontend-project-k8s:
+      config: [silta/silta-test-mongodb.yml]
+      tag_key: mongodb.image.tag
   silta-postgresql:
-    frontend-project-k8s: [postgresql]
+    frontend-project-k8s:
+      config: [silta/silta-test-postgresql.yml]
+      tag_key: postgresql.image.tag
   silta-rabbitmq:
-    frontend-project-k8s: [rabbitmq]
+    frontend-project-k8s:
+      config: [silta/silta-test-rabbitmq.yml]
+      tag_key: rabbitmq.image.tag
+
+  # varnish major versions target the chart that defaults to them (VCL and
+  # chart config differ between v6 and v7).
+  silta-varnish/varnish6:
+    drupal-project-k8s:
+      config: [silta/silta-test-varnish.yml]
+      tag_key: varnish.imageTag
+  silta-varnish/varnish7:
+    frontend-project-k8s:
+      config: [silta/silta-test-varnish.yml]
+      tag_key: varnish.imageTag

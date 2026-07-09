@@ -82,7 +82,10 @@ jobs:
   # Map changed images to the downstream projects that actually consume them,
   # using the routing map in test-matrix.yml. Images not listed in the map
   # produce no test pipeline. Services that are disabled by default in the
-  # charts are enabled for the test deployment via helm --set flags.
+  # charts are enabled via extra silta config files living in the project
+  # repos (silta/silta-test-<service>.yml), and the freshly released image
+  # tag is injected with helm --set-string so the deployment tests exactly
+  # the image that was pushed.
   test_plan:
     name: Plan downstream tests
     runs-on: ubuntu-latest
@@ -101,31 +104,44 @@ jobs:
         run: |
           set -e
 
-          # Unique image names: first path segment of each changed TAGS file.
-          images=$(echo "$CHANGED_TAGS" | jq -r '.[]' | cut -d'/' -f1 | sort -u)
-          echo "Changed images: $(echo "$images" | tr '\n' ' ')"
+          # For each changed TAGS file: look up its routing (a variant-level
+          # entry images.<image>/<variant> wins over the image-level fallback
+          # images.<image>; unmapped variants are skipped) and pass the
+          # released tag — the most specific (last) line of the TAGS file —
+          # to the test deployment.
+          entries="[]"
+          while read -r tagsfile; do
+            [ -z "$tagsfile" ] && continue
+            [ -f "$tagsfile" ] || continue  # TAGS file was deleted
+            image=$(echo "$tagsfile" | cut -d/ -f1)
+            variant=$(echo "$tagsfile" | cut -d/ -f2)
+            mapping=$(yq -o=json ".images.\"${image}/${variant}\" // .images.\"${image}\" // {}" test-matrix.yml)
+            if [ "$mapping" = "{}" ]; then
+              echo "No downstream test mapped for ${image}/${variant}, skipping"
+              continue
+            fi
+            tag=$(grep -vE '^[[:space:]]*$' "$tagsfile" | tail -1 | tr -d '[:space:]')
 
-          # Aggregate the services to enable per project repo.
-          plan="{}"
-          while read -r image; do
-            [ -z "$image" ] && continue
-            entries=$(yq -o=json ".images.\"${image}\" // {}" test-matrix.yml)
-            while read -r repo; do
-              [ -z "$repo" ] && continue
-              services=$(echo "$entries" | jq -c --arg r "$repo" '.[$r] // []')
-              plan=$(echo "$plan" | jq -c --arg r "$repo" --argjson s "$services" \
-                '.[$r] = ((.[$r] // []) + $s | unique)')
-            done <<< "$(echo "$entries" | jq -r 'keys[]')"
-          done <<< "$images"
+            entries=$(echo "$entries" | jq -c \
+              --argjson m "$mapping" --arg image "$image" --arg variant "$variant" --arg tag "$tag" '
+              . + [ $m | to_entries[] | {
+                repo: .key,
+                variant: ($image + "/" + $variant),
+                extra_config: (if ((.value.config // []) | length) > 0
+                               then "," + ((.value.config // []) | join(","))
+                               else "" end),
+                helm_flags: (
+                  if .value.tag_key then "--set-string \(.value.tag_key)=\($tag)"
+                  elif .value.image_ref_key then "--set-string \(.value.image_ref_key)=wunderio/\($image):\($tag)"
+                  else "" end) } ]')
+          done <<< "$(echo "$CHANGED_TAGS" | jq -r '.[]')"
 
-          # Resolve org/branch and turn service lists into helm flags.
-          matrix=$(yq -o=json '.projects' test-matrix.yml | jq -c --argjson plan "$plan" '
-            [ to_entries[]
-              | select($plan[.key] != null)
-              | { repo: .key,
-                  org: .value.org,
-                  branch: .value.branch,
-                  helm_flags: ([ $plan[.key][] | "--set \(.).enabled=true" ] | join(" ")) } ]')
+          # Resolve org/branch and drop duplicate trigger payloads (e.g. two
+          # base images that both just rebuild the same project).
+          matrix=$(yq -o=json '.projects' test-matrix.yml | jq -c --argjson entries "$entries" '
+            . as $projects |
+            [ $entries[] | . + {org: $projects[.repo].org, branch: $projects[.repo].branch} ]
+            | unique_by([.repo, .extra_config, .helm_flags])')
 
           echo "Test plan: ${matrix}"
           echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
@@ -137,14 +153,19 @@ jobs:
     if: ${{ needs.test_plan.outputs.matrix && needs.test_plan.outputs.matrix != '[]' }}
     strategy:
       fail-fast: false
+      # Serialize: parallel triggers could run concurrent helm upgrades of
+      # the same project environment (e.g. two variants of one image
+      # released together) and fail on the helm release lock.
+      max-parallel: 1
       matrix:
         project: ${{ fromJson(needs.test_plan.outputs.matrix) }}
     steps:
-      - name: Validate released images with ${{ matrix.project.repo }}
+      - name: Validate ${{ matrix.project.variant }} with ${{ matrix.project.repo }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
           ORG_NAME="${{ matrix.project.org }}"
           BRANCH_NAME="${{ matrix.project.branch }}"
+          EXTRA_CONFIG="${{ matrix.project.extra_config }}"
           HELM_FLAGS="${{ matrix.project.helm_flags }}"
           CIRCLECI_DEV_API_TOKEN_B64=$(echo -n "${{ secrets.CIRCLECI_DEV_API_TOKEN }}:" | base64)
 
@@ -156,16 +177,19 @@ jobs:
           echo "Running ${ORG_NAME}/${REPO_NAME}/${BRANCH_NAME} build on CircleCI"
           echo "Project link: https://app.circleci.com/pipelines/github/${ORG_NAME}/${REPO_NAME}?branch=${BRANCH_NAME}"
 
-          # Pass extra helm flags (enabling default-disabled services) via the
-          # test_helm_flags pipeline parameter. Only send the parameter when
-          # non-empty so projects that have not declared it yet still work
-          # for plain (no extra services) test runs.
-          if [ -n "$HELM_FLAGS" ]; then
-            echo "Enabling services for test deployment: ${HELM_FLAGS}"
-            BODY=$(jq -nc --arg branch "$BRANCH_NAME" --arg flags "$HELM_FLAGS" \
-              '{branch: $branch, parameters: {test_helm_flags: $flags}}')
-          else
+          # Pass extra silta config files (enabling default-disabled services)
+          # via test_silta_config, and the released image tag via
+          # test_helm_flags. Only send non-empty parameters so projects that
+          # have not declared them yet still work for plain test runs.
+          PARAMS=$(jq -nc --arg config "$EXTRA_CONFIG" --arg flags "$HELM_FLAGS" '{}
+            | (if $config != "" then . + {test_silta_config: $config} else . end)
+            | (if $flags != "" then . + {test_helm_flags: $flags} else . end)')
+          if [ "$PARAMS" = "{}" ]; then
             BODY=$(jq -nc --arg branch "$BRANCH_NAME" '{branch: $branch}')
+          else
+            echo "Pipeline parameters: ${PARAMS}"
+            BODY=$(jq -nc --arg branch "$BRANCH_NAME" --argjson params "$PARAMS" \
+              '{branch: $branch, parameters: $params}')
           fi
 
           # Trigger a new pipeline
@@ -180,8 +204,8 @@ jobs:
             echo "Failed to create pipeline. Response:"
             echo "$PIPELINE_RESPONSE" | jq .
             echo "Note: if the error mentions pipeline parameters, the project"
-            echo "has not declared the test_helm_flags parameter yet."
-            echo "See docs/image-testing.md."
+            echo "has not declared the test_silta_config/test_helm_flags"
+            echo "parameters yet. See docs/image-testing.md."
             exit 1
           fi
 
