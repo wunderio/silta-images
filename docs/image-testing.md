@@ -23,13 +23,20 @@ routing works and what the downstream project repos must provide.
    and enable + configure the service under test. The deployment fails (and
    the test with it) if the service pods never become ready.
 
+   The trigger also passes the **released image tag** via the `test_helm_flags`
+   parameter — a `--set-string <tag_key>=<tag>` (or `image_ref_key`) flag
+   derived from `test-matrix.yml` — so the deployment pins and tests the exact
+   image that was just pushed instead of the chart's default tag. Both
+   parameters are only sent when non-empty, so plain project pushes are
+   unaffected.
+
 Images with no entry in `test-matrix.yml` (`silta-cicd`, `silta-backup`,
 `silta-rsync`, `silta-proxy`, `silta-splash`) are released without a
 downstream test; the PR test-build is their only check.
 
 ## Contract with the `*-project-k8s` repos
 
-### 1. Declare the pipeline parameter
+### 1. Declare the pipeline parameters
 
 ```yaml
 # .circleci/config.yml
@@ -42,9 +49,16 @@ parameters:
   test_silta_config:
     type: string
     default: ""
+  # Helm flags injecting the released image tag, e.g.
+  # "--set-string redis.image.tag=7.4-v1.2.3". Empty on normal runs.
+  test_helm_flags:
+    type: string
+    default: ""
 ```
 
-### 2. Append it to the master deploy job's silta_config
+### 2. Wire both parameters into the master deploy job
+
+#### `test_silta_config` → `silta_config`
 
 The parameter value carries a **leading comma** (or is empty), so it is
 appended directly, without a separator:
@@ -64,10 +78,38 @@ appended directly, without a separator:
           ...
 ```
 
+#### `test_helm_flags` → the deploy job's helm flags
+
+Pass the parameter into the deploy job's helm flags argument (e.g. the silta
+orb's `helm_flags` input) so the released tag is applied via `--set-string`.
+The value is a standalone flag string (no leading comma) and is empty on
+normal runs. Keep the orb's default `--history-max=4` when overriding, since
+setting `helm_flags` replaces it:
+
+```yaml
+      # drupal-project-k8s
+      - silta/drupal-deploy: &deploy-master
+          <<: *deploy
+          name: deploy-master
+          silta_config: silta/silta.yml,silta/silta-master.yml<< pipeline.parameters.test_silta_config >>
+          helm_flags: "--history-max=4 << pipeline.parameters.test_helm_flags >>"
+          ...
+
+      # frontend-project-k8s
+      - silta/frontend-build-deploy: &build-deploy
+          name: 'Build & deploy master'
+          silta_config: silta/silta.yml<< pipeline.parameters.test_silta_config >>
+          helm_flags: "--history-max=4 << pipeline.parameters.test_helm_flags >>"
+          ...
+```
+
+The `tag_key` / `image_ref_key` in `test-matrix.yml` determines which helm
+value the tag is set on.
+
 Jobs extending these anchors (e.g. "Deploy master to AKS cluster") inherit
-the setting automatically. On normal pushes the parameter is empty, so
+the settings automatically. On normal pushes both parameters are empty, so
 nothing changes. `simple-project-k8s` needs no changes — only base images
-route there, without extra config.
+route there, without extra config or tag flags.
 
 ### 3. Provide one test values file per service
 
@@ -110,10 +152,11 @@ Files currently referenced by `test-matrix.yml`:
   the application uses it. Deeper smoke tests (e.g. Drupal actually reading
   from redis) belong in the project repos' post-deploy tests.
 - A trigger that passes config files to a project that has not declared the
-  `test_silta_config` parameter fails with a CircleCI "unknown pipeline
-  parameter" error — declare the parameter in the project repo first. The
-  workflow only sends the parameter when there are files to append, so plain
-  runs (base images) work against unmodified project repos.
+  `test_silta_config` / `test_helm_flags` parameters fails with a CircleCI
+  "unknown pipeline parameter" error — declare both parameters in the project
+  repo first. The workflow only sends a parameter when it has a non-empty
+  value to pass, so plain runs (base images) work against unmodified project
+  repos.
 - When a chart gains or loses a service, or a new image directory is added,
   update `test-matrix.yml` and add the corresponding test values file in the
   project repo.

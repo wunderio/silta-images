@@ -83,40 +83,40 @@ images:
 
   silta-redis:
     drupal-project-k8s:
-      config: [silta/silta-test-redis.yml]
+      config: [silta/test-silta-redis.yml]
       tag_key: redis.image.tag
   silta-memcached:
     drupal-project-k8s:
-      config: [silta/silta-test-memcached.yml]
+      config: [silta/test-silta-memcached.yml]
       tag_key: memcached.image.tag
   silta-solr:
     drupal-project-k8s:
-      config: [silta/silta-test-solr.yml]
+      config: [silta/test-silta-solr.yml]
       tag_key: solr.imageTag
   silta-mailhog:
     drupal-project-k8s:
-      config: [silta/silta-test-mailhog.yml]
+      config: [silta/test-silta-mailhog.yml]
       tag_key: mailhog.image.tag
   silta-mongodb:
     frontend-project-k8s:
-      config: [silta/silta-test-mongodb.yml]
+      config: [silta/test-silta-mongodb.yml]
       tag_key: mongodb.image.tag
   silta-postgresql:
     frontend-project-k8s:
-      config: [silta/silta-test-postgresql.yml]
+      config: [silta/test-silta-postgresql.yml]
       tag_key: postgresql.image.tag
   silta-rabbitmq:
     frontend-project-k8s:
-      config: [silta/silta-test-rabbitmq.yml]
+      config: [silta/test-silta-rabbitmq.yml]
       tag_key: rabbitmq.image.tag
 
   # varnish major versions target the chart that defaults to them (VCL and
   # chart config differ between v6 and v7).
   silta-varnish/varnish6:
     drupal-project-k8s:
-      config: [silta/silta-test-varnish.yml]
+      config: [silta/test-silta-varnish.yml]
       tag_key: varnish.imageTag
   silta-varnish/varnish7:
     frontend-project-k8s:
-      config: [silta/silta-test-varnish.yml]
+      config: [silta/test-silta-varnish.yml]
       tag_key: varnish.imageTag
