@@ -8,7 +8,7 @@ ARG BITNAMI_FILES_PATH=bitnami/rabbitmq/4.1/debian-12
 
 # Set environment variables
 ENV BITNAMI_APP_NAME="rabbitmq" \
-    BITNAMI_IMAGE_VERSION="4.2.2" \
+    BITNAMI_IMAGE_VERSION="4.2.9" \
     DISABLE_WELCOME_MESSAGE="true" \
     RABBITMQ_HOME="/opt/bitnami/rabbitmq" \
     PATH="/opt/bitnami/rabbitmq/sbin:$PATH" \
