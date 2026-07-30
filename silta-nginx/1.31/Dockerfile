@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/nginx
-ARG NGINX_VERSION=1.31.0
+ARG NGINX_VERSION=1.31.2
 
 FROM nginx:${NGINX_VERSION}-alpine AS builder
 
