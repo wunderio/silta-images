@@ -1,15 +1,17 @@
-# https://hub.docker.com/_/php/tags?page=1&name=8.3
 FROM php:8.3.32-fpm-alpine
-
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
+
+# Enable community repo (required for libmcrypt, yaml, and gnu-libiconv)
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v$(cut -d. -f1-2 /etc/alpine-release)/community" \
+    >> /etc/apk/repositories
 
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mariadb client
-    'mariadb-client=~11.4' \
+    mariadb-client \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
@@ -31,7 +33,6 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     tzdata \
     # Base image has old version of openssl.
     openssl
-
 # PHP modules and build dependencies
 RUN apk add --no-cache \
         fcgi \
@@ -82,39 +83,31 @@ RUN apk add --no-cache \
     && docker-php-ext-install -j$(nproc) bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && rm -rf /tmp/pear \
     && apk del .phpize-deps
-
 # Use GNU Iconv
-RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
+RUN apk add gnu-libiconv --update-cache --allow-untrusted
 ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
-
 # Backwards-compatibility for projects using an older location.
 RUN mkdir -p /var/www/html \
     && ln -s /var/www/html /app
-
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
 ENV SA_GDPR_DUMP_VERSION=4.0.1
 RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_VERSION}/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
-
 # Elasticdump for importing/exporting Elasticsearch data
 RUN apk add nodejs \
     && apk add --no-cache --virtual .build-deps npm \
     && npm install -g elasticdump@v6 \
     && npm cache clean --force \
     && apk del .build-deps
-
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
-
 ENV TMPDIR=/tmp \
     TMP=/tmp \
     HOME=/silta \
     ENV=/silta/.bashrc \
     BASH_ENV=/silta/.bashrc
-
 COPY config/ssmtp.conf /etc/ssmtp/ssmtp.conf
-
 RUN set -ex; \
     # Create directory for shared files
     mkdir -p -m a+w /app/web/sites/default/files; \
@@ -124,9 +117,7 @@ RUN set -ex; \
     # Allow fpm to write in config
     chmod -R o+w /usr/local/etc; \
     chmod 766 /etc/ssmtp/ssmtp.conf
-
 RUN mkdir /etc/drush
-
 COPY config/ldap.conf /etc/openldap/ldap.conf
 COPY config/www.fpm.conf /usr/local/etc/php-fpm.d/www.fpm.conf
 COPY config/w-php-defaults.ini /usr/local/etc/php/conf.d/w-php-defaults.ini
@@ -134,12 +125,9 @@ COPY config/drush.yml /etc/drush/drush.yml
 COPY config/mariadb-client.cnf /etc/my.cnf.d/mariadb-client.cnf
 COPY silta /silta
 COPY silta/entrypoints/10-env.sh /etc/profile.d/10-env.sh
-
 # Replaces drush launcher with a static path
 ENV PATH="$PATH:/app/vendor/drush/drush/"
 RUN echo $PATH
-
 WORKDIR /app/
-
 ENTRYPOINT [ "/sbin/tini", "--", "/silta/entrypoint.sh" ]
 CMD ["php-fpm", "-F", "-R"]
