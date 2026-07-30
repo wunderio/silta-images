@@ -1,12 +1,12 @@
 # https://hub.docker.com/_/memcached/tags
-FROM memcached:1.6.42
+FROM memcached:1.6.45
 
 # Bitnami commit hash for rootfs downloads
 ARG BITNAMI_CONTAINERS_COMMIT=95fea787a9e62e4b16c4bdf2be16c535d5c6f544
 ARG BITNAMI_FILES_PATH=bitnami/memcached/1/debian-12
 
 ENV BITNAMI_APP_NAME="memcached" \
-    BITNAMI_IMAGE_VERSION="1.6.39" \
+    BITNAMI_IMAGE_VERSION="1.6.45" \
     DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/memcached/bin:$PATH"
 
