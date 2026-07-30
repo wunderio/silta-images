@@ -1,15 +1,19 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.4
-FROM php:8.4.21-fpm-alpine
+FROM php:8.4.23-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
+# Enable community repo (required for libmcrypt, yaml, and gnu-libiconv)
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v$(cut -d. -f1-2 /etc/alpine-release)/community" \
+    >> /etc/apk/repositories
+
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     # Install MariaDB Connector/C
     mariadb-connector-c \
     # Install mariadb client
-    'mariadb-client=~11.4' \
+    mariadb-client \
     # Install GNU version of utilities
     findutils coreutils netcat-openbsd \
     # Install pv to show import progress
@@ -84,7 +88,7 @@ RUN apk add --no-cache \
     && apk del .phpize-deps
 
 # Use GNU Iconv
-RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
+RUN apk add gnu-libiconv --update-cache --allow-untrusted
 ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
