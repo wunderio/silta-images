@@ -335,7 +335,7 @@ updates:
       - dependency-name: "php"
         update-types:
           - "version-update:semver-major"
-  
+          - "version-update:semver-minor"
 
   # silta-php-shell
   - package-ecosystem: "docker"
