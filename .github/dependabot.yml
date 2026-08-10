@@ -98,6 +98,33 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node26-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.4-node26-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.5-node26-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # silta-mailhog
   - package-ecosystem: "docker"
