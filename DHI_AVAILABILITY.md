@@ -12,8 +12,45 @@ The primary driver for DHI migration is **replacing Bitnami images** (Broadcom m
 
 | silta image | DHI base | Versions migrated | Original base | Reason |
 |-------------|----------|-------------------|---------------|--------|
-| silta-redis | `dhi.io/redis` | 7.2, 7.4, 8.0, 8.2, 8.4, 8.6 | Bitnami | Bitnami dependency removal — required |
+| silta-redis | `dhi.io/redis` | 7.2, 7.4, 8.0, 8.2, 8.4, 8.6 | Bitnami | Bitnami dependency removal — required. **Version list is stale — see "silta-redis DHI catalog status" below.** |
 | silta-node | `dhi.io/node` | 20, 22, 24 | `node:*-alpine` (official) | **Retrospective: was not Bitnami-based.** DHI migration was unnecessary — a rebuild of the Alpine images would have been sufficient. See CVE comparison below. The debian13 variants work but carry 47 LOW noise CVEs from Debian triaging. Consider whether to keep them or revert to rebuilt Alpine. |
+
+## silta-redis DHI catalog status
+
+Checked 2026-08-20 against the public catalog index, which lists every published
+tag without needing registry credentials:
+
+```
+https://github.com/docker-hardened-images/catalog/tree/main/image/redis/debian-13
+https://raw.githubusercontent.com/docker-hardened-images/catalog/main/image/redis/debian-13/<minor>-compat.yaml
+```
+
+`debian-13` `-compat` flavors currently published (the flavor our `*-dhi`
+variants build on — it ships bash/coreutils/sed/grep/procps):
+
+| redis line | `-compat` | current patch | silta variant | notes |
+|-----------|-----------|---------------|---------------|-------|
+| 7.4  | yes | 7.4.11 | `7.4-dhi`  | **EOL 2026-11-30** — only line with an announced EOL |
+| 8.0  | **no** | — | — | absent from the catalog entirely |
+| 8.2  | **no** | — | — | absent from the catalog entirely |
+| 8.4  | yes | 8.4.6  | `8.4-dhi`  | |
+| 8.6  | yes | 8.6.6  | `8.6-dhi`  | |
+| 8.8  | yes | 8.8.2  | `8.8-dhi`  | |
+| 8.10 | yes | 8.10.1 | `8.10-dhi` | newest line |
+
+Notes:
+
+- **8.0 and 8.2 have been dropped by DHI** — no `-compat`, `-dev`, or plain tag
+  in `debian-13`, `alpine-3.23`, or `alpine-3.24`. The existing
+  `silta-redis/8.0-debian13` and `8.2-debian13` variants build `FROM
+  dhi.io/redis:8.{0,2}-debian13-dev`, which are also gone, so those two are
+  expected to fail on their next rebuild.
+- **Pin the minor tag, not the patch.** `8.4-dhi` originally pinned
+  `8.4.4-compat`; DHI withdrew that tag when 8.4.6 superseded it, breaking the
+  build. All `*-dhi` variants now use `<minor>-compat` so patch releases are
+  picked up without a code change.
+- The vendored Bitnami overlay in `rootfs/` is distro- and version-agnostic and
+  is byte-identical across every `*-dhi` variant.
 
 ## Bitnami images — DHI migration required
 
