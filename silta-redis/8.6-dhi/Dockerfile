@@ -13,10 +13,10 @@
 # tree, so this local copy is the source of truth.
 
 # https://hub.docker.com/hardened-images/catalog/dhi/redis/tags
-FROM dhi.io/redis:8.4-compat
+FROM dhi.io/redis:8.6-compat
 
 ENV BITNAMI_APP_NAME="redis" \
-    BITNAMI_IMAGE_VERSION="8.4.6" \
+    BITNAMI_IMAGE_VERSION="8.6.6" \
     DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/redis/bin:$PATH"
 

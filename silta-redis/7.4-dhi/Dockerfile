@@ -13,10 +13,13 @@
 # tree, so this local copy is the source of truth.
 
 # https://hub.docker.com/hardened-images/catalog/dhi/redis/tags
-FROM dhi.io/redis:8.4-compat
+# NOTE: the DHI catalog lists end-of-life 2026-11-30 for the redis 7.4 line;
+# it is the only silta-redis *-dhi variant with an EOL date announced. Plan a
+# move to a supported line (8.4+) before then.
+FROM dhi.io/redis:7.4-compat
 
 ENV BITNAMI_APP_NAME="redis" \
-    BITNAMI_IMAGE_VERSION="8.4.6" \
+    BITNAMI_IMAGE_VERSION="7.4.11" \
     DISABLE_WELCOME_MESSAGE="true" \
     PATH="/opt/bitnami/redis/bin:$PATH"
 
