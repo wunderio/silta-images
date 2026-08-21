@@ -82,9 +82,27 @@ jobs:
           docker build $folder --file $folder/Dockerfile --tag "$BUILD_TAG"
 
           # Functional gate: if the image declares a HEALTHCHECK, run it and
-          # wait until the container reports "healthy" before pushing. Images
-          # without a HEALTHCHECK skip this step unchanged.
+          # wait until the container reports "healthy" before pushing.
+          #
+          # A variant that ships healthcheck.sh MUST also declare a HEALTHCHECK.
+          # That coupling is what keeps the gate from being switched off by
+          # accident: the silta-redis *-debian13 variants were once the only
+          # images declaring a HEALTHCHECK, and when they were removed the gate
+          # silently became a no-op for every image while still reporting green.
+          # Now a healthcheck.sh with no HEALTHCHECK is a hard failure, and an
+          # image that is genuinely unguarded says so in the log instead of
+          # skipping in silence.
           hasHealthcheck=$(docker inspect --format '{{if .Config.Healthcheck}}yes{{end}}' "$BUILD_TAG")
+
+          if [ -f "$folder/healthcheck.sh" ] && [ "$hasHealthcheck" != "yes" ]; then
+            echo "::error::$folder ships healthcheck.sh but the built image declares no HEALTHCHECK. Add a HEALTHCHECK instruction to $folder/Dockerfile, or remove the script."
+            exit 1
+          fi
+
+          if [ "$hasHealthcheck" != "yes" ]; then
+            echo "::notice::$IMAGE_NAME ($folder) declares no HEALTHCHECK - the wait-for-healthy gate is skipped for this image."
+          fi
+
           if [ "$hasHealthcheck" = "yes" ]; then
             echo "Image declares a HEALTHCHECK, verifying it becomes healthy..."
             containerName="ci_healthcheck_$RANDOM"

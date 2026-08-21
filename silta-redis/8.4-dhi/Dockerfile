@@ -43,6 +43,7 @@ RUN mkdir -p /bitnami/redis/{conf,data,logs} \
     && ln -s /usr/local/bin/redis* /opt/bitnami/redis/bin/
 
 COPY redis-default.conf /opt/bitnami/redis/etc/redis-default.conf
+COPY healthcheck.sh /opt/bitnami/scripts/healthcheck.sh
 
 RUN /opt/bitnami/scripts/redis/postunpack.sh
 
@@ -55,6 +56,12 @@ RUN chown -R 1001:1001 /bitnami \
 
 USER 1001
 EXPOSE 6379
+
+# Functional gate for docker run / compose and the CI wait-for-healthy step in
+# .github/workflows/docker-images.yml. Kubernetes ignores docker HEALTHCHECK;
+# the Helm chart uses its own probes.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
+    CMD /opt/bitnami/scripts/healthcheck.sh
 
 # Set entrypoint
 ENTRYPOINT [ "/opt/bitnami/scripts/redis/entrypoint.sh" ]
