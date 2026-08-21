@@ -1,6 +1,8 @@
 # DHI Image Availability & Migration Strategy for silta-images
 
-Last checked: 2026-03-30
+Last checked: 2026-03-30 — except silta-redis and silta-mongodb, rechecked
+2026-08-21 (see their sections below; the older notes elsewhere in this file have
+not been re-verified since March).
 
 Registry: `dhi.io`
 
@@ -12,7 +14,7 @@ The primary driver for DHI migration is **replacing Bitnami images** (Broadcom m
 
 | silta image | DHI base | Versions migrated | Original base | Reason |
 |-------------|----------|-------------------|---------------|--------|
-| silta-redis | `dhi.io/redis` | 7.2, 7.4, 8.0, 8.2, 8.4, 8.6 | Bitnami | Bitnami dependency removal — required. **Version list is stale — see "silta-redis DHI catalog status" below.** |
+| silta-redis | `dhi.io/redis` | 7.4, 8.4, 8.6, 8.8, 8.10 (`*-dhi`, `-compat` base) | Bitnami | Bitnami dependency removal — required. The earlier `*-debian13` variants were removed 2026-08-21 in favour of `-compat`; see below. |
 | silta-node | `dhi.io/node` | 20, 22, 24 | `node:*-alpine` (official) | **Retrospective: was not Bitnami-based.** DHI migration was unnecessary — a rebuild of the Alpine images would have been sufficient. See CVE comparison below. The debian13 variants work but carry 47 LOW noise CVEs from Debian triaging. Consider whether to keep them or revert to rebuilt Alpine. |
 
 ## silta-redis DHI catalog status
@@ -40,17 +42,159 @@ variants build on — it ships bash/coreutils/sed/grep/procps):
 
 Notes:
 
-- **8.0 and 8.2 have been dropped by DHI** — no `-compat`, `-dev`, or plain tag
-  in `debian-13`, `alpine-3.23`, or `alpine-3.24`. The existing
-  `silta-redis/8.0-debian13` and `8.2-debian13` variants build `FROM
-  dhi.io/redis:8.{0,2}-debian13-dev`, which are also gone, so those two are
-  expected to fail on their next rebuild.
+- **8.0 and 8.2 have no `-compat` flavor** — neither line appears in the catalog
+  index for `debian-13`, `alpine-3.23`, or `alpine-3.24`.
+  *Correction (2026-08-21):* an earlier revision of this file claimed the
+  `8.{0,2}-debian13-dev` base tags were gone too. That was wrong. The catalog
+  *index* omits those lines, but the *registry* still serves every
+  `7.2/8.0/8.2-debian13-dev` tag — verified with
+  `docker buildx imagetools inspect`. Absence from the index is not proof of
+  absence from the registry; check the registry before concluding a tag is dead.
 - **Pin the minor tag, not the patch.** `8.4-dhi` originally pinned
   `8.4.4-compat`; DHI withdrew that tag when 8.4.6 superseded it, breaking the
   build. All `*-dhi` variants now use `<minor>-compat` so patch releases are
   picked up without a code change.
 - The vendored Bitnami overlay in `rootfs/` is distro- and version-agnostic and
   is byte-identical across every `*-dhi` variant.
+
+All five `*-dhi` variants were built and smoke-tested on 2026-08-20: each starts,
+answers `PING`, serves a SET/GET round-trip, and runs as uid 1001. Reported
+`redis_version` matched the pinned line exactly (7.4.11 / 8.4.6 / 8.6.6 / 8.8.2 /
+8.10.1).
+
+### `*-debian13` variants removed (2026-08-21)
+
+The six `silta-redis/*-debian13` directories (7.2, 7.4, 8.0, 8.2, 8.4, 8.6, built
+on `dhi.io/redis:*-debian13-dev`) were deleted. Docker Scout reports the
+`-compat` runtime images carry substantially fewer vulnerabilities than the
+`-debian13` builds, which is unsurprising: `-debian13-dev` is a *dev* base that
+ships a compiler and build tooling, whereas `-compat` is a runtime base carrying
+only bash/coreutils/sed/grep/mawk/procps on top of redis.
+
+Consequences to be aware of:
+
+- **redis 8.0 and 8.2 now have no image at all.** They existed only as
+  `*-debian13`, and DHI publishes no 8.0/8.2 `-compat`, so they cannot be
+  reproduced as `-dhi`. Anything pinning `8.{0,2}-debian13-v2*` must move to
+  8.4+ (or 7.4). Already-pushed tags stay in the registry, but nothing rebuilds
+  or patches them.
+- **redis 7.2 falls back to `7.2-bc`, i.e. Bitnami-only** — the one thing this
+  migration exists to eliminate. DHI has no 7.2 line, so a supported non-Bitnami
+  7.2 is not currently possible; moving 7.2 consumers to 7.4+ is the only clean
+  path.
+- ~~No image in the repo declares a `HEALTHCHECK` any more.~~ **Fixed
+  2026-08-21** — see "Healthcheck gate" below.
+
+Version coverage after the removal:
+
+| redis line | remaining variants |
+|-----------|--------------------|
+| 6.2  | `6.2-bc` (Bitnami) |
+| 7.0  | `7.0-bc` (Bitnami) |
+| 7.2  | `7.2-bc` (Bitnami — no DHI line exists) |
+| 7.4  | `7.4-bc`, `7.4-dhi` |
+| 8.0  | **none** |
+| 8.2  | **none** |
+| 8.4  | `8.4-bc`, `8.4-dhi` |
+| 8.6  | `8.6-dhi` |
+| 8.8  | `8.8-dhi` |
+| 8.10 | `8.10-dhi` |
+
+## Healthcheck gate
+
+The `Build and push images` step in `.github/workflows/docker-images.yml` builds
+each image to a throwaway tag, and — when the image declares a `HEALTHCHECK` —
+starts a container and refuses to push unless it reports `healthy`.
+
+Removing the `*-debian13` variants exposed a flaw in that design: those
+Dockerfiles were the only ones in the repo declaring a `HEALTHCHECK`, so the gate
+quietly became a no-op for every image while continuing to report green. A gate
+that can be switched off by deleting an unrelated directory is not a gate.
+
+Two changes, both 2026-08-21:
+
+1. **`HEALTHCHECK` restored on every `*-dhi` variant.** Each variant ships a
+   `healthcheck.sh` next to its `Dockerfile` (deliberately *not* inside the
+   vendored `rootfs/` overlay, which stays byte-identical across variants) and
+   copies it to `/opt/bitnami/scripts/healthcheck.sh` — the same path the
+   `*-debian13` images used, so anything referencing it keeps working. redis uses
+   the original POSIX-sh `redis-cli ping`, unchanged; mongodb uses a `mongosh`
+   admin `ping`, which needs no authentication and so works with or without
+   `MONGODB_ROOT_PASSWORD`.
+2. **The workflow no longer skips silently.** A variant folder containing
+   `healthcheck.sh` whose built image declares no `HEALTHCHECK` is now a hard
+   `::error::` failure, so the script and the instruction cannot drift apart. An
+   image that is genuinely unguarded emits a `::notice::` naming itself, instead
+   of skipping without a trace.
+
+Verified 2026-08-21 by building and running every affected image:
+
+| image | declares HEALTHCHECK | reaches healthy | probe exit 0 / 1 |
+|-------|---------------------|-----------------|------------------|
+| `silta-redis:{7.4,8.4,8.6,8.8,8.10}-dhi` | yes | yes | 0 / 1 |
+| `silta-mongodb:8.3-dhi` | yes | yes (~12s) | 0 / 1 |
+
+The gate was also checked for teeth, not just for passing: a redis container left
+running while its probe was pointed at a dead port went `unhealthy` after ~53s
+(exit 1, 8 consecutive failures), well inside the workflow's 90s wait budget, so
+CI would exit 1 and refuse the push. Note that a broken image sits in `starting`
+for the first ~15s — Docker does not count failures during `--start-period` — and
+the workflow's loop correctly treats `starting` as "keep waiting" rather than as
+success. All three branches of the new guard (`error`, `notice`, `proceed`) were
+exercised directly against the workflow's own lines.
+
+## silta-mongodb DHI catalog status
+
+Checked 2026-08-20 against `image/mongodb/debian-13` in the same catalog.
+
+| silta variant | DHI | `-compat`? | notes |
+|---------------|-----|-----------|-------|
+| `6.0-bc` | **absent** | — | no DHI path |
+| `7.0-bc` | **absent** | — | no DHI path |
+| `8.0-bc`  | 8.0.29 | **no** | plain + `-dev` only |
+| `8.2-bc`  | **absent** | — | superseded by 8.3 |
+| *(new)* `8.3-dhi` | 8.3.8 | yes | EOL 2029-10-31 |
+
+A DHI migration for mongodb therefore means consolidating onto 8.3 (and possibly
+8.0); 6.0 and 7.0 have no DHI path at all.
+
+**`silta-mongodb/8.3-dhi` is not a copy of the redis pattern.** The redis
+`-compat` runtime ships `bash coreutils findutils grep mawk openssl procps sed`,
+so the Bitnami scripts run unmodified. The mongodb `-compat` runtime ships only
+`base-files bash ca-certificates coreutils findutils libcurl4t64 numactl` — no
+`sed`, `grep`, `awk` (mawk is explicitly excluded), `hostname` or `getent`, all
+of which the vendored scripts need (sed 17 call sites, grep 26, awk 6). It also
+needs `yq` at runtime (`libmongodb.sh` `mongodb_conf_get`) and `render-template`
+at build time (`postunpack.sh`).
+
+Those seven tools are staged in from a `debian:trixie-slim` builder stage —
+trixie is the same Debian release DHI debian13 is built from, so the glibc ABI
+matches by construction. Only non-glibc libraries are copied (`libacl`,
+`libpcre2-8`, `libselinux`); glibc itself is left untouched in the hardened base.
+Staged paths must be canonical `/usr/lib/...`, because both images use merged-usr
+(`/lib` is a symlink) and copying a real `/lib` directory over it fails the build.
+
+Other mongodb notes:
+
+- **DHI mongodb is `linux/amd64` only** — redis publishes amd64 + arm64. This
+  image cannot be built for arm64.
+- The vendored overlay comes from bitnami/containers
+  `d4d4ed1856dc04019f0a7e87922dbc4f74916ba8`, path `bitnami/mongodb/8.0/debian-12`
+  — the same commit and path the `*-bc` images use, and the newest mongodb tree
+  upstream published before the scripts were removed.
+- Built and smoke-tested on 2026-08-20: `mongod` 8.3.8 starts and listens on
+  27017 as uid 1001, an insert/read round-trip through `mongosh` succeeds, the
+  runtime `yq` config path resolves (`yq eval .net.port` → 27017), and all
+  mongo-tools (`bsondump`, `mongodump`, …) are present.
+
+### Registry access
+
+`dhi.io` image *pulls* work anonymously — `docker build` and
+`docker buildx imagetools inspect` both resolve DHI bases with no credentials.
+Only `docker manifest inspect` returns `401 Unauthorized`; that is a quirk of
+that subcommand's auth path, not a sign the tag is missing. Use
+`docker buildx imagetools inspect` to check a tag by hand, and the catalog repo
+above to enumerate tags.
 
 ## Bitnami images — DHI migration required
 
