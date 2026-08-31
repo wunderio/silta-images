@@ -29,6 +29,7 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libxslt \
     libgcrypt \
     libwebp \
+    libavif \
     yaml \
     tzdata \
     # Base image has old version of openssl.
@@ -62,6 +63,8 @@ RUN apk add --no-cache \
         libgcrypt-dev \
         # for webp
         libwebp-dev \
+        # for avif
+        libavif-dev \
         postgresql-dev \
         # for yaml
         yaml-dev \
@@ -79,7 +82,7 @@ RUN apk add --no-cache \
     && docker-php-ext-enable ldap \
     && yes '' | pecl install memcached \
     && docker-php-ext-enable memcached \
-    && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype \
+    && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-avif \
     && docker-php-ext-install -j$(nproc) bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && rm -rf /tmp/pear \
     && apk del .phpize-deps
