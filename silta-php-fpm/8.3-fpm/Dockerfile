@@ -1,4 +1,4 @@
-FROM php:8.3.32-fpm-alpine
+FROM php:8.3.33-fpm-alpine
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
