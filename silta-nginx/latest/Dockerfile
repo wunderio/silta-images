@@ -62,11 +62,13 @@ RUN apk update && apk add wget --virtual build-dependencies && \
 	apk del build-dependencies
 
 RUN rm -rf /etc/nginx/conf.d/default.conf \
-		&& touch /var/run/nginx.pid \
-		&& chown -R $UID:0 /var/run/nginx.pid
+	&& touch /var/run/nginx.pid \
+	&& chown -R $UID:0 /var/run/nginx.pid
 
-RUN mkdir -p /var/www/html/web \
-      && ln -s /var/www/html /app
+RUN mkdir -p /var/www /app \
+	&& ln -s /app /var/www/html \
+	&& mkdir -p /var/www/html/web
+
 RUN adduser nginx www-data
 
 STOPSIGNAL SIGQUIT
