@@ -85,8 +85,9 @@ RUN apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.o
 ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
-RUN mkdir -p /var/www/html \
-    && ln -s /var/www/html /app
+RUN rm -rf /var/www/html/web \
+    && ln -s /app /var/www/html \
+    && mkdir -p /var/www/html/web
 
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
 ENV SA_GDPR_DUMP_VERSION=3.1.0

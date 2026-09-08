@@ -1,14 +1,14 @@
 # https://hub.docker.com/_/nginx
 ARG NGINX_VERSION=1.28.0
 
-FROM nginx:${NGINX_VERSION}-alpine as builder
+FROM nginx:${NGINX_VERSION}-alpine AS builder
 
 # https://github.com/openresty/echo-nginx-module/tags
 ENV HTTPECHO_VERSION=0.63
 
 # Nginx virtual host traffic status module
 # https://github.com/vozlt/nginx-module-vts
-ENV NGINX_VTS_VERSION 0.2.4
+ENV NGINX_VTS_VERSION=0.2.4
 
 RUN apk add --update gcc libc-dev linux-headers zlib-dev openrc autoconf automake g++ make \
     libressl-dev geoip-dev lmdb-dev pcre-dev libtool libxml2-dev yajl-dev pkgconf zlib-dev \
@@ -62,11 +62,13 @@ RUN apk update && apk add wget --virtual build-dependencies && \
 	apk del build-dependencies
 
 RUN rm -rf /etc/nginx/conf.d/default.conf \
-		&& touch /var/run/nginx.pid \
-		&& chown -R $UID:0 /var/run/nginx.pid
+	&& touch /var/run/nginx.pid \
+	&& chown -R $UID:0 /var/run/nginx.pid
 
-RUN mkdir -p /var/www/html/web \
-      && ln -s /var/www/html /app
+RUN mkdir -p /var/www /app \
+	&& ln -s /app /var/www/html \
+	&& mkdir -p /var/www/html/web
+
 RUN adduser nginx www-data
 
 STOPSIGNAL SIGQUIT
