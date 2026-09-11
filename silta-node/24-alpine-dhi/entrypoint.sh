@@ -40,9 +40,9 @@ OUTSIDE_COLLABORATORS=${OUTSIDE_COLLABORATORS}
 EOF
 
     env > /etc/environment
-    # Debian adduser syntax (Alpine used: adduser www-admin -D -G node -s /bin/bash -h /app)
-    adduser --disabled-password --gecos "" --home /app --shell /bin/bash --ingroup node www-admin
-    # Set an empty password after the user is created.
+    # We add -D to make it non-interactive, but then the user is locked out.
+    adduser www-admin -D -G node -s /bin/bash -h /app
+    # So set an empty password after the user is created.
     echo "www-admin:" | chpasswd
 
     # Pass environment variables down to container, so SSH can pick it up and drush commands work too.
