@@ -15,7 +15,7 @@ The primary driver for DHI migration is **replacing Bitnami images** (Broadcom m
 | silta image | DHI base | Versions migrated | Original base | Reason |
 |-------------|----------|-------------------|---------------|--------|
 | silta-redis | `dhi.io/redis` | 7.4, 8.4, 8.6, 8.8, 8.10 (`*-dhi`, `-compat` base) | Bitnami | Bitnami dependency removal — required. The earlier `*-debian13` variants were removed 2026-08-21 in favour of `-compat`; see below. |
-| silta-node | `dhi.io/node` | 20, 22, 24 | `node:*-alpine` (official) | **Retrospective: was not Bitnami-based.** DHI migration was unnecessary — a rebuild of the Alpine images would have been sufficient. See CVE comparison below. The debian13 variants work but carry 47 LOW noise CVEs from Debian triaging. Consider whether to keep them or revert to rebuilt Alpine. |
+| silta-node | `dhi.io/node` | 22, 24, 25 (`latest`), 26 on `*-alpine-dev` — new `*-alpine-dhi` sibling directories, legacy `*-alpine` untouched; 20 already on `*-debian13-dev` | `node:*-alpine` (official) | **Correction (2026-09-11):** the March finding above only evaluated `*-debian13-dev` and was right to reject it — but it missed that DHI also publishes an **Alpine** dev line (`dhi.io/node:<major>-alpine-dev`, undocumented in the catalog index but present in the registry). That line beat both the official Alpine rebuild *and* the debian13 DHI variant: 0 CVEs (trivy) vs 39 (rebuild) vs 407 (debian13-dev), and smaller than either (163MB vs 179MB vs 343MB). Following the same pattern as the `silta-redis` `*-dhi` proof-of-concept variants, new **sibling** directories `22-alpine-dhi`, `24-alpine-dhi`, `26-alpine-dhi`, `latest-dhi` were added 2026-09-11 for a relaxed rollout — the legacy `*-alpine`/`latest` directories are untouched and keep building from the official `node:*-alpine` base, so nothing changes for existing consumers until they opt in to a `-dhi` tag. TAGS in the new directories start fresh at `v1` (each directory has its own independent counter, per `docs/dependabot-image-bumps.md`). Node 20 has no `-alpine-dev` in DHI (confirmed 404, not just absent from the catalog index) — no `20-alpine-dhi` was created; `20-debian13` (already DHI, Debian-based) remains the only DHI path for that line. Node 12/14/16/18 have no DHI path at all (pre-dates DHI's supported Node versions). **Gotcha:** DHI's apk postinstall trigger that normally creates the `sshd` system user does not fire on the alpine-dev base — openssh-server silently fails to bind port 22 without it. Fixed by explicitly creating the user in the `RUN apk add` line (`addgroup -S -g 22 sshd && adduser -S -D -H -h /dev/null -s /sbin/nologin -G sshd -u 22 sshd`); verified sshd binds and node reports the correct version for all four new variants. Once a `-dhi` variant has proven itself in production, consider promoting it to replace its legacy sibling outright (matching how `silta-redis` ultimately dropped `*-debian13` in favour of `*-dhi`) — not done here since that's a bigger, disruptive decision. |
 
 ## silta-redis DHI catalog status
 
@@ -213,11 +213,9 @@ These images use official upstream bases. CVE analysis (2026-03-30) shows that m
 
 ### silta-node
 
-**Current state:** `node:*-alpine` base (official Node images). Not Bitnami. DHI Debian variants were created (`*-debian13-v2`) but were unnecessary.
-
-**Rebuild analysis:** `node:22-alpine` fresh base has 6 CVEs (0C, 1H) — better than the DHI Debian migration which has 51 CVEs (0C, 1H, 47L Debian noise). Same HIGH count either way.
-
-**Recommendation:** Rebuild Alpine images. Consider deprecating the `*-debian13-v2` variants or keeping them only if Debian is preferred for other reasons (consistency, tooling).
+Moved to "Already migrated to DHI" above (2026-09-11) — the DHI Alpine dev
+line beats both this rebuild path and the DHI Debian line it was originally
+compared against.
 
 ### silta-php-fpm
 
@@ -288,6 +286,16 @@ These images use official upstream bases. CVE analysis (2026-03-30) shows that m
 | Fresh base `node:24-alpine` (rebuild) | 20 | 0 | 8 | 3 | 1 |
 
 Node 22 Alpine rebuild (6 CVEs, 1H) is better than the DHI Debian migration (51 CVEs, 1H) — same HIGH count but far less noise. Node 24 Alpine has more HIGHs (8) because upstream hasn't patched everything yet, but this will improve with time.
+
+**Update (2026-09-11, trivy, not docker scout — counts aren't directly comparable to the row above):**
+
+| Image | Total | C | H | M | L |
+|-------|-------|---|---|---|---|
+| Official `node:22.23.2-alpine` rebuild + our packages | 39 | 1 | 12 | 13 | 13 |
+| `dhi.io/node:22-debian13-dev` + our packages (current `22-debian13`) | 407 | 15 | 95 | 156 | 141 |
+| `dhi.io/node:22-alpine-dev` + our packages (new `22-alpine-dhi`) | **0** | 0 | 0 | 0 | 0 |
+
+The DHI Alpine dev line resolves every known CVE trivy checks for, beating both the plain rebuild and the DHI Debian line by a wide margin — see the corrected finding at the top of this file.
 
 ### silta-php-fpm
 
