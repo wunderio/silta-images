@@ -30,6 +30,7 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     libxslt \
     libgcrypt \
     libwebp \
+    libavif \
     yaml \
     tzdata
 
@@ -62,6 +63,8 @@ RUN apk add --no-cache \
         libgcrypt-dev \
         # for webp
         libwebp-dev \
+        # for avif
+        libavif-dev \
         postgresql-dev \
         # for yaml
         yaml-dev \
@@ -79,7 +82,7 @@ RUN apk add --no-cache \
     && docker-php-ext-enable ldap \
     && yes '' | pecl install memcached \
     && docker-php-ext-enable memcached \
-    && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype \
+    && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-avif \
     && docker-php-ext-install -j$(nproc) bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && rm -rf /tmp/pear \
     && apk del .phpize-deps
@@ -89,8 +92,9 @@ RUN apk add gnu-libiconv --update-cache --allow-untrusted
 ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
-RUN mkdir -p /var/www/html \
-    && ln -s /var/www/html /app
+RUN rm -rf /var/www/html/web \
+    && ln -s /app /var/www/html \
+    && mkdir -p /var/www/html/web
 
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
 ENV SA_GDPR_DUMP_VERSION=4.0.1
