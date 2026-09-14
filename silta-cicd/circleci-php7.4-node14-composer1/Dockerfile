@@ -13,7 +13,13 @@ RUN composer global require drush/drush-launcher:^0.8.0 hirak/prestissimo \
   && composer clearcache
 
 # Upgrade packages
-RUN sudo apt update && sudo apt upgrade && sudo apt clean
+# Debian buster is EOL; deb.debian.org/security.debian.org no longer serve it, use the archive instead.
+RUN sudo sed -i \
+  -e 's|deb http://deb.debian.org/debian buster main|deb http://archive.debian.org/debian buster main|' \
+  -e 's|deb http://security.debian.org/debian-security buster/updates main|deb http://archive.debian.org/debian-security buster/updates main|' \
+  -e 's|deb http://deb.debian.org/debian buster-updates main|deb http://archive.debian.org/debian buster-updates main|' \
+  /etc/apt/sources.list \
+  && sudo apt update -o Acquire::Check-Valid-Until=false && sudo apt upgrade && sudo apt clean
 
 # Install vim based on popular demand.
 RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean

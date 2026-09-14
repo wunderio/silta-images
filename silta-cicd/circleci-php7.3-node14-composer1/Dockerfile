@@ -4,7 +4,13 @@ FROM circleci/php:7.3.23-cli-node
 ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
 
 # Upgrade packages
-RUN sudo apt update && sudo apt upgrade && sudo apt clean
+# Debian buster is EOL; deb.debian.org/security.debian.org no longer serve it, use the archive instead.
+RUN sudo sed -i \
+  -e 's|deb http://deb.debian.org/debian buster main|deb http://archive.debian.org/debian buster main|' \
+  -e 's|deb http://security.debian.org/debian-security buster/updates main|deb http://archive.debian.org/debian-security buster/updates main|' \
+  -e 's|deb http://deb.debian.org/debian buster-updates main|deb http://archive.debian.org/debian buster-updates main|' \
+  /etc/apt/sources.list \
+  && sudo apt update -o Acquire::Check-Valid-Until=false && sudo apt upgrade && sudo apt clean
 
 # Downgrade composer to 1.x
 USER root
