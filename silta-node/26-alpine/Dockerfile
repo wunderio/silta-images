@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/node/tags?name=26.
-FROM node:26.7.0-alpine
+FROM node:26.8-alpine
 
 RUN apk add --no-cache openssh bash curl tzdata 'rsync>3.4.0'
 EXPOSE 22

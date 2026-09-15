@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/cimg/php/tags?name=8.5
-FROM cimg/php:8.5.4
+FROM cimg/php:8.5.10
 
 # Make composer packages executable.
 ENV PATH="/home/circleci/.composer/vendor/bin:/home/circleci/project/vendor/drush/drush:/home/circleci/project/drupal/vendor/drush/drush:${PATH}"
@@ -14,7 +14,7 @@ RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-  && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
+  && sudo apt-get update && sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
 # Install AWS cli and aws-iam-authenticator, git, python, pproxy
