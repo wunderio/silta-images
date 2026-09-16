@@ -32,7 +32,7 @@ RUN sudo apt install -y git python3 python3-pip \
 
 # Install Helm 3
 # https://github.com/helm/helm/releases
-ENV HELM_VERSION v3.18.4
+ENV HELM_VERSION v3.22.0
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 

@@ -29,7 +29,7 @@ RUN sudo apt install -y git python3 python3-pip \
 
 
 # Install Helm 3
-ENV HELM_VERSION v3.16.3
+ENV HELM_VERSION v3.22.0
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 
@@ -64,7 +64,7 @@ RUN curl -L -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NOD
 	rm node.tar.xz && \
 	sudo ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-ENV YARN_VERSION 1.22.5
+ENV YARN_VERSION 1.22.22
 RUN curl -L -o yarn.tar.gz "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz" && \
 	sudo tar -xzf yarn.tar.gz -C /opt/ && \
 	rm yarn.tar.gz && \
