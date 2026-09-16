@@ -25,8 +25,8 @@
 # plus render-template, needed at build time by mongodb/postunpack.sh.
 #
 # DHI has no package manager and no curl, so those are staged in from a
-# debian:trixie-slim builder. trixie is the same Debian release DHI debian13 is
-# built from, so the glibc ABI matches by construction. Only non-glibc
+# debian:trixie-slim builder. trixie is the same Debian release the DHI compat
+# base is built from, so the glibc ABI matches by construction. Only non-glibc
 # libraries are copied — glibc itself is already present in the base and must
 # not be overwritten.
 

@@ -14,20 +14,16 @@ The primary driver for DHI migration is **replacing Bitnami images** (Broadcom m
 
 | silta image | DHI base | Versions migrated | Original base | Reason |
 |-------------|----------|-------------------|---------------|--------|
-| silta-redis | `dhi.io/redis` | 7.4, 8.4, 8.6, 8.8, 8.10 (`*-dhi`, `-compat` base) | Bitnami | Bitnami dependency removal — required. The earlier `*-debian13` variants were removed 2026-08-21 in favour of `-compat`; see below. |
-| silta-node | `dhi.io/node` | 22, 24, 25 (`latest`), 26 on `*-alpine-dev` — new `*-alpine-dhi` sibling directories, legacy `*-alpine` untouched; 20 already on `*-debian13-dev` | `node:*-alpine` (official) | **Correction (2026-09-11):** the March finding above only evaluated `*-debian13-dev` and was right to reject it — but it missed that DHI also publishes an **Alpine** dev line (`dhi.io/node:<major>-alpine-dev`, undocumented in the catalog index but present in the registry). That line beat both the official Alpine rebuild *and* the debian13 DHI variant: 0 CVEs (trivy) vs 39 (rebuild) vs 407 (debian13-dev), and smaller than either (163MB vs 179MB vs 343MB). Following the same pattern as the `silta-redis` `*-dhi` proof-of-concept variants, new **sibling** directories `22-alpine-dhi`, `24-alpine-dhi`, `26-alpine-dhi`, `latest-dhi` were added 2026-09-11 for a relaxed rollout — the legacy `*-alpine`/`latest` directories are untouched and keep building from the official `node:*-alpine` base, so nothing changes for existing consumers until they opt in to a `-dhi` tag. TAGS in the new directories start fresh at `v1` (each directory has its own independent counter, per `docs/dependabot-image-bumps.md`). Node 20 has no `-alpine-dev` in DHI (confirmed 404, not just absent from the catalog index) — no `20-alpine-dhi` was created; `20-debian13` (already DHI, Debian-based) remains the only DHI path for that line. Node 12/14/16/18 have no DHI path at all (pre-dates DHI's supported Node versions). **Gotcha:** DHI's apk postinstall trigger that normally creates the `sshd` system user does not fire on the alpine-dev base — openssh-server silently fails to bind port 22 without it. Fixed by explicitly creating the user in the `RUN apk add` line (`addgroup -S -g 22 sshd && adduser -S -D -H -h /dev/null -s /sbin/nologin -G sshd -u 22 sshd`); verified sshd binds and node reports the correct version for all four new variants. Once a `-dhi` variant has proven itself in production, consider promoting it to replace its legacy sibling outright (matching how `silta-redis` ultimately dropped `*-debian13` in favour of `*-dhi`) — not done here since that's a bigger, disruptive decision. |
+| silta-redis | `dhi.io/redis` | 7.4, 8.4, 8.6, 8.8, 8.10 (`*-dhi`, `-compat` base) | Bitnami | Bitnami dependency removal — required. The earlier Debian dev-base variants were removed 2026-08-21 in favour of `-compat`; see below. |
+| silta-node | `dhi.io/node` | 22, 24, 25 (`latest`), 26 on `*-alpine-dev` — new `*-alpine-dhi` sibling directories, legacy `*-alpine` untouched; 20 already on the Debian dev tag | `node:*-alpine` (official) | **Correction (2026-09-11):** the March finding above only evaluated the Debian dev base and was right to reject it — but it missed that DHI also publishes an **Alpine** dev line (`dhi.io/node:<major>-alpine-dev`, undocumented in the catalog index but present in the registry). That line beat both the official Alpine rebuild *and* the Debian DHI variant: 0 CVEs (trivy) vs 39 (rebuild) vs 407 (Debian dev), and smaller than either (163MB vs 179MB vs 343MB). Following the same pattern as the `silta-redis` `*-dhi` proof-of-concept variants, new **sibling** directories `22-alpine-dhi`, `24-alpine-dhi`, `26-alpine-dhi`, `latest-dhi` were added 2026-09-11 for a relaxed rollout — the legacy `*-alpine`/`latest` directories are untouched and keep building from the official `node:*-alpine` base, so nothing changes for existing consumers until they opt in to a `-dhi` tag. TAGS in the new directories start fresh at `v1` (each directory has its own independent counter, per `docs/dependabot-image-bumps.md`). Node 20 has no `-alpine-dev` in DHI (confirmed 404, not just absent from the catalog index) — no `20-alpine-dhi` was created; the existing Debian-based DHI tag remains the only DHI path for that line. Node 12/14/16/18 have no DHI path at all (pre-dates DHI's supported Node versions). **Gotcha:** DHI's apk postinstall trigger that normally creates the `sshd` system user does not fire on the alpine-dev base — openssh-server silently fails to bind port 22 without it. Fixed by explicitly creating the user in the `RUN apk add` line (`addgroup -S -g 22 sshd && adduser -S -D -H -h /dev/null -s /sbin/nologin -G sshd -u 22 sshd`); verified sshd binds and node reports the correct version for all four new variants. Once a `-dhi` variant has proven itself in production, consider promoting it to replace its legacy sibling outright (matching how `silta-redis` ultimately dropped its Debian dev-base variants in favour of `-dhi`) — not done here since that's a bigger, disruptive decision. |
 
 ## silta-redis DHI catalog status
 
-Checked 2026-08-20 against the public catalog index, which lists every published
-tag without needing registry credentials:
+Checked 2026-08-20 against the public catalog index at
+`docker-hardened-images/catalog` on GitHub, which lists every published tag
+without needing registry credentials.
 
-```
-https://github.com/docker-hardened-images/catalog/tree/main/image/redis/debian-13
-https://raw.githubusercontent.com/docker-hardened-images/catalog/main/image/redis/debian-13/<minor>-compat.yaml
-```
-
-`debian-13` `-compat` flavors currently published (the flavor our `*-dhi`
+The `-compat` flavors currently published (the flavor our `*-dhi`
 variants build on — it ships bash/coreutils/sed/grep/procps):
 
 | redis line | `-compat` | current patch | silta variant | notes |
@@ -43,11 +39,11 @@ variants build on — it ships bash/coreutils/sed/grep/procps):
 Notes:
 
 - **8.0 and 8.2 have no `-compat` flavor** — neither line appears in the catalog
-  index for `debian-13`, `alpine-3.23`, or `alpine-3.24`.
+  index for the Debian base, `alpine-3.23`, or `alpine-3.24`.
   *Correction (2026-08-21):* an earlier revision of this file claimed the
-  `8.{0,2}-debian13-dev` base tags were gone too. That was wrong. The catalog
-  *index* omits those lines, but the *registry* still serves every
-  `7.2/8.0/8.2-debian13-dev` tag — verified with
+  Debian dev-base tags for those lines were gone too. That was wrong. The
+  catalog *index* omits those lines, but the *registry* still serves every one
+  of the Debian dev tags for 7.2/8.0/8.2 — verified with
   `docker buildx imagetools inspect`. Absence from the index is not proof of
   absence from the registry; check the registry before concluding a tag is dead.
 - **Pin the minor tag, not the patch.** `8.4-dhi` originally pinned
@@ -62,22 +58,22 @@ answers `PING`, serves a SET/GET round-trip, and runs as uid 1001. Reported
 `redis_version` matched the pinned line exactly (7.4.11 / 8.4.6 / 8.6.6 / 8.8.2 /
 8.10.1).
 
-### `*-debian13` variants removed (2026-08-21)
+### Debian dev-base variants removed (2026-08-21)
 
-The six `silta-redis/*-debian13` directories (7.2, 7.4, 8.0, 8.2, 8.4, 8.6, built
-on `dhi.io/redis:*-debian13-dev`) were deleted. Docker Scout reports the
-`-compat` runtime images carry substantially fewer vulnerabilities than the
-`-debian13` builds, which is unsurprising: `-debian13-dev` is a *dev* base that
+The six `silta-redis` Debian dev-base directories (7.2, 7.4, 8.0, 8.2, 8.4, 8.6,
+built on the DHI Debian dev tag) were deleted. Docker Scout reports the
+`-compat` runtime images carry substantially fewer vulnerabilities than those
+builds, which is unsurprising: the Debian dev base is a *dev* base that
 ships a compiler and build tooling, whereas `-compat` is a runtime base carrying
 only bash/coreutils/sed/grep/mawk/procps on top of redis.
 
 Consequences to be aware of:
 
-- **redis 8.0 and 8.2 now have no image at all.** They existed only as
-  `*-debian13`, and DHI publishes no 8.0/8.2 `-compat`, so they cannot be
-  reproduced as `-dhi`. Anything pinning `8.{0,2}-debian13-v2*` must move to
-  8.4+ (or 7.4). Already-pushed tags stay in the registry, but nothing rebuilds
-  or patches them.
+- **redis 8.0 and 8.2 now have no image at all.** They existed only on the
+  removed Debian dev-base directories, and DHI publishes no 8.0/8.2 `-compat`,
+  so they cannot be reproduced as `-dhi`. Anything pinning those old tags must
+  move to 8.4+ (or 7.4). Already-pushed tags stay in the registry, but nothing
+  rebuilds or patches them.
 - **redis 7.2 falls back to `7.2-bc`, i.e. Bitnami-only** — the one thing this
   migration exists to eliminate. DHI has no 7.2 line, so a supported non-Bitnami
   7.2 is not currently possible; moving 7.2 consumers to 7.4+ is the only clean
@@ -106,7 +102,7 @@ The `Build and push images` step in `.github/workflows/docker-images.yml` builds
 each image to a throwaway tag, and — when the image declares a `HEALTHCHECK` —
 starts a container and refuses to push unless it reports `healthy`.
 
-Removing the `*-debian13` variants exposed a flaw in that design: those
+Removing those variants exposed a flaw in that design: those
 Dockerfiles were the only ones in the repo declaring a `HEALTHCHECK`, so the gate
 quietly became a no-op for every image while continuing to report green. A gate
 that can be switched off by deleting an unrelated directory is not a gate.
@@ -117,7 +113,7 @@ Two changes, both 2026-08-21:
    `healthcheck.sh` next to its `Dockerfile` (deliberately *not* inside the
    vendored `rootfs/` overlay, which stays byte-identical across variants) and
    copies it to `/opt/bitnami/scripts/healthcheck.sh` — the same path the
-   `*-debian13` images used, so anything referencing it keeps working. redis uses
+   removed images used, so anything referencing it keeps working. redis uses
    the original POSIX-sh `redis-cli ping`, unchanged; mongodb uses a `mongosh`
    admin `ping`, which needs no authentication and so works with or without
    `MONGODB_ROOT_PASSWORD`.
@@ -145,7 +141,7 @@ exercised directly against the workflow's own lines.
 
 ## silta-mongodb DHI catalog status
 
-Checked 2026-08-20 against `image/mongodb/debian-13` in the same catalog.
+Checked 2026-08-20 against the mongodb entry in the same catalog.
 
 | silta variant | DHI | `-compat`? | notes |
 |---------------|-----|-----------|-------|
@@ -168,8 +164,8 @@ needs `yq` at runtime (`libmongodb.sh` `mongodb_conf_get`) and `render-template`
 at build time (`postunpack.sh`).
 
 Those seven tools are staged in from a `debian:trixie-slim` builder stage —
-trixie is the same Debian release DHI debian13 is built from, so the glibc ABI
-matches by construction. Only non-glibc libraries are copied (`libacl`,
+trixie is the same Debian release the DHI compat base is built from, so the
+glibc ABI matches by construction. Only non-glibc libraries are copied (`libacl`,
 `libpcre2-8`, `libselinux`); glibc itself is left untouched in the hardened base.
 Staged paths must be canonical `/usr/lib/...`, because both images use merged-usr
 (`/lib` is a symlink) and copying a real `/lib` directory over it fails the build.
@@ -204,7 +200,7 @@ These are the images where DHI migration is actively needed because of the Bitna
 |-------------|---------------|-------------------|-------|
 | silta-postgresql | `dhi.io/postgres` | 14, 16, 17, 18 | All current silta versions available. DHI uses `postgres` not `postgresql`. |
 | silta-rabbitmq | `dhi.io/rabbitmq` | 4.1, 4.2 | 3.8 is very old / likely unavailable. |
-| silta-memcached | `dhi.io/memcached` | 1.6 | Also found as `1-debian13-dev`. |
+| silta-memcached | `dhi.io/memcached` | 1.6 | Also found on a Debian dev tag. |
 | silta-mongodb | `dhi.io/mongodb` | 8.0, 8.2 | 6.0 and 7.0 not found. |
 
 ## Non-Bitnami images — rebuild is sufficient
@@ -224,11 +220,11 @@ compared against.
 **Rebuild analysis:** The official `php:8.3.30-fpm-alpine` base itself has only 22 CVEs (0C, 8H, 12M, 2L). Most of the 86 CVEs in the published image are from stale Alpine packages baked into old builds. A fresh rebuild would bring it down to ~22 base + whatever our added packages contribute.
 
 **DHI investigation (2026-03-30):**
-- DHI has PHP FPM variants: `dhi.io/php:8.3-alpine3.22-fpm` (14 CVEs: 0C, 2H, 10M, 2L) and `dhi.io/php:8.3-debian13-fpm` (25 CVEs: 0C, 1H, 0M, 24L).
+- DHI has PHP FPM variants: `dhi.io/php:8.3-alpine3.22-fpm` (14 CVEs: 0C, 2H, 10M, 2L) and a Debian FPM tag (25 CVEs: 0C, 1H, 0M, 24L).
 - DHI FPM images are stripped runtime-only (nonroot UID 65532, no apk/bash/shell tools, no php CLI). Cannot build on top of them directly.
-- DHI dev images (`8.3-alpine3.22-dev`, `8.3-debian13-dev`) have build tools but **no php-fpm** — PHP compiled CLI-only without `--enable-fpm`.
+- DHI dev images (`8.3-alpine3.22-dev`, and a Debian dev tag) have build tools but **no php-fpm** — PHP compiled CLI-only without `--enable-fpm`.
 - DHI migration would require either recompiling PHP from source with `--enable-fpm` in the dev image, or a complex multi-stage build (build in dev, COPY into fpm). Both are high effort.
-- Available DHI PHP tags: `8.3-debian13-fpm`, `8.3-alpine3.22-fpm`, plus `-dev`, `-fips`, `-fips-dev` variants. All versions: 8.1, 8.2, 8.3, 8.4, 8.5.
+- Available DHI PHP tags: a Debian FPM tag, `8.3-alpine3.22-fpm`, plus `-dev`, `-fips`, `-fips-dev` variants. All versions: 8.1, 8.2, 8.3, 8.4, 8.5.
 
 **Recommendation:** Rebuild with current Alpine base. The CVE reduction from 86→~30 is significant and immediate. DHI migration is possible but high complexity for marginal gain over a fresh rebuild.
 
@@ -280,8 +276,8 @@ compared against.
 |-------|-------|---|---|---|---|
 | Published `silta-node:22-alpine-v1` (stale) | 34 | 0 | 19 | 12 | 3 |
 | Published `silta-node:20-alpine-v1` (stale) | 28 | 0 | 13 | 11 | 4 |
-| DHI migrated `silta-node:22-debian13-v2` | 51 | 0 | 1 | 3 | 47 |
-| DHI migrated `silta-node:24-debian13-v2` | 51 | 0 | 1 | 3 | 47 |
+| DHI migrated `silta-node:22` (Debian dev base, v2) | 51 | 0 | 1 | 3 | 47 |
+| DHI migrated `silta-node:24` (Debian dev base, v2) | 51 | 0 | 1 | 3 | 47 |
 | Fresh base `node:22-alpine` (rebuild) | 6 | 0 | 1 | 4 | 1 |
 | Fresh base `node:24-alpine` (rebuild) | 20 | 0 | 8 | 3 | 1 |
 
@@ -292,7 +288,7 @@ Node 22 Alpine rebuild (6 CVEs, 1H) is better than the DHI Debian migration (51 
 | Image | Total | C | H | M | L |
 |-------|-------|---|---|---|---|
 | Official `node:22.23.2-alpine` rebuild + our packages | 39 | 1 | 12 | 13 | 13 |
-| `dhi.io/node:22-debian13-dev` + our packages (current `22-debian13`) | 407 | 15 | 95 | 156 | 141 |
+| DHI Debian dev tag + our packages (current Debian-based variant) | 407 | 15 | 95 | 156 | 141 |
 | `dhi.io/node:22-alpine-dev` + our packages (new `22-alpine-dhi`) | **0** | 0 | 0 | 0 | 0 |
 
 The DHI Alpine dev line resolves every known CVE trivy checks for, beating both the plain rebuild and the DHI Debian line by a wide margin — see the corrected finding at the top of this file.
@@ -305,7 +301,7 @@ The DHI Alpine dev line resolves every known CVE trivy checks for, beating both 
 | Fresh base `php:8.3.30-fpm-alpine` (rebuild) | 22 | 0 | 8 | 12 | 2 |
 | DHI `php:8.3-alpine3.22-fpm` | 14 | 0 | 2 | 10 | 2 |
 | DHI `php:8.3-alpine3.22-dev` | 34 | 0 | 10 | 20 | 2 |
-| DHI `php:8.3-debian13-fpm` | 25 | 0 | 1 | 0 | 24 |
+| DHI PHP Debian FPM variant | 25 | 0 | 1 | 0 | 24 |
 
 ## DHI probe notes
 
@@ -314,4 +310,4 @@ The DHI Alpine dev line resolves every known CVE trivy checks for, beating both 
 - Always check both `<name>` and common aliases (e.g., `postgres` vs `postgresql`, `mongo` vs `mongodb`).
 - DHI PHP images install PHP at `/opt/php-8.3/` (not `/usr/local/`). No `docker-php-ext-install` helpers — uses `phpize`/`pecl` directly.
 - DHI FPM images are nonroot (UID 65532), stripped of package managers and shells. Dev images run as root with full build toolchain.
-- DHI Alpine images use Alpine 3.22, DHI Debian images use Debian 13 (Trixie).
+- DHI Alpine images use Alpine 3.22, DHI Debian images use the Trixie release.

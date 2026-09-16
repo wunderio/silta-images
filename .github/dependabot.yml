@@ -99,6 +99,24 @@ updates:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node22-composer2-sqlite3.45"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.3-node24-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.3-node26-composer2"
     schedule:
       interval: "daily"
@@ -108,7 +126,34 @@ updates:
           - "version-update:semver-major"
           - "version-update:semver-minor"
   - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.4-node23-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.4-node24-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
     directory: "/silta-cicd/circleci-php8.4-node26-composer2"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "cimg/php"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+  - package-ecosystem: "docker"
+    directory: "/silta-cicd/circleci-php8.5-node24-composer2"
     schedule:
       interval: "daily"
     ignore:
