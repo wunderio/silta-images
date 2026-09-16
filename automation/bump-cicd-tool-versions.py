@@ -10,7 +10,7 @@ This script is that missing automation: for every silta-cicd variant it
 checks each pinned tool against upstream, and with --apply bumps the ENV
 line(s) (recomputing any hardcoded sha256 checksum) plus that directory's
 TAGS build counter, so the change actually triggers a release build (see
-docs/dependabot-image-bumps.md for why TAGS has to move too - Dockerfile
+automation/dependabot-image-bumps.md for why TAGS has to move too - Dockerfile
 edits alone are silently inert).
 
 Never crosses a major version on its own: Node stays on whatever major is
@@ -22,8 +22,8 @@ A pinned Node line whose major is already past its documented Node.js EOL
 left alone; there is nothing to bump.
 
 Usage:
-  docs/bump-cicd-tool-versions.py               # dry run, print a report
-  docs/bump-cicd-tool-versions.py --apply       # write changes to disk
+  automation/bump-cicd-tool-versions.py          # dry run, print a report
+  automation/bump-cicd-tool-versions.py --apply  # write changes to disk
 
 Dry run touches nothing and needs no confirmation. --apply writes directly
 to the working tree (Dockerfile + TAGS) - review with `git diff` and commit
@@ -239,7 +239,7 @@ def bump_dockerfile(text, lines):
 def bump_tags_counter(text):
     """Increment the trailing patch number of the last non-blank TAGS line.
 
-    Mirrors docs/bump-dependabot-image.sh's COUNTER case: silta-cicd TAGS
+    Mirrors automation/bump-dependabot-image.sh's COUNTER case: silta-cicd TAGS
     files use an independent build counter (e.g. `...-v1.0.2`), unrelated to
     any upstream version, so "bump" just means "+1 patch" to produce a new
     line that .github/workflows/docker-images.yml will notice and build.

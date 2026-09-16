@@ -32,3 +32,30 @@ Bitnami chart compatible images:
 - `silta-postgresql/`: PostgreSQL images
 - `silta-rabbitmq/`: RabbitMQ images
 - `silta-redis/`: Redis images
+
+## DHI (Docker Hardened Images)
+
+Some images have an opt-in `*-dhi` sibling variant built on Docker Hardened
+Images. CVE count reduced to minimal and removes the Bitnami dependency. 
+Currently available DHI variants:
+- `silta-redis/`: `7.4-dhi`, `8.4-dhi`, `8.6-dhi`, `8.8-dhi`, `8.10-dhi`
+- `silta-mongodb/`: `8.3-dhi`
+- `silta-node/`: `22-alpine-dhi`, `24-alpine-dhi`, `26-alpine-dhi`
+
+## Automation
+
+See automation folder for Scripts and docs that keep this repo's version pins from silently drifting.
+
+- `bump-dependabot-image.sh` / `bump-all-dependabot-images.sh`: a dependabot
+  image-bump PR only touches `FROM`. These add the rest of what a release
+  actually needs - the `TAGS` bump that triggers the publish workflow, any
+  secondary version `ENV`/`ARG` that duplicates the `FROM` tag, and README
+  version tables. See `dependabot-image-bumps.md`.
+- `bump-cicd-tool-versions.py`: `silta-cicd/*/Dockerfile` installs Node.js,
+  Yarn, Helm and (on the hardened variants) the AWS CLI via a hand-pinned
+  `ENV` + `curl`, which Dependabot never sees at all. This checks each pin
+  against upstream and bumps it (plus its `TAGS` counter) within the same
+  major line. See `cicd-tool-version-bumps.md`.
+- `image-testing.md`: how a pushed image gets exercised by a downstream
+  project's test pipeline (see `test-matrix.yml`).
+

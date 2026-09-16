@@ -257,7 +257,7 @@ jobs:
             echo "$PIPELINE_RESPONSE" | jq .
             echo "Note: if the error mentions pipeline parameters, the project"
             echo "has not declared the test_silta_config/test_helm_flags"
-            echo "parameters yet. See docs/image-testing.md."
+            echo "parameters yet. See automation/image-testing.md."
             exit 1
           fi
 

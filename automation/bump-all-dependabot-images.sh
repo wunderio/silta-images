@@ -7,7 +7,7 @@
 # Usage:
 #   ./bump-all-dependabot-images.sh [--apply] [--push]
 #
-# See docs/dependabot-image-bumps.md for the full explanation.
+# See automation/dependabot-image-bumps.md for the full explanation.
 
 set -euo pipefail
 

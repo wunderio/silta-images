@@ -5,7 +5,7 @@
 # .github/workflows/docker-images.yml), any secondary version ENV/ARG
 # (BITNAMI_IMAGE_VERSION / APP_VERSION), and README version tables.
 #
-# See docs/dependabot-image-bumps.md for the full explanation of why these
+# See automation/dependabot-image-bumps.md for the full explanation of why these
 # exist and what each image family looks like.
 #
 # Usage:
