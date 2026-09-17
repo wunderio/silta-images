@@ -36,7 +36,10 @@ Bitnami chart compatible images:
 ## DHI (Docker Hardened Images)
 
 Some images have an opt-in `*-dhi` sibling variant built on Docker Hardened
-Images. CVE count reduced to minimal and removes the Bitnami dependency. 
+Images instead of the Bitnami base image, reducing CVE count. Note this
+replaces the Bitnami *base image* only - the redis and mongodb variants still
+vendor and run Bitnami's own entrypoint/setup scripts (`/opt/bitnami/scripts`)
+on top of it, so the Bitnami runtime dependency isn't fully gone.
 Currently available DHI variants:
 - `silta-redis/`: `7.4-dhi`, `8.4-dhi`, `8.6-dhi`, `8.8-dhi`, `8.10-dhi`
 - `silta-mongodb/`: `8.3-dhi`

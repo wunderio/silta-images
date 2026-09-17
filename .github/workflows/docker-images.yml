@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - security/image-audit-hc
     paths:
       # Only changes to TAGS files trigger this workflow.
       - '**/**/TAGS'
@@ -56,10 +55,10 @@ jobs:
 
       - name: docker login
         run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
 
       - name: Login to DHI registry
-        run: docker login dhi.io -u $DOCKER_USER -p $DOCKER_PASSWORD
+        run: echo "$DOCKER_PASSWORD" | docker login dhi.io -u "$DOCKER_USER" --password-stdin
 
       - name: Build and push images
         run: |
@@ -97,7 +96,7 @@ jobs:
           if [ "$hasHealthcheck" = "yes" ]; then
             echo "Image declares a HEALTHCHECK, verifying it becomes healthy..."
             containerName="ci_healthcheck_$RANDOM"
-            docker run -d --rm --name "$containerName" "$BUILD_TAG"
+            docker run -d --rm --name "$containerName" -e ALLOW_EMPTY_PASSWORD=yes "$BUILD_TAG"
 
             healthy=false
             for i in $(seq 1 30); do

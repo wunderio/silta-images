@@ -30,14 +30,18 @@ if [[ -v GITAUTH_URL ]]; then
     sed -i 's/^#AuthorizedKeysCommandUser .*/AuthorizedKeysCommandUser nobody/' /etc/ssh/sshd_config
     sed -i 's/^#AuthorizedKeysCommand .*/AuthorizedKeysCommand \/etc\/ssh\/gitauth_keys.sh %f/' /etc/ssh/sshd_config
 
-    # AuthorizedKeysCommand does not read environment variables, so we use them with `source`
-    cat > /etc/ssh/gitauth_keys.env << EOF
-GITAUTH_URL=${GITAUTH_URL}
-GITAUTH_SCOPE=${GITAUTH_SCOPE}
-GITAUTH_USERNAME=${GITAUTH_USERNAME}
-GITAUTH_PASSWORD=${GITAUTH_PASSWORD}
-OUTSIDE_COLLABORATORS=${OUTSIDE_COLLABORATORS}
-EOF
+    # AuthorizedKeysCommand does not read environment variables, so we use them
+    # with `source`. %q shell-quotes each value so this remains a plain
+    # assignment when sourced, even if a credential contains characters like
+    # $, `, ", or ; - unquoted interpolation here would let such a value run
+    # as arbitrary shell code every time gitauth_keys.sh sources this file.
+    {
+        printf 'GITAUTH_URL=%q\n' "${GITAUTH_URL}"
+        printf 'GITAUTH_SCOPE=%q\n' "${GITAUTH_SCOPE}"
+        printf 'GITAUTH_USERNAME=%q\n' "${GITAUTH_USERNAME}"
+        printf 'GITAUTH_PASSWORD=%q\n' "${GITAUTH_PASSWORD}"
+        printf 'OUTSIDE_COLLABORATORS=%q\n' "${OUTSIDE_COLLABORATORS}"
+    } > /etc/ssh/gitauth_keys.env
 
     env > /etc/environment
     # We add -D to make it non-interactive, but then the user is locked out.
