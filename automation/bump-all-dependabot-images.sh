@@ -7,7 +7,7 @@
 # Usage:
 #   ./bump-all-dependabot-images.sh [--apply] [--push]
 #
-# See docs/dependabot-image-bumps.md for the full explanation.
+# See automation/dependabot-image-bumps.md for the full explanation.
 
 set -euo pipefail
 
@@ -44,7 +44,7 @@ for pr in $PRS; do
     FAILED+=("$pr")
   elif echo "$OUTPUT" | grep -q "is stale/redundant"; then
     STALE+=("$pr")
-  elif echo "$OUTPUT" | grep -qE "NOTRIGGER|already drifted"; then
+  elif echo "$OUTPUT" | grep -qE "NOTRIGGER|already drifted|AMBIGUOUS"; then
     NEEDS_ATTENTION+=("$pr")
   fi
 done
@@ -53,4 +53,4 @@ echo "=================================================================="
 echo "Summary"
 echo "  Failed:          ${FAILED[*]:-none}"
 echo "  Stale/redundant: ${STALE[*]:-none}"
-echo "  Needs a look:    ${NEEDS_ATTENTION[*]:-none}   (no-trigger TAGS or drift found)"
+echo "  Needs a look:    ${NEEDS_ATTENTION[*]:-none}   (no-trigger TAGS, drift, or an ambiguous TAGS bump found)"

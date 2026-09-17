@@ -5,7 +5,7 @@
 # .github/workflows/docker-images.yml), any secondary version ENV/ARG
 # (BITNAMI_IMAGE_VERSION / APP_VERSION), and README version tables.
 #
-# See docs/dependabot-image-bumps.md for the full explanation of why these
+# See automation/dependabot-image-bumps.md for the full explanation of why these
 # exist and what each image family looks like.
 #
 # Usage:
@@ -120,12 +120,28 @@ if not nonblank:
 idx = nonblank[-1]
 last = lines[idx]
 
-if old_bare in last:
-    new_last = last.replace(old_bare, new_bare)
+
+# Replace the complete leading version token, never a bare substring:
+# last.replace(old_bare, new_bare) would corrupt a line like "7.4.11-dhi"
+# when old_bare is only "7.4" (a floating "<minor>-compat" FROM tag, e.g.
+# the silta-redis/*-dhi images) - "7.4" matches as a prefix substring of
+# "7.4.11", producing the mangled "7.4.11.11-dhi" instead of a clean bump.
+m_token = re.match(r'^(\d+(?:\.\d+)*)(.*)$', last)
+if m_token and m_token.group(1) == old_bare:
+    # FROM already pins the exact same version token TAGS uses (the common
+    # case: mariadb/postgresql/redis-bc style) - safe to replace it whole.
+    new_last = new_bare + m_token.group(2)
     lines[idx] = new_last
     with open(path, "w") as f:
         f.write("\n".join(lines) + "\n")
     print(f"PINNED {last} -> {new_last}")
+    sys.exit(0)
+elif m_token and m_token.group(1).startswith(old_bare + "."):
+    # FROM only encodes a shorter prefix than the version actually embedded
+    # in TAGS (e.g. a floating "<minor>-compat" tag) - there is no way to
+    # safely derive the new patch value from the FROM diff alone, so refuse
+    # rather than guess wrong in either direction.
+    print(f"AMBIGUOUS {last} (FROM only pins '{old_bare}', can't derive the new patch from it - bump TAGS manually)")
     sys.exit(0)
 
 m = re.search(r'^(.*-v?)(\d+)\.(\d+)\.(\d+)$', last)
@@ -150,6 +166,12 @@ PYEOF
       echo "        'latest' tag) - merging as-is will NOT trigger"
       echo "        docker-images.yml. Decide manually: add a versioned"
       echo "        tag line, or accept it won't auto-publish."
+      ;;
+    AMBIGUOUS*)
+      echo "    !!! FROM's tag doesn't carry the same version detail as the"
+      echo "        TAGS line (e.g. a floating '<minor>-compat' tag) - this"
+      echo "        script cannot safely derive the new patch value. Bump"
+      echo "        TAGS by hand for this one."
       ;;
   esac
 else

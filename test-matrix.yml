@@ -33,7 +33,7 @@
 #   silta-rsync, silta-proxy, silta-splash (cluster-level, no project chart
 #                  coverage)
 #
-# See docs/image-testing.md for the full flow and the downstream repo contract.
+# See automation/image-testing.md for the full flow and the downstream repo contract.
 
 projects:
   drupal-project-k8s:
