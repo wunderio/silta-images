@@ -13,7 +13,7 @@ RUN sudo apt-get update && sudo apt-get install vim && sudo apt-get clean
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && sudo apt-get install apt-transport-https ca-certificates \
   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-  && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl \
+  && sudo apt-get update && sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin kubectl \
   && sudo apt-get clean
 
 # Install AWS cli and aws-iam-authenticator, git, python, pproxy
@@ -31,7 +31,7 @@ RUN sudo apt install -y git python3  python3-pip \
 
 # Install Helm 3
 # https://github.com/helm/helm/releases
-ENV HELM_VERSION v3.18.4
+ENV HELM_VERSION v3.22.0
 ENV FILENAME helm-${HELM_VERSION}-linux-amd64.tar.gz
 ENV HELM_URL https://get.helm.sh/${FILENAME}
 

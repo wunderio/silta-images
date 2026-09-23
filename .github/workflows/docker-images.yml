@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      # Only changes to TAGS files trigger this workflow.
       - '**/**/TAGS'
 
 jobs:
@@ -54,7 +55,10 @@ jobs:
 
       - name: docker login
         run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+
+      - name: Login to DHI registry
+        run: echo "$DOCKER_PASSWORD" | docker login dhi.io -u "$DOCKER_USER" --password-stdin
 
       - name: Build and push images
         run: |
@@ -71,11 +75,58 @@ jobs:
 
           # Read TAGS file, tag image with each tag and push to remote
           IMAGE_ID=$DOCKER_REGISTRY_URL/$IMAGE_NAME
+
+          # Build once with a temporary local tag.
+          BUILD_TAG="$IMAGE_ID:__ci_build"
+          docker build $folder --file $folder/Dockerfile --tag "$BUILD_TAG"
+
+          # Functional gate: if the image declares a HEALTHCHECK, run it and
+          # wait until the container reports "healthy" before pushing.
+          hasHealthcheck=$(docker inspect --format '{{if .Config.Healthcheck}}yes{{end}}' "$BUILD_TAG")
+
+          if [ -f "$folder/healthcheck.sh" ] && [ "$hasHealthcheck" != "yes" ]; then
+            echo "::error::$folder ships healthcheck.sh but the built image declares no HEALTHCHECK. Add a HEALTHCHECK instruction to $folder/Dockerfile, or remove the script."
+            exit 1
+          fi
+
+          if [ "$hasHealthcheck" != "yes" ]; then
+            echo "::notice::$IMAGE_NAME ($folder) declares no HEALTHCHECK - the wait-for-healthy gate is skipped for this image."
+          fi
+
+          if [ "$hasHealthcheck" = "yes" ]; then
+            echo "Image declares a HEALTHCHECK, verifying it becomes healthy..."
+            containerName="ci_healthcheck_$RANDOM"
+            docker run -d --rm --name "$containerName" -e ALLOW_EMPTY_PASSWORD=yes "$BUILD_TAG"
+
+            healthy=false
+            for i in $(seq 1 30); do
+              status=$(docker inspect --format '{{.State.Health.Status}}' "$containerName" 2>/dev/null || echo "gone")
+              echo "  attempt $i: health=$status"
+              if [ "$status" = "healthy" ]; then
+                healthy=true
+                break
+              fi
+              if [ "$status" = "unhealthy" ] || [ "$status" = "gone" ]; then
+                break
+              fi
+              sleep 3
+            done
+
+            if [ "$healthy" != "true" ]; then
+              echo "Image failed to become healthy, refusing to push."
+              docker logs "$containerName" 2>&1 | tail -50 || true
+              docker rm -f "$containerName" >/dev/null 2>&1 || true
+              exit 1
+            fi
+
+            echo "Image is healthy."
+            docker rm -f "$containerName" >/dev/null 2>&1 || true
+          fi
+
           cat $tagsFilePath | while read TAG || [[ -n $TAG ]];
           do
-            # Add tags
-            docker build $folder --file $folder/Dockerfile --tag $IMAGE_ID:$TAG
-            # Push image
+            # Tag the verified build and push to remote
+            docker tag "$BUILD_TAG" $IMAGE_ID:$TAG
             docker push $IMAGE_ID:$TAG
           done;
 
@@ -205,7 +256,7 @@ jobs:
             echo "$PIPELINE_RESPONSE" | jq .
             echo "Note: if the error mentions pipeline parameters, the project"
             echo "has not declared the test_silta_config/test_helm_flags"
-            echo "parameters yet. See docs/image-testing.md."
+            echo "parameters yet. See automation/image-testing.md."
             exit 1
           fi
 
