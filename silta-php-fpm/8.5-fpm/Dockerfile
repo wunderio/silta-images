@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.5
-FROM php:8.5.8-fpm-alpine
+FROM php:8.5.10-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -98,9 +98,8 @@ RUN apk add gnu-libiconv --update-cache --allow-untrusted
 ENV LD_PRELOAD="/usr/lib/preloadable_libiconv.so php"
 
 # Backwards-compatibility for projects using an older location.
-RUN rm -rf /var/www/html/web \
-	&& ln -s /app /var/www/html \
-	&& mkdir -p /var/www/html/web
+RUN rm -rf /var/www/html \
+	&& ln -s /app /var/www/html
 
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
 ENV SA_GDPR_DUMP_VERSION=5.0.5
