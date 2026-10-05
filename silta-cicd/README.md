@@ -16,7 +16,7 @@ but the base image will have the version that was current at the time when the
 image was built and tagged.
 
 To verify which version a certain image tag has, you can
-run `docker run --rm cimg/php:8.1.23-node /bin/sh -c "node --version"` (change
+run `docker run --rm cimg/php:8.3.33-node /bin/sh -c "node --version"` (change
 the image tag as needed).
 
 Alternatively, you can check the date when the image was tagged
