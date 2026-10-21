@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php/tags?page=1&name=8.4
-FROM php:8.4.26-fpm-alpine
+FROM php:8.4.27-fpm-alpine
 
 LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
@@ -76,18 +76,24 @@ RUN apk add --no-cache \
         # https://github.com/php/php-src/issues/8681#issuecomment-1144062769
         # https://github.com/docker-library/php/issues/888
         linux-headers \
-    && yes '' | pecl install -f apcu \
-    && yes '' | pecl install -f imagick \
-    && yes '' | pecl install -f redis \
-    && yes '' | pecl install -f yaml \
-    && docker-php-ext-enable imagick yaml apcu redis \
+    # Build PECL extensions from GitHub sources (pecl.php.net downloads are unreliable)
+    && docker-php-source extract \
+    && for ext in \
+        apcu=https://github.com/krakjoe/apcu/archive/refs/tags/v5.1.28.tar.gz \
+        imagick=https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz \
+        redis=https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz \
+        yaml=https://github.com/php/pecl-file_formats-yaml/archive/refs/tags/2.3.0.tar.gz \
+        memcached=https://github.com/php-memcached-dev/php-memcached/archive/refs/tags/v3.4.0.tar.gz \
+    ; do \
+        mkdir -p "/usr/src/php/ext/${ext%%=*}" \
+        && curl -fsSL "${ext#*=}" | tar -xz --strip-components=1 -C "/usr/src/php/ext/${ext%%=*}" \
+        || exit 1; \
+    done \
+    && docker-php-ext-install -j$(nproc) apcu imagick redis yaml memcached \
     && docker-php-ext-install ldap \
-    && docker-php-ext-enable ldap \
-    && yes '' | pecl install memcached \
-    && docker-php-ext-enable memcached \
     && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-avif \
     && docker-php-ext-install -j$(nproc) bcmath gd gettext mysqli pdo_mysql opcache soap sockets xsl zip \
-    && rm -rf /tmp/pear \
+    && docker-php-source delete \
     && apk del .phpize-deps
 
 # Use GNU Iconv
