@@ -58,7 +58,7 @@ RUN curl -fL -o /tmp/$FILENAME ${HELM_URL} \
 # Install Node.js and Yarn.
 # The following code is based on the CircleCI Node.js Dockerfile template:
 # https://github.com/CircleCI-Public/cimg-shared/blob/main/variants/node.Dockerfile.template
-ENV NODE_VERSION 24.22.0
+ENV NODE_VERSION 24.22.1
 RUN echo "Installing Node.js version ${NODE_VERSION}"
 RUN curl -fL -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
 	curl -fL -o SHASUMS256.txt "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt" && \
