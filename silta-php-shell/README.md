@@ -25,3 +25,7 @@ Connect to ssh server
 ```
 ssh www-admin@localhost -p 2222
 ```
+
+# Elasticdump
+
+elasticdump is not included in this image. See [silta-php-fpm README](../silta-php-fpm/README.md#elasticdump) for how to add it in a project's `silta/shell.Dockerfile`.
