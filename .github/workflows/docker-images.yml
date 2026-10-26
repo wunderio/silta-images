@@ -292,7 +292,7 @@ jobs:
           while true; do
             HTTP_STATUS=$(circleci_api --request GET \
               --url "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow")
-            PIPELINE_STATUS=$(jq -r '.items[0].status' "$RESPONSE_FILE" 2>/dev/null || true)
+            PIPELINE_STATUS=$(jq -r '.items[0].status // empty' "$RESPONSE_FILE" 2>/dev/null || true)
             if [ "${HTTP_STATUS:0:1}" != "2" ] || [ -z "${PIPELINE_STATUS}" ]; then
               echo "::error::Failed to get pipeline status (HTTP ${HTTP_STATUS})."
               echo "Response body:"
