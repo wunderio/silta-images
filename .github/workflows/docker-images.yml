@@ -221,18 +221,30 @@ jobs:
         project: ${{ fromJson(needs.test_plan.outputs.matrix) }}
     steps:
       - name: Validate ${{ matrix.project.variant }} with ${{ matrix.project.repo }}
+        env:
+          CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_DEV_API_TOKEN }}
         run: |
           REPO_NAME="${{ matrix.project.repo }}"
           ORG_NAME="${{ matrix.project.org }}"
           BRANCH_NAME="${{ matrix.project.branch }}"
           EXTRA_CONFIG="${{ matrix.project.extra_config }}"
           HELM_FLAGS="${{ matrix.project.helm_flags }}"
-          CIRCLECI_DEV_API_TOKEN_B64=$(echo -n "${{ secrets.CIRCLECI_DEV_API_TOKEN }}:" | base64)
 
-          if [ -z "${{ secrets.CIRCLECI_DEV_API_TOKEN }}" ]; then
+          if [ -z "${CIRCLECI_TOKEN}" ]; then
             echo "Repository secrets is missing CIRCLECI_DEV_API_TOKEN variable."
             exit 1
           fi
+
+          # Call the CircleCI API, leaving the body in $RESPONSE_FILE and
+          # printing the HTTP status. Uses the Circle-Token header instead of
+          # Basic auth so token length (base64 line wrapping) doesn't matter.
+          RESPONSE_FILE=$(mktemp)
+          circleci_api() {
+            curl --silent --show-error --output "$RESPONSE_FILE" --write-out '%{http_code}' \
+              --header "Circle-Token: ${CIRCLECI_TOKEN}" \
+              --header "content-type: application/json" \
+              "$@" || true
+          }
 
           echo "Running ${ORG_NAME}/${REPO_NAME}/${BRANCH_NAME} build on CircleCI"
           echo "Project link: https://app.circleci.com/pipelines/github/${ORG_NAME}/${REPO_NAME}?branch=${BRANCH_NAME}"
@@ -253,19 +265,22 @@ jobs:
           fi
 
           # Trigger a new pipeline
-          PIPELINE_RESPONSE=$(curl --request POST \
-            --url "https://circleci.com/api/v2/project/gh/${ORG_NAME}/${REPO_NAME}/pipeline" \
-            --header "content-type: application/json" \
-            --data "${BODY}" \
-            --header "authorization: Basic ${CIRCLECI_DEV_API_TOKEN_B64}" --silent)
-          PIPELINE_ID=$(echo "$PIPELINE_RESPONSE" | jq -r '.id')
+          HTTP_STATUS=$(circleci_api --request POST --data "${BODY}" \
+            --url "https://circleci.com/api/v2/project/gh/${ORG_NAME}/${REPO_NAME}/pipeline")
+          PIPELINE_ID=$(jq -r '.id // empty' "$RESPONSE_FILE" 2>/dev/null || true)
 
-          if [ -z "$PIPELINE_ID" ] || [ "$PIPELINE_ID" = "null" ]; then
-            echo "Failed to create pipeline. Response:"
-            echo "$PIPELINE_RESPONSE" | jq .
-            echo "Note: if the error mentions pipeline parameters, the project"
-            echo "has not declared the test_silta_config/test_helm_flags"
-            echo "parameters yet. See automation/image-testing.md."
+          if [ "${HTTP_STATUS:0:1}" != "2" ] || [ -z "$PIPELINE_ID" ]; then
+            echo "::error::Failed to create pipeline (HTTP ${HTTP_STATUS})."
+            echo "Response body:"
+            cat "$RESPONSE_FILE"; echo
+            case "$HTTP_STATUS" in
+              401|403) echo "Note: CIRCLECI_DEV_API_TOKEN is likely expired, revoked or lacks access to ${ORG_NAME}/${REPO_NAME}." ;;
+              400)
+                echo "Note: if the error mentions pipeline parameters, the project"
+                echo "has not declared the test_silta_config/test_helm_flags"
+                echo "parameters yet. See automation/image-testing.md."
+                ;;
+            esac
             exit 1
           fi
 
@@ -275,9 +290,15 @@ jobs:
 
           # Wait for pipeline to be complete
           while true; do
-            PIPELINE_STATUS=$(curl --request GET \
-              --url "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
-              --header "authorization: Basic ${CIRCLECI_DEV_API_TOKEN_B64}" --silent | jq -r '.items[0].status')
+            HTTP_STATUS=$(circleci_api --request GET \
+              --url "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow")
+            PIPELINE_STATUS=$(jq -r '.items[0].status // empty' "$RESPONSE_FILE" 2>/dev/null || true)
+            if [ "${HTTP_STATUS:0:1}" != "2" ] || [ -z "${PIPELINE_STATUS}" ]; then
+              echo "::error::Failed to get pipeline status (HTTP ${HTTP_STATUS})."
+              echo "Response body:"
+              cat "$RESPONSE_FILE"; echo
+              exit 1
+            fi
             if [ "${PIPELINE_STATUS}" = "success" ]; then
               echo "Pipeline completed successfully"
               break
