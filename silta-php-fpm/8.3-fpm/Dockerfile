@@ -87,6 +87,8 @@ RUN apk add --no-cache \
         && curl -fsSL "${ext#*=}" | tar -xz --strip-components=1 -C "/usr/src/php/ext/${ext%%=*}" \
         || exit 1; \
     done \
+    # GitHub archives lack the version substitution done by PECL packaging
+    && sed -i 's/@PACKAGE_VERSION@/3.8.0/' /usr/src/php/ext/imagick/php_imagick.h \
     && docker-php-ext-install -j$(nproc) apcu imagick redis yaml memcached \
     && docker-php-ext-install ldap \
     && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-avif \
