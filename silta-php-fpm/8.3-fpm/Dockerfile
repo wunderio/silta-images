@@ -25,6 +25,8 @@ RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     gettext \
     libzip \
     libmcrypt \
+    # Base image has vulnerable brotli-libs (CVE-2026-111497).
+    "brotli-libs>=1.2.1-r0" \
     # Base image has old version of libxml2.
     libxml2 \
     libxslt \
