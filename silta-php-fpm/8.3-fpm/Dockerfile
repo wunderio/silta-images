@@ -108,12 +108,6 @@ ENV SA_GDPR_DUMP_VERSION=4.0.1
 RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_VERSION}/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
-# Elasticdump for importing/exporting Elasticsearch data
-RUN apk add nodejs \
-    && apk add --no-cache --virtual .build-deps npm \
-    && npm install -g elasticdump@v6 \
-    && npm cache clean --force \
-    && apk del .build-deps
 # Clean up
 RUN rm -rf /tmp/* /var/cache/apk/*
 ENV TMPDIR=/tmp \
