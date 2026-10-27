@@ -7,9 +7,9 @@ on:
     paths:
       # Only changes to TAGS files trigger this workflow.
       - '**/**/TAGS'
-      # "latest" variants keep a fixed TAGS file, so any change in their
-      # folder triggers a rebuild.
-      - '*/latest/**'
+      # Variants tagged "latest" keep a fixed TAGS file, so any change in
+      # their folder triggers a rebuild (filtered in changed_files).
+      - '*/*/**'
 
 jobs:
   changed_files:
@@ -30,13 +30,16 @@ jobs:
         run: |
           changed_files=$(git diff-tree --no-commit-id --name-only -r  \
             $BUILD_CURRENT $BUILD_PREVIOUS)
-          tagfile_list_json=$( {
-              echo "$changed_files" | grep TAGS$ || true
-              # Any change in a "latest" variant folder rebuilds that variant
-              echo "$changed_files" | grep -E '^[^/]+/latest/' | cut -d/ -f1-2 | sed 's|$|/TAGS|' || true
-            } \
-            | sort -u \
-            | while read -r tagsfile; do [ -f "$tagsfile" ] && echo "$tagsfile"; done \
+          tagfile_list_json=$(echo "$changed_files" \
+            | grep -E '^[^/]+/[^/]+/' | cut -d/ -f1-2 | sort -u \
+            | while read -r folder; do
+                tagsfile="$folder/TAGS"
+                [ -f "$tagsfile" ] || continue
+                # Build when TAGS changed, or on any change to a variant tagged "latest"
+                if echo "$changed_files" | grep -qxF "$tagsfile" || grep -qxE 'latest\s*' "$tagsfile"; then
+                  echo "$tagsfile"
+                fi
+              done \
             | jq -Rsc '. / "\n" - [""]' )
           echo "matrix=${tagfile_list_json}" > $GITHUB_OUTPUT
 
