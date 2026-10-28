@@ -1,6 +1,9 @@
 # https://hub.docker.com/_/node/tags?name=24.
 FROM node:24.22.1-alpine
 
+# Upgrade base image packages to their latest patched versions (fixable CVEs).
+RUN apk upgrade --no-cache
+
 RUN apk add --no-cache openssh bash curl tzdata 'rsync>3.4.0'
 EXPOSE 22
 

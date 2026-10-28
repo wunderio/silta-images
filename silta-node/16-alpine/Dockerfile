@@ -1,5 +1,8 @@
 FROM node:16.20.2-alpine
 
+# Upgrade base image packages to their latest patched versions (fixable CVEs).
+RUN apk upgrade --no-cache
+
 RUN apk add --no-cache openssh bash 'rsync>3.4.0' curl tzdata
 
 EXPOSE 22
