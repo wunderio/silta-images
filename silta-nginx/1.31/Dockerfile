@@ -45,6 +45,9 @@ ARG UID=101
 LABEL maintainer="wunder.io"
 USER root
 
+# Upgrade base image packages to their latest patched versions (fixable CVEs).
+RUN apk upgrade --no-cache
+
 # Base image has vulnerable brotli-libs (CVE-2026-111497).
 RUN apk add --no-cache "brotli-libs>=1.2.1-r0"
 

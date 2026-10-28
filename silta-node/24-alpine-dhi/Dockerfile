@@ -5,6 +5,9 @@
 # tag so patch releases land without a Dockerfile change.
 FROM dhi.io/node:24-alpine-dev
 
+# Upgrade base image packages to their latest patched versions (fixable CVEs).
+RUN apk upgrade --no-cache
+
 # DHI's apk postinstall trigger that normally creates the `sshd` system user
 # does not fire on this minimal base, so openssh-server silently fails to
 # bind without it - create it explicitly (uid/gid 22 matches Alpine's own).
