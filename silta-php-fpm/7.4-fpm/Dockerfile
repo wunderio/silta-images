@@ -5,6 +5,9 @@ LABEL maintainer="wunder.io"
 LABEL org.label-schema.name="PHP-FPM for Silta environments" \
       org.label-schema.description="PHP-FPM and common plugins for Silta environments"
 
+# Upgrade base image packages to their latest patched versions
+RUN apk upgrade --no-cache
+
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     # Install MariaDB Connector/C
     mariadb-connector-c \
@@ -77,8 +80,8 @@ RUN apk add --no-cache \
     && docker-php-ext-enable memcached \
     && docker-php-ext-install -j$(nproc) bcmath gettext mysqli pdo_mysql opcache soap sockets xsl zip \
     && rm -rf /tmp/pear \
-    && docker-php-ext-install gd \
     && docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-freetype \
+    && docker-php-ext-install gd \
     && apk del .phpize-deps
 
 # Use GNU Iconv
