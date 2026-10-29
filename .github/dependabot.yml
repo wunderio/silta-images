@@ -386,8 +386,9 @@ updates:
     schedule:
       interval: "daily"
     ignore:
+      # Stay on the 6.0 LTS line; 6.1-6.6 are EOL.
       - dependency-name: "varnish"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: "docker"
     directory: "/silta-varnish/varnish7"
     schedule:
