@@ -5,10 +5,14 @@
 # tag so patch releases land without a Dockerfile change.
 FROM dhi.io/node:26-alpine-dev
 
+# Pull in security fixes for packages shipped with the base image
+RUN apk upgrade --no-cache
+
+# Require openssh with the password authentication bypass fix (Alpine advisory 2026-11-05)
 # DHI's apk postinstall trigger that normally creates the `sshd` system user
 # does not fire on this minimal base, so openssh-server silently fails to
 # bind without it - create it explicitly (uid/gid 22 matches Alpine's own).
-RUN apk add --no-cache openssh bash curl tzdata 'rsync>3.4.0' \
+RUN apk add --no-cache 'openssh>=10.3_p1-r2' 'openssh-server>=10.3_p1-r2' bash curl tzdata 'rsync>3.4.0' \
   && addgroup -S -g 22 sshd \
   && adduser -S -D -H -h /dev/null -s /sbin/nologin -G sshd -u 22 sshd
 EXPOSE 22
