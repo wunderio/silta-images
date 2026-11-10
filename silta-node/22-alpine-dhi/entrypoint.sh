@@ -12,8 +12,20 @@ if [[ -v GITAUTH_URL ]]; then
         ssh-keygen -f /etc/ssh/keys/ssh_host_ed25519_key -N '' -t ed25519
     fi
 
+    # Disable password authentication entirely (Alpine advisory 2026-11-05).
+    # sshd uses the first value it reads, so this drop-in wins over sshd_config.
+    mkdir -p /etc/ssh/sshd_config.d
+    cat > /etc/ssh/sshd_config.d/00-no-passwords.conf << EOF
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+AuthenticationMethods publickey
+EOF
+    grep -q '^Include /etc/ssh/sshd_config.d/' /etc/ssh/sshd_config \
+        || sed -i '1i Include /etc/ssh/sshd_config.d/*.conf' /etc/ssh/sshd_config
+
     # SSHD settings
-    sed -i 's/^PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
+    sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
     sed -i 's/^#UseDNS .*/UseDNS no/' /etc/ssh/sshd_config
     sed -i 's/^#PrintMotd .*/PrintMotd no/' /etc/ssh/sshd_config
     sed -i 's/^#PermitUserEnvironment .*/PermitUserEnvironment yes/' /etc/ssh/sshd_config
@@ -46,8 +58,9 @@ if [[ -v GITAUTH_URL ]]; then
     env > /etc/environment
     # We add -D to make it non-interactive, but then the user is locked out.
     adduser www-admin -D -G node -s /bin/bash -h /app
-    # So set an empty password after the user is created.
-    echo "www-admin:" | chpasswd
+    # So set a '*' password hash: password login stays impossible, while the
+    # account is not locked ('!'), so public key login still works.
+    echo 'www-admin:*' | chpasswd -e
 
     # Pass environment variables down to container, so SSH can pick it up and drush commands work too.
     mkdir ~www-admin/.ssh/

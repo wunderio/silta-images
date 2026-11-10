@@ -3,7 +3,12 @@ FROM wunderio/silta-php-fpm:8.4-fpm-v1
 
 # Switch back to root
 USER root
-RUN apk add --no-cache openssh bash rsync screen
+
+# Pull in security fixes for packages shipped with the base image
+RUN apk upgrade --no-cache
+
+# Require openssh with the password authentication bypass fix (Alpine advisory 2026-11-05)
+RUN apk add --no-cache 'openssh>=10.3_p1-r2' 'openssh-server>=10.3_p1-r2' bash rsync screen
 EXPOSE 22
 
 RUN mkdir /etc/ssh/keys

@@ -305,15 +305,6 @@ updates:
 
   # silta-php-shell
   - package-ecosystem: "docker"
-    directory: "/silta-php-shell/php-7.4"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "wunderio/silta-php-fpm"
-        update-types:
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
-  - package-ecosystem: "docker"
     directory: "/silta-php-shell/php-8.2"
     schedule:
       interval: "daily"
@@ -386,8 +377,9 @@ updates:
     schedule:
       interval: "daily"
     ignore:
+      # Stay on the 6.0 LTS line; 6.1-6.6 are EOL.
       - dependency-name: "varnish"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: "docker"
     directory: "/silta-varnish/varnish7"
     schedule:
