@@ -9,6 +9,9 @@ LABEL org.label-schema.name="PHP-FPM for Silta environments" \
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v$(cut -d. -f1-2 /etc/alpine-release)/community" \
     >> /etc/apk/repositories
 
+# Upgrade base image packages to their latest patched versions
+RUN apk upgrade --no-cache
+
 RUN apk add --update --no-cache bash openssh-client rsync ssmtp tini \
     # Install MariaDB Connector/C
     mariadb-connector-c \

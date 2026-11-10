@@ -1,10 +1,11 @@
 # https://hub.docker.com/_/node/tags?name=24.
-FROM node:24.22.1-alpine
+FROM node:24.22.2-alpine
 
-# Upgrade base image packages to their latest patched versions (fixable CVEs).
+# Pull in security fixes for packages shipped with the base image
 RUN apk upgrade --no-cache
 
-RUN apk add --no-cache openssh bash curl tzdata 'rsync>3.4.0'
+# Require openssh with the password authentication bypass fix (Alpine advisory 2026-11-05)
+RUN apk add --no-cache 'openssh>=10.3_p1-r2' 'openssh-server>=10.3_p1-r2' bash curl tzdata 'rsync>3.4.0'
 EXPOSE 22
 
 RUN mkdir /etc/ssh/keys
