@@ -1,4 +1,4 @@
-FROM node:22.23.4-alpine
+FROM node:22.23.5-alpine
 
 # Pull in security fixes for packages shipped with the base image
 RUN apk upgrade --no-cache
