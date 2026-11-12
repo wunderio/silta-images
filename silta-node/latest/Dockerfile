@@ -1,4 +1,5 @@
 # https://hub.docker.com/_/node/tags
+# Node.js 26.13.1
 FROM node:26.13-alpine
 
 # Pull in security fixes for packages shipped with the base image
