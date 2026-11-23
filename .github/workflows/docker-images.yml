@@ -69,9 +69,6 @@ jobs:
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
 
-      - name: Login to DHI registry
-        run: echo "$DOCKER_PASSWORD" | docker login dhi.io -u "$DOCKER_USER" --password-stdin
-
       - name: Build and push images
         run: |
           set -ex

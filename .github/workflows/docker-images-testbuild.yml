@@ -35,12 +35,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-      - name: Login to DHI registry
-        if: env.DOCKER_USER != ''
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: echo "$DOCKER_PASSWORD" | docker login dhi.io -u "$DOCKER_USER" --password-stdin
       - name: Building dockerfile
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -49,11 +43,6 @@ jobs:
           # Dockerfile removed since last commit, skip
           if [ ! -f ${{matrix.dockerfile}} ]; then
             echo "File ${{matrix.dockerfile}} not found, skipping"
-            exit 0
-          fi
-
-          if grep -q '^FROM dhi\.io/' "${{matrix.dockerfile}}" && [ -z "$DOCKER_USER" ]; then
-            echo "::notice::${{matrix.dockerfile}} builds FROM a dhi.io base, which needs credentials this run doesn't have (likely a fork PR). Skipping test-build; the real build runs after a maintainer merges to master."
             exit 0
           fi
 
