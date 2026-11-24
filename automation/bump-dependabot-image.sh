@@ -122,10 +122,10 @@ last = lines[idx]
 
 
 # Replace the complete leading version token, never a bare substring:
-# last.replace(old_bare, new_bare) would corrupt a line like "7.4.11-dhi"
-# when old_bare is only "7.4" (a floating "<minor>-compat" FROM tag, e.g.
-# the silta-redis/*-dhi images) - "7.4" matches as a prefix substring of
-# "7.4.11", producing the mangled "7.4.11.11-dhi" instead of a clean bump.
+# last.replace(old_bare, new_bare) would corrupt a line like "7.4.11-bc"
+# when old_bare is only "7.4" (a floating "<minor>" FROM tag) - "7.4"
+# matches as a prefix substring of "7.4.11", producing the mangled
+# "7.4.11.11-bc" instead of a clean bump.
 m_token = re.match(r'^(\d+(?:\.\d+)*)(.*)$', last)
 if m_token and m_token.group(1) == old_bare:
     # FROM already pins the exact same version token TAGS uses (the common
