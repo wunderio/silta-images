@@ -8,7 +8,6 @@ image.
 silta-php-fpm docker images are based on official php-fpm images https://hub.docker.com/_/php/tags with a few Silta-specific additions.
 
 ## Versions
-- `7.4-fpm/`: 7.4.33
 - `8.2-fpm/`: 8.2.36
 - `8.3-fpm/`: 8.3.37
 - `8.4-fpm/`: 8.4.28

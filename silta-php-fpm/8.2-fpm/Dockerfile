@@ -109,7 +109,7 @@ RUN rm -rf /var/www/html \
 	&& ln -s /app /var/www/html
 
 # Add Smile-SA/gdpr-dump for sanitized reference data creation.
-ENV SA_GDPR_DUMP_VERSION=4.0.1
+ENV SA_GDPR_DUMP_VERSION=4.2.2
 RUN wget https://github.com/Smile-SA/gdpr-dump/releases/download/${SA_GDPR_DUMP_VERSION}/gdpr-dump.phar -O /usr/local/bin/gdpr-dump \
     && chmod +x /usr/local/bin/gdpr-dump \
     && gdpr-dump --version
