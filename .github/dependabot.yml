@@ -249,15 +249,6 @@ updates:
 
   # silta-php-fpm
   - package-ecosystem: "docker"
-    directory: "/silta-php-fpm/7.4-fpm"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "php"
-        update-types:
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
-  - package-ecosystem: "docker"
     directory: "/silta-php-fpm/8.2-fpm"
     schedule:
       interval: "daily"
